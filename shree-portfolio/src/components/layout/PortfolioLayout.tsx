@@ -17,7 +17,7 @@ interface PortfolioLayoutProps {
 }
 
 export function PortfolioLayout({ children, showCatalog = false, initialSection = 'projects' }: PortfolioLayoutProps) {
-  const { isSidebarOpen } = useUIStore();
+  const { isDetailsPanelOpen } = useUIStore();
   const [activeSection, setActiveSection] = useState<'projects' | 'experience' | 'education'>(initialSection);
 
   // Update activeSection when initialSection changes
@@ -41,8 +41,8 @@ export function PortfolioLayout({ children, showCatalog = false, initialSection 
         {/* Main content area */}
         <main
           className={cn(
-            "flex-1 transition-all duration-300",
-            isSidebarOpen ? "lg:ml-[280px]" : "lg:ml-[60px]"
+            "flex-1 transition-all duration-300 px-6 lg:px-8",
+            isDetailsPanelOpen && "lg:mr-[400px]" // Reserve space for details panel on desktop
           )}
         >
           <div className="h-full overflow-y-auto">

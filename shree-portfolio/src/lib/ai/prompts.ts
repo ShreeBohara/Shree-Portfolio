@@ -46,13 +46,12 @@ export function buildUserPrompt(
 
   // Provide helpful instructions (not strict rules)
   prompt += `Response Guidelines:\n`;
-  prompt += `• Use the portfolio information above to give a detailed, specific answer\n`;
-  prompt += `• For Shree's work: include metrics, technologies, and impact\n`;
-  prompt += `• Tell the story (e.g., "Shree started from nothing with Pond and shipped the MVP in record time...")\n`;
-  prompt += `• If the query touches on multiple projects/experiences, connect them\n`;
-  prompt += `• If salary/availability/deep technical topics come up, suggest booking a call\n`;
-  prompt += `• End responses naturally—don't force Calendly links unless contextually appropriate\n`;
-  prompt += `• Keep it conversational and enthusiastic!\n`;
+  prompt += `• Keep it SHORT (2-4 paragraphs max) - get to the point quickly\n`;
+  prompt += `• Lead with key facts: metrics, technologies, impact\n`;
+  prompt += `• Tell stories briefly (1-2 sentences per story)\n`;
+  prompt += `• Use 3-4 bullet points max when listing\n`;
+  prompt += `• If salary/availability comes up, suggest booking a call\n`;
+  prompt += `• Skip lengthy intros - be conversational but concise\n`;
 
   return prompt;
 }
