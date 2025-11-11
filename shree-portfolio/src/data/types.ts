@@ -99,12 +99,12 @@ export interface PersonalInfo {
   tagline: string;        // Short intro (1 line)
   bio: string;            // Longer about section (2-3 paragraphs)
   location: string;
-  
+
   availability: {
     status: 'Available' | 'Busy' | 'Open to opportunities';
     message?: string;     // Optional custom message
   };
-  
+
   links: {
     email: string;
     github: string;
@@ -117,11 +117,58 @@ export interface PersonalInfo {
       docx?: string;     // Optional DOCX version
     };
   };
-  
+
   skills: {
     category: string;    // e.g., "Languages", "Frameworks"
     items: string[];
   }[];
+
+  // Extended personal content for AI chat
+  careerStory?: {
+    background: string;           // Where from, early interests
+    inspiration: string;          // What got you into CS
+    keyMoments: string[];        // Pivotal experiences
+    whyUSC: string;              // Reasoning for graduate school
+    whatDrivesYou: string;       // Motivation in tech
+  };
+
+  technicalPhilosophy?: {
+    approach: string;            // How you build software
+    whatExcitesYou: string;      // What drives you in development
+    favoriteTools: {
+      name: string;
+      reason: string;
+    }[];
+    goodProject: string;         // What makes a good project
+    aiThoughts: string;          // Views on AI/ML in development
+  };
+
+  interests?: {
+    hobbies: string[];           // Activities outside coding
+    books: string[];             // Favorite books
+    podcasts: string[];          // Favorite podcasts
+    youtube: string[];           // Favorite creators
+    freeTime: string;            // How you unwind
+  };
+
+  faqs?: {
+    question: string;
+    answer: string;
+    category: 'career' | 'technical' | 'personal' | 'hiring';
+  }[];
+
+  workStyle?: {
+    preferences: string;         // Independent vs collaborative, etc.
+    values: string[];           // Important workplace values
+    handlingChallenges: string; // Approach to setbacks
+  };
+
+  jobSearch?: {
+    visa: string;               // Visa status and work authorization
+    locationPreference: string; // Geographic preferences
+    companySizePreference: string; // Startup vs BigTech
+    redirectToCall: string[];   // Topics to redirect to Calendly
+  };
 }
 
 // Helper types for filtering and sorting
@@ -131,7 +178,7 @@ export type ViewMode = 'grid' | 'list';
 
 // Type for chat citations
 export interface Citation {
-  type: 'project' | 'experience' | 'education' | 'skill' | 'resume';
+  type: 'project' | 'experience' | 'education' | 'skill' | 'bio' | 'faq' | 'story' | 'philosophy' | 'interests' | 'workstyle' | 'resume';
   id: string;
   title: string;
   url?: string;

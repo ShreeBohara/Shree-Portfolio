@@ -1,10 +1,9 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Calendar, Users, ArrowRight, Check } from 'lucide-react';
+import { Calendar, Users, ArrowRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Project } from '@/data/types';
 import { useUIStore } from '@/store/ui-store';
 import { cn } from '@/lib/utils';
@@ -12,24 +11,16 @@ import { cn } from '@/lib/utils';
 interface ProjectCardProps {
   project: Project;
   viewMode: 'grid' | 'list';
-  isSelected?: boolean;
-  isCompareMode?: boolean;
-  onCompareToggle?: (projectId: string) => void;
 }
 
-export function ProjectCard({ 
-  project, 
-  viewMode, 
-  isSelected = false,
-  isCompareMode = false,
-  onCompareToggle 
+export function ProjectCard({
+  project,
+  viewMode
 }: ProjectCardProps) {
   const { setSelectedItem } = useUIStore();
 
   const handleClick = () => {
-    if (!isCompareMode) {
-      setSelectedItem(project.id, 'project');
-    }
+    setSelectedItem(project.id, 'project');
   };
 
   const getCategoryClass = (category: string) => {
@@ -53,35 +44,11 @@ export function ProjectCard({
         exit={{ opacity: 0, y: -20 }}
         transition={{ duration: 0.2 }}
       >
-        <Card 
-          className={cn(
-            "group hover:shadow-md transition-all cursor-pointer",
-            isSelected && "ring-2 ring-primary"
-          )}
+        <Card
+          className="group hover:shadow-md transition-all cursor-pointer"
           onClick={handleClick}
         >
           <div className="flex items-center p-4">
-            {/* Compare checkbox */}
-            {isCompareMode && (
-              <div className="mr-4">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onCompareToggle?.(project.id);
-                  }}
-                  className="h-8 w-8"
-                >
-                  {isSelected ? (
-                    <Check className="h-4 w-4" />
-                  ) : (
-                    <div className="h-4 w-4 rounded border-2" />
-                  )}
-                </Button>
-              </div>
-            )}
-
             {/* Project info */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3 mb-1">
@@ -136,35 +103,11 @@ export function ProjectCard({
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.2 }}
     >
-      <Card 
-        className={cn(
-          "group h-full hover:shadow-lg transition-all cursor-pointer",
-          isSelected && "ring-2 ring-primary"
-        )}
+      <Card
+        className="group h-full hover:shadow-lg transition-all cursor-pointer"
         onClick={handleClick}
       >
         <CardHeader>
-          {/* Compare checkbox */}
-          {isCompareMode && (
-            <div className="absolute top-2 right-2 z-10">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onCompareToggle?.(project.id);
-                }}
-                className="h-8 w-8 bg-background/80 backdrop-blur"
-              >
-                {isSelected ? (
-                  <Check className="h-4 w-4" />
-                ) : (
-                  <div className="h-4 w-4 rounded border-2" />
-                )}
-              </Button>
-            </div>
-          )}
-
           <div className="flex items-start justify-between gap-2">
             <div className="flex-1 min-w-0">
               <CardTitle className="line-clamp-1">{project.title}</CardTitle>

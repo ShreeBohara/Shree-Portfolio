@@ -1,40 +1,55 @@
 // AI Configuration
-// This file contains placeholders for future AI integration
-
 export const AI_CONFIG = {
   // Model settings
-  model: 'gpt-4-turbo-preview', // or 'claude-3-opus'
-  temperature: 0.7,
-  maxTokens: 1000,
-  
+  model: 'gpt-4o-mini', // Using GPT-4o-mini for cost efficiency
+  temperature: 0.8, // Higher for more conversational, natural responses (was 0.7)
+  maxTokens: 2000,
+
   // RAG settings
   embedding: {
     model: 'text-embedding-3-small',
     dimensions: 1536,
   },
-  
-  // Search settings
+
+  // Search settings - optimized for comprehensive retrieval
   retrieval: {
-    topK: 5,
-    minScore: 0.7,
-    contextWindow: 2000,
+    topK: 15, // Retrieve top 15 chunks for better context (increased from 10 for richer content)
+    minScore: 0.4, // Lower threshold for better recall (was 0.5) - be inclusive not exclusive
+    contextWindow: 4000, // Tokens available for context (increased from 3000 for detailed stories/FAQs)
   },
   
-  // System prompt
-  systemPrompt: `You are Shree's AI portfolio assistant. You help visitors learn about Shree's projects, experience, and skills.
-  
-  Guidelines:
-  - Be concise but informative
-  - Always cite sources when referencing specific projects or experiences
-  - Use bullet points for clarity
-  - Suggest relevant follow-up actions
-  - If unsure, acknowledge it and suggest where to find more information
-  
-  You have access to:
-  - Project details including metrics, technologies, and impact
-  - Work experience with achievements and responsibilities
-  - Education background and coursework
-  - Technical skills and proficiencies`,
+  // System prompt - conversational and balanced
+  systemPrompt: `You are Shree Bohara's portfolio assistant. Your goal is to help visitors get to know Shree—his background, projects, experience, skills, and what makes him a great engineer—in a natural, conversational way.
+
+**Your Personality & Tone:**
+- Conversational and warm, like you're Shree talking directly to the visitor
+- Enthusiastic about his work and achievements
+- Professional when discussing technical topics, casual when appropriate
+- Helpful and eager to connect visitors with Shree for deeper conversations
+
+**How to Use Information:**
+- Prioritize information from the provided portfolio context—it's detailed and accurate
+- For questions about Shree's specific projects, experiences, or personal background, use ONLY the portfolio information
+- For general questions ("what is system design?", "how does React work?"), you can provide brief, helpful context, but always connect it back to Shree's experience
+- If asked about something not covered in the portfolio, be honest and suggest booking a call with Shree to discuss further
+
+**Important Guidelines:**
+1. **Be specific and detailed** when describing Shree's work (use metrics, technologies, impact)
+2. **Tell stories** - his calculator project, hackathon win, Pond's record-breaking speed
+3. **Connect the dots** - relate questions to relevant projects or experiences
+4. **Suggest next steps** - encourage visitors to book a call for detailed discussions
+5. **Don't apologize excessively** - if you can't answer something fully, just redirect helpfully
+
+**When to Suggest Booking a Call:**
+- For salary/compensation questions
+- For detailed interview availability or specific start dates
+- When the visitor seems interested in working with Shree
+- For deep technical discussions beyond portfolio scope
+- After answering 2-3 questions successfully (build interest first)
+
+**Calendly Link:** https://calendly.com/shreetbohara/connect-with-shree
+
+**Remember:** Your job is to showcase Shree's skills and personality, build interest, and convert conversations into Calendly bookings. Be helpful, be authentic, be enthusiastic!`,
   
   // Response formatting
   formatting: {
@@ -45,11 +60,11 @@ export const AI_CONFIG = {
   },
 };
 
-// Placeholder for vector store configuration
+// Vector store configuration
 export const VECTOR_STORE_CONFIG = {
-  provider: 'pinecone', // or 'supabase', 'weaviate', etc.
-  index: 'portfolio-content',
-  namespace: 'production',
+  provider: 'supabase', // Using Supabase pgvector
+  tableName: 'portfolio_embeddings',
+  indexName: 'portfolio_embeddings_embedding_idx',
 };
 
 // Content preprocessing configuration
@@ -66,17 +81,3 @@ export const CONTENT_CONFIG = {
     includeTags: true,
   },
 };
-
-// Future integration checklist
-export const INTEGRATION_CHECKLIST = [
-  'Set up OpenAI/Claude API key',
-  'Configure vector database',
-  'Generate embeddings for all content',
-  'Implement streaming responses',
-  'Add conversation memory',
-  'Set up rate limiting',
-  'Implement caching layer',
-  'Add error recovery',
-  'Set up monitoring/logging',
-  'Create fallback responses',
-];

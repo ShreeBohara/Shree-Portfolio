@@ -1,16 +1,13 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { ProjectCard } from './ProjectCard';
 import { FilterBar } from './FilterBar';
-import { CompareView } from './CompareView';
 import { Button } from '@/components/ui/button';
 import { useUIStore } from '@/store/ui-store';
-import { Project, ProjectCategory, SortOption, GroupOption } from '@/data/types';
+import { Project, SortOption, GroupOption } from '@/data/types';
 import { projects as allProjects } from '@/data/portfolio';
-import { GitCompare, X } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export function ProjectGrid() {
   const { viewMode } = useUIStore();
@@ -18,8 +15,6 @@ export function ProjectGrid() {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('recent');
   const [groupBy, setGroupBy] = useState<GroupOption>('none');
-  const [compareMode, setCompareMode] = useState(false);
-  const [compareProjects, setCompareProjects] = useState<string[]>([]);
 
   // Filter projects
   const filteredProjects = useMemo(() => {
@@ -101,26 +96,6 @@ export function ProjectGrid() {
     return sortedGroups;
   }, [sortedProjects, groupBy]);
 
-  const handleCompareToggle = (projectId: string) => {
-    if (compareProjects.includes(projectId)) {
-      setCompareProjects(compareProjects.filter(id => id !== projectId));
-    } else if (compareProjects.length < 2) {
-      setCompareProjects([...compareProjects, projectId]);
-    }
-  };
-
-  const handleStartCompare = () => {
-    if (compareProjects.length === 2) {
-      // Show compare view
-      // This will be handled by the CompareView component
-    }
-  };
-
-  const exitCompareMode = () => {
-    setCompareMode(false);
-    setCompareProjects([]);
-  };
-
   return (
     <div className="h-full flex flex-col">
       {/* Filter bar */}
@@ -134,29 +109,6 @@ export function ProjectGrid() {
         groupBy={groupBy}
         onGroupChange={setGroupBy}
       />
-
-      {/* Compare mode indicator */}
-      {compareMode && (
-        <div className="px-4 py-2 bg-primary/10 border-b">
-          <div className="flex items-center justify-between">
-            <p className="text-sm">
-              Select 2 projects to compare ({compareProjects.length}/2 selected)
-            </p>
-            <div className="flex gap-2">
-              {compareProjects.length === 2 && (
-                <Button size="sm" onClick={handleStartCompare}>
-                  <GitCompare className="h-4 w-4 mr-2" />
-                  Compare
-                </Button>
-              )}
-              <Button size="sm" variant="ghost" onClick={exitCompareMode}>
-                <X className="h-4 w-4 mr-2" />
-                Cancel
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Projects */}
       <div className="flex-1 overflow-y-auto p-4">
@@ -198,47 +150,15 @@ export function ProjectGrid() {
                         key={project.id}
                         project={project}
                         viewMode={viewMode}
-                        isCompareMode={compareMode}
-                        isSelected={compareProjects.includes(project.id)}
-                        onCompareToggle={handleCompareToggle}
                       />
                     ))}
                   </AnimatePresence>
                 </div>
               </div>
             ))}
-
-            {/* Compare button (floating) */}
-            {!compareMode && filteredProjects.length > 1 && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="fixed bottom-6 right-6 z-20"
-              >
-                <Button
-                  onClick={() => setCompareMode(true)}
-                  className="shadow-lg"
-                  size="lg"
-                >
-                  <GitCompare className="h-4 w-4 mr-2" />
-                  Compare Projects
-                </Button>
-              </motion.div>
-            )}
           </div>
         )}
       </div>
-
-      {/* Compare view modal */}
-      {compareProjects.length === 2 && (
-        <CompareView
-          projectIds={compareProjects}
-          onClose={() => {
-            setCompareProjects([]);
-            setCompareMode(false);
-          }}
-        />
-      )}
     </div>
   );
 }

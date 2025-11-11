@@ -11,8 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useUIStore } from '@/store/ui-store';
 import { Citation } from '@/data/types';
 import { Badge } from '@/components/ui/badge';
-import { getAIResponse } from '@/lib/ai/rag-placeholder';
-import Link from 'next/link';
+// Removed placeholder import - using streaming API instead
 import { personalInfo } from '@/data/portfolio';
 
 interface ChatMessage {
@@ -43,21 +42,69 @@ export function ChatInterface() {
 
     // Set user message
     setCurrentChat({ role: 'user', content: userMessage });
-    setResponse(null);
+    setResponse({ role: 'assistant', content: '', citations: [] });
     setIsLoading(true);
 
     try {
-      // Get AI response (placeholder for now)
-      const aiResponse = await getAIResponse(userMessage, chatContext);
-      
-      setResponse({
-        role: 'assistant',
-        content: aiResponse.answer,
-        citations: aiResponse.citations
+      // Call streaming API
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query: userMessage,
+          context: chatContext,
+          stream: true,
+        }),
       });
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.statusText}`);
+      }
+
+      // Handle streaming response
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let citations: Citation[] = [];
+      let accumulatedContent = '';
+
+      if (!reader) {
+        throw new Error('No response body');
+      }
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n').filter(line => line.trim());
+
+        for (const line of lines) {
+          try {
+            const data = JSON.parse(line);
+
+            if (data.type === 'metadata') {
+              citations = data.citations || [];
+              setResponse({ role: 'assistant', content: '', citations });
+            } else if (data.type === 'chunk') {
+              accumulatedContent += data.content;
+              setResponse({ role: 'assistant', content: accumulatedContent, citations });
+            } else if (data.type === 'error') {
+              throw new Error(data.error || 'Streaming error');
+            } else if (data.type === 'done') {
+              // Streaming complete
+            }
+          } catch (parseError) {
+            // Skip invalid JSON lines
+            console.warn('Failed to parse chunk:', parseError);
+          }
+        }
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred while processing your request.');
       setCurrentChat(null);
+      setResponse(null);
     } finally {
       setIsLoading(false);
     }
@@ -166,22 +213,29 @@ export function ChatInterface() {
         ) : (
           // Chat messages
           <div className="flex-1 overflow-y-auto">
-            <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
               {currentChat && <Message {...currentChat} />}
-              {isLoading && (
-                <div className="flex items-center gap-3 text-muted-foreground">
-                  <div className="w-8 h-8 rounded-full bg-ai-primary flex items-center justify-center">
+              {response && (
+                <Message 
+                  {...response} 
+                  isStreaming={isLoading && response.content.length > 0}
+                />
+              )}
+              {isLoading && !response && (
+                <div className="flex items-center gap-3 text-muted-foreground pl-4">
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-ai-primary to-ai-primary/80 flex items-center justify-center shadow-sm">
                     <Loader2 className="h-4 w-4 animate-spin text-white" />
                   </div>
-                  <span className="text-sm">Thinking...</span>
+                  <span className="text-sm font-medium">Thinking...</span>
                 </div>
               )}
-              {response && <Message {...response} />}
               {error && (
-                <Alert variant="destructive">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
+                <div className="max-w-4xl mx-auto px-4 sm:px-6">
+                  <Alert variant="destructive" className="border-destructive/50">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription className="font-medium">{error}</AlertDescription>
+                  </Alert>
+                </div>
               )}
             </div>
           </div>
