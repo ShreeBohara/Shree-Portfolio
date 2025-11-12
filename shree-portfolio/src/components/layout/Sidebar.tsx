@@ -47,6 +47,7 @@ export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
           "fixed left-0 top-0 z-40 h-screen bg-sidebar border-r transition-all duration-300",
           isSidebarOpen ? "w-[280px]" : "w-0 lg:w-[60px]"
         )}
+        
       >
         <div className={cn(
           "h-full flex flex-col",
