@@ -17,12 +17,12 @@ export function EducationCard({ education }: EducationCardProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <Card className="group hover:shadow-lg transition-all h-full">
+      <Card className="group hover:shadow-lg hover:border-accent-color/50 transition-all h-full">
         <CardHeader>
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
-                <GraduationCap className="h-5 w-5 text-primary" />
+                <GraduationCap className="h-5 w-5 text-accent-color" />
                 <CardTitle className="text-xl">{education.institution}</CardTitle>
               </div>
               <CardDescription className="text-base font-medium">

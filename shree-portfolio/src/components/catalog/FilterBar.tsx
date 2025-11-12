@@ -4,6 +4,7 @@ import { Search, LayoutGrid, List, Filter } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 import {
   Select,
   SelectContent,
@@ -66,7 +67,7 @@ export function FilterBar({
               placeholder="Search projects..."
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="pl-9"
+              className="pl-9 focus-visible:ring-accent-color"
             />
           </div>
           
@@ -76,7 +77,10 @@ export function FilterBar({
               variant={viewMode === 'grid' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('grid')}
-              className="h-8 px-3"
+              className={cn(
+                "h-8 px-3",
+                viewMode !== 'grid' && "hover:text-accent-color hover:bg-accent-color/10"
+              )}
             >
               <LayoutGrid className="h-4 w-4" />
             </Button>
@@ -84,7 +88,10 @@ export function FilterBar({
               variant={viewMode === 'list' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('list')}
-              className="h-8 px-3"
+              className={cn(
+                "h-8 px-3",
+                viewMode !== 'list' && "hover:text-accent-color hover:bg-accent-color/10"
+              )}
             >
               <List className="h-4 w-4" />
             </Button>
@@ -97,7 +104,12 @@ export function FilterBar({
             <Badge
               key={category.id}
               variant={selectedCategories.includes(category.id) ? "default" : "outline"}
-              className="cursor-pointer hover:bg-accent"
+              className={cn(
+                "cursor-pointer",
+                selectedCategories.includes(category.id) 
+                  ? "bg-accent-color hover:bg-accent-color/90 border-0 text-white" 
+                  : "hover:border-accent-color/50 hover:text-accent-color"
+              )}
               onClick={() => toggleCategory(category.id)}
             >
               {category.label} ({category.count})
@@ -131,7 +143,7 @@ export function FilterBar({
 
           <div className="flex-1" />
           
-          <Button variant="outline" size="sm" className="gap-2">
+          <Button variant="outline" size="sm" className="gap-2 hover:border-accent-color/50 hover:text-accent-color hover:bg-accent-color/10">
             <Filter className="h-4 w-4" />
             Clear filters
           </Button>

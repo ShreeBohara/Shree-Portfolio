@@ -34,14 +34,14 @@ export function ExperienceCard({ experience, index }: ExperienceCardProps) {
         <div className="absolute left-[5px] top-0 w-0.5 h-8 bg-border" />
       )}
 
-      <Card className="ml-8 group hover:shadow-lg transition-all">
+      <Card className="ml-8 group hover:shadow-lg hover:border-accent-color/50 transition-all">
         <CardHeader>
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
-                <Briefcase className="h-4 w-4 text-primary" />
+                <Briefcase className="h-4 w-4 text-accent-color" />
                 {experience.current && (
-                  <Badge variant="default" className="text-xs">Current</Badge>
+                  <Badge variant="default" className="text-xs bg-accent-color hover:bg-accent-color/90 border-0">Current</Badge>
                 )}
               </div>
               <CardTitle className="text-xl mb-1">{experience.role}</CardTitle>
@@ -52,7 +52,8 @@ export function ExperienceCard({ experience, index }: ExperienceCardProps) {
                     href={experience.companyInfo.website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center text-primary hover:underline"
+                    className="inline-flex items-center text-accent-color hover:text-accent-color/80 transition-colors"
+                    onClick={(e) => e.stopPropagation()}
                   >
                     <ExternalLink className="h-3 w-3" />
                   </a>

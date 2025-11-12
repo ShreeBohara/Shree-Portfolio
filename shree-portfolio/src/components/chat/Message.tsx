@@ -57,37 +57,25 @@ export function Message({ role, content, citations, isStreaming }: MessageProps)
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2 }}
-      className={cn(
-        "flex gap-4 max-w-4xl",
-        role === 'user' ? "ml-auto flex-row-reverse" : ""
-      )}
+      className="w-full"
     >
-      {/* Avatar */}
-      <div className={cn(
-        "flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center shadow-sm",
-        role === 'user' 
-          ? "bg-primary text-primary-foreground" 
-          : "bg-gradient-to-br from-ai-primary to-ai-primary/80 text-white"
-      )}>
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6">
+        <div className="flex gap-4 items-start">
+          {/* Icon */}
+          <div className="flex-shrink-0 mt-1">
         {role === 'user' ? (
-          <User className="h-4 w-4" />
+              <User className="h-5 w-5 text-muted-foreground" />
         ) : (
-          <Bot className="h-4 w-4" />
+              <Bot className="h-5 w-5 text-accent-color" />
         )}
       </div>
 
       {/* Message content */}
       <div className="flex-1 space-y-3 min-w-0">
-        <div className={cn(
-          "rounded-2xl shadow-sm border",
-          role === 'user' 
-            ? "message-user bg-primary text-primary-foreground border-primary/20 px-5 py-3.5" 
-            : "message-ai bg-card border-border/50 px-5 py-4"
-        )}>
           <div className={cn(
             "prose prose-sm dark:prose-invert max-w-none",
             role === 'user' 
-              ? "prose-invert text-primary-foreground" 
+                ? "text-foreground font-medium" 
               : "text-foreground"
           )}>
             <ReactMarkdown
@@ -122,7 +110,7 @@ export function Message({ role, content, citations, isStreaming }: MessageProps)
                 // Style links
                 a: ({node, ...props}: any) => (
                   <a 
-                    className="text-ai-primary hover:underline font-medium" 
+                      className="text-accent-color underline underline-offset-2 hover:text-accent-color/80 transition-colors font-medium" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     {...props} 
@@ -161,17 +149,16 @@ export function Message({ role, content, citations, isStreaming }: MessageProps)
                 />
               </span>
             )}
-          </div>
         </div>
 
         {/* Citations */}
         {citations && citations.length > 0 && (
-          <div className="flex flex-wrap gap-2 px-1">
+               <div className="flex flex-wrap gap-2">
             {citations.map((citation, index) => (
               <Badge
                 key={index}
                 variant="outline"
-                className="citation-chip cursor-pointer hover:bg-citation/20 transition-colors border-border/50"
+                    className="cursor-pointer hover:border-accent-color/50 transition-colors"
                 onClick={() => handleCitationClick(citation)}
               >
                 {citation.type === 'project' && '📁'}
@@ -188,10 +175,10 @@ export function Message({ role, content, citations, isStreaming }: MessageProps)
 
         {/* Calendly CTA - shown when AI suggests booking a call */}
         {shouldShowCalendlyCTA && (
-          <div className="px-1">
             <CalendlyCTA compact />
+            )}
           </div>
-        )}
+        </div>
       </div>
     </motion.div>
   );

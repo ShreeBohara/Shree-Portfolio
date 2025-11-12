@@ -23,6 +23,10 @@ interface UIState {
   setChatContext: (context: Partial<UIState['chatContext']>) => void;
   clearChatContext: () => void;
   
+  // New chat trigger
+  newChatTrigger: number;
+  triggerNewChat: () => void;
+  
   // View preferences
   viewMode: 'grid' | 'list';
   setViewMode: (mode: 'grid' | 'list') => void;
@@ -30,6 +34,10 @@ interface UIState {
   // Theme
   theme: 'light' | 'dark' | 'system';
   setTheme: (theme: 'light' | 'dark' | 'system') => void;
+
+  // Theme accent color
+  accentColor: 'teal' | 'purple' | 'blue' | 'pink' | 'orange' | 'yellow' | 'green' | 'red' | 'cyan' | 'violet';
+  setAccentColor: (color: 'teal' | 'purple' | 'blue' | 'pink' | 'orange' | 'yellow' | 'green' | 'red' | 'cyan' | 'violet') => void;
 }
 
 export const useUIStore = create<UIState>()(
@@ -68,6 +76,13 @@ export const useUIStore = create<UIState>()(
         chatContext: { enabled: false, itemId: null, itemType: null },
       }),
       
+      // New chat trigger
+      newChatTrigger: 0,
+      triggerNewChat: () => set((state) => ({ 
+        newChatTrigger: state.newChatTrigger + 1,
+        chatContext: { enabled: false, itemId: null, itemType: null },
+      })),
+      
       // View preferences
       viewMode: 'grid',
       setViewMode: (mode) => set({ viewMode: mode }),
@@ -75,12 +90,17 @@ export const useUIStore = create<UIState>()(
       // Theme
       theme: 'system',
       setTheme: (theme) => set({ theme }),
+
+      // Theme accent color
+      accentColor: 'teal',
+      setAccentColor: (color) => set({ accentColor: color }),
     }),
     {
       name: 'portfolio-ui-preferences',
       partialize: (state) => ({
         theme: state.theme,
         viewMode: state.viewMode,
+        accentColor: state.accentColor,
       }),
     }
   )

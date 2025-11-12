@@ -6,20 +6,8 @@ import { motion } from 'framer-motion';
 
 export function EducationSection() {
   return (
-    <div className="h-full overflow-y-auto p-6">
+    <div className="h-full overflow-y-auto">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <h2 className="heading-2 mb-2">Education</h2>
-          <p className="text-muted-foreground">
-            My academic background and qualifications
-          </p>
-        </motion.div>
-
         {/* Education Cards */}
         <div className="space-y-6">
           {allEducation.map((edu, index) => (

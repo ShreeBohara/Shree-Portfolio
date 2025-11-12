@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import { CursorTrail } from "@/components/ui/cursor-trail";
+import { CustomCursor } from "@/components/ui/custom-cursor";
+import { ThemeColorProvider } from "@/components/providers/ThemeColorProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -36,7 +39,11 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}
       >
-        {children}
+        <ThemeColorProvider>
+          <CustomCursor />
+          <CursorTrail />
+          {children}
+        </ThemeColorProvider>
       </body>
     </html>
   );

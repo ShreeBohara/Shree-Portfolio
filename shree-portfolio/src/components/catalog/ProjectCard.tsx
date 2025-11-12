@@ -45,7 +45,7 @@ export function ProjectCard({
         transition={{ duration: 0.2 }}
       >
         <Card
-          className="group hover:shadow-md transition-all cursor-pointer"
+          className="group hover:shadow-md hover:border-accent-color/50 transition-all cursor-pointer"
           onClick={handleClick}
         >
           <div className="flex items-center p-4">
@@ -87,7 +87,7 @@ export function ProjectCard({
             </div>
 
             {/* Arrow */}
-            <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
+            <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-1 group-hover:text-accent-color transition-all" />
           </div>
         </Card>
       </motion.div>
@@ -104,7 +104,7 @@ export function ProjectCard({
       transition={{ duration: 0.2 }}
     >
       <Card
-        className="group h-full hover:shadow-lg transition-all cursor-pointer"
+        className="group h-full hover:shadow-lg hover:border-accent-color/50 transition-all cursor-pointer"
         onClick={handleClick}
       >
         <CardHeader>
