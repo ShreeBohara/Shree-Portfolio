@@ -7,14 +7,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const colorOptions = [
   { id: 'teal', name: 'Teal', color: 'oklch(0.72 0.12 185)', darkColor: 'oklch(0.75 0.13 185)' },
-  { id: 'purple', name: 'Purple', color: 'oklch(0.68 0.18 295)', darkColor: 'oklch(0.73 0.20 295)' },
   { id: 'blue', name: 'Blue', color: 'oklch(0.65 0.16 240)', darkColor: 'oklch(0.70 0.18 240)' },
   { id: 'pink', name: 'Pink', color: 'oklch(0.70 0.17 340)', darkColor: 'oklch(0.75 0.19 340)' },
   { id: 'orange', name: 'Orange', color: 'oklch(0.70 0.15 45)', darkColor: 'oklch(0.75 0.17 45)' },
   { id: 'yellow', name: 'Yellow', color: 'oklch(0.75 0.15 95)', darkColor: 'oklch(0.80 0.17 95)' },
   { id: 'green', name: 'Green', color: 'oklch(0.68 0.16 150)', darkColor: 'oklch(0.73 0.18 150)' },
   { id: 'red', name: 'Red', color: 'oklch(0.65 0.20 25)', darkColor: 'oklch(0.70 0.22 25)' },
-  { id: 'cyan', name: 'Cyan', color: 'oklch(0.70 0.14 195)', darkColor: 'oklch(0.75 0.16 195)' },
   { id: 'violet', name: 'Violet', color: 'oklch(0.65 0.20 285)', darkColor: 'oklch(0.70 0.22 285)' },
 ] as const;
 

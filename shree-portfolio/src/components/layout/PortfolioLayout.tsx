@@ -29,9 +29,9 @@ export function PortfolioLayout({ children, showCatalog = false, initialSection 
   return (
     <div className="min-h-screen bg-background">
       {/* Sidebar - Full height */}
-        <Sidebar 
-          activeSection={showCatalog ? activeSection : undefined} 
-          onSectionChange={showCatalog ? setActiveSection : undefined} 
+        <Sidebar
+          activeSection={showCatalog ? activeSection : undefined}
+          onSectionChange={showCatalog ? setActiveSection : undefined}
         />
 
       {/* Main layout - starts after sidebar */}

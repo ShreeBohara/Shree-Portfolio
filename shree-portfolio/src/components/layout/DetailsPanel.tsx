@@ -10,6 +10,32 @@ import { projects, experiences, education, personalInfo } from '@/data/portfolio
 import { Project, Experience, Education } from '@/data/types';
 import { useRouter } from 'next/navigation';
 
+// Helper function to render text with clickable URLs
+const renderTextWithLinks = (text: string) => {
+  // Match both URLs with protocol (http://, https://) and without (domain.com/path)
+  const urlRegex = /((?:https?:\/\/)?(?:www\.)?[\w-]+\.[\w.-]+(?:\/[\w\-._~:/?#[\]@!$&'()*+,;=%]*)?)/g;
+  const parts = text.split(urlRegex);
+
+  return parts.map((part, index) => {
+    if (part.match(urlRegex) && (part.includes('.com') || part.includes('.org') || part.includes('.net') || part.includes('.io'))) {
+      const href = part.startsWith('http') ? part : `https://${part}`;
+      return (
+        <a
+          key={index}
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-accent-color hover:text-accent-color/80 underline underline-offset-2 transition-colors font-medium"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {part}
+        </a>
+      );
+    }
+    return part;
+  });
+};
+
 // Mock data - will be replaced with real data later
 const mockProject = {
   id: 'project-1',
@@ -237,7 +263,7 @@ export function DetailsPanel() {
 
               {/* Summary */}
               <div>
-                <p className="text-muted-foreground">{experience.summary}</p>
+                <p className="text-muted-foreground">{renderTextWithLinks(experience.summary)}</p>
               </div>
 
               {/* Highlights */}
@@ -248,7 +274,7 @@ export function DetailsPanel() {
                     <li key={index} className="flex gap-2">
                       <span className="text-accent-color mt-1.5">•</span>
                       <div className="flex-1">
-                        <p className="text-sm text-muted-foreground">{highlight.text}</p>
+                        <p className="text-sm text-muted-foreground">{renderTextWithLinks(highlight.text)}</p>
                         {highlight.metric && (
                           <p className="text-sm font-semibold mt-1">{highlight.metric}</p>
                         )}
@@ -269,6 +295,36 @@ export function DetailsPanel() {
                       </Badge>
                     ))}
                   </div>
+                </div>
+              )}
+
+              {/* Links */}
+              {experience.links && (
+                <div className="flex flex-col gap-2">
+                  {experience.links.company && (
+                    <Button variant="outline" className="justify-start hover:border-accent-color/50 hover:text-accent-color hover:bg-accent-color/10" asChild>
+                      <a href={experience.links.company} target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="h-4 w-4 mr-2" />
+                        Visit Company Website
+                      </a>
+                    </Button>
+                  )}
+                  {experience.links.project && (
+                    <Button variant="outline" className="justify-start hover:border-accent-color/50 hover:text-accent-color hover:bg-accent-color/10" asChild>
+                      <a href={experience.links.project} target="_blank" rel="noopener noreferrer">
+                        <Play className="h-4 w-4 mr-2" />
+                        View Live Project
+                      </a>
+                    </Button>
+                  )}
+                  {experience.links.caseStudy && (
+                    <Button variant="outline" className="justify-start hover:border-accent-color/50 hover:text-accent-color hover:bg-accent-color/10" asChild>
+                      <a href={experience.links.caseStudy} target="_blank" rel="noopener noreferrer">
+                        <FileText className="h-4 w-4 mr-2" />
+                        Read Case Study
+                      </a>
+                    </Button>
+                  )}
                 </div>
               )}
             </div>

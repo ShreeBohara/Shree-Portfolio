@@ -71,6 +71,12 @@ export interface Experience {
     industry?: string;
     size?: string;        // e.g., "Series B startup", "Fortune 500"
   };
+
+  links?: {
+    company?: string;     // Company website
+    project?: string;     // Live project URL
+    caseStudy?: string;   // Blog post or case study
+  };
 }
 
 export interface Education {

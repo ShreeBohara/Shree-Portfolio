@@ -191,33 +191,6 @@ I'm particularly interested in opportunities that involve AI, full-stack develop
 export const projects: Project[] = [
   {
     id: "project-1",
-    title: "GlobePulse - AI-Powered Global News Visualization Platform",
-    slug: "globepulse",
-    year: 2025,
-    duration: "2 months",
-    category: "AI/ML",
-    summary: "Developed an AI-powered global news map leveraging React, MongoDB Atlas, and Google Maps API, facilitating real-time event filtering by sentiment, time, and category.",
-    problem: "Users struggle to discover and understand global events in real-time across different sources and regions.",
-    approach: "Processed 15K+ daily GDELT records via BigQuery, enriched with Vertex AI for summarization and vector embeddings, utilizing Atlas Vector Search for semantic clustering.",
-    impact: "Improved event discoverability by 40% through intelligent clustering and semantic search capabilities.",
-    metrics: [
-      { label: "Daily Records", value: "15K+ processed" },
-      { label: "Discoverability", value: "+40%" },
-      { label: "AI Processing", value: "Vertex AI" },
-      { label: "Search", value: "Vector-based" }
-    ],
-    myRole: "Full-stack developer and AI integration lead for the entire project.",
-    teamSize: 1,
-    technologies: ["React", "MongoDB Atlas", "Google Maps API", "BigQuery", "Vertex AI", "Vector Search"],
-    tags: ["AI", "Data Visualization", "Real-time", "News Analytics", "Vector Embeddings"],
-    links: {
-      github: "https://github.com/ShreeBohara/globepulse"
-    },
-    featured: true,
-    sortOrder: 1
-  },
-  {
-    id: "project-2",
     title: "AI-Powered Resume Builder",
     slug: "ai-resume-builder",
     year: 2025,
@@ -241,10 +214,10 @@ export const projects: Project[] = [
       github: "https://github.com/ShreeBohara/ai-resume-builder"
     },
     featured: true,
-    sortOrder: 2
+    sortOrder: 1
   },
   {
-    id: "project-3",
+    id: "project-2",
     title: "EchoLens: Brought Images to Life for the Visually Impaired",
     slug: "echolens",
     year: 2025,
@@ -268,7 +241,177 @@ export const projects: Project[] = [
       github: "https://github.com/ShreeBohara/echolens"
     },
     featured: true,
+    sortOrder: 2
+  },
+  {
+    id: "project-3",
+    title: "GlobaLens: See Beyond the Headlines",
+    slug: "globalens",
+    year: 2025,
+    duration: "2 months",
+    category: "AI/ML",
+    summary: "Built an AI-powered platform that transforms global news into an interactive, searchable world map using GDELT data, geospatial visualization, and semantic vector search.",
+    problem: "Journalists, analysts, and decision-makers struggle to explore and understand global events in real-time due to information overload across multiple sources and regions.",
+    approach: "Designed a complete data pipeline: Cloud Scheduler triggers Cloud Functions to ingest GDELT events via BigQuery, process them with Vertex AI for summarization and sentiment analysis, generate vector embeddings, and store in MongoDB Atlas with Vector Search. Built React frontend with react-globe.gl for interactive 3D visualization and natural language semantic search.",
+    impact: "Enabled real-time exploration of global events with instant AI-generated summaries, semantic search capabilities, and visual clustering of similar events on an interactive globe.",
+    metrics: [
+      { label: "Data Source", value: "GDELT v2 (BigQuery)" },
+      { label: "Visualization", value: "3D Interactive Globe" },
+      { label: "Search", value: "Semantic Vector Search" },
+      { label: "AI Processing", value: "Vertex AI + Embeddings" },
+      { label: "Architecture", value: "GCP Serverless Pipeline" }
+    ],
+    myRole: "Full-stack developer and architect - designed the entire system architecture, implemented the data ingestion pipeline, built the Flask API, integrated vector search, and developed the React frontend with 3D globe visualization.",
+    teamSize: 1,
+    technologies: [
+      "React 18",
+      "Vite",
+      "Tailwind CSS",
+      "react-globe.gl",
+      "Zustand",
+      "Python 3.11",
+      "Flask",
+      "Pydantic",
+      "Sentence-Transformers",
+      "MongoDB Atlas",
+      "Vector Search",
+      "Google Cloud Platform",
+      "BigQuery",
+      "Cloud Functions",
+      "Cloud Scheduler",
+      "Cloud Storage",
+      "Vertex AI",
+      "Docker Compose",
+      "GitHub Actions"
+    ],
+    tags: [
+      "AI",
+      "Data Visualization",
+      "Real-time",
+      "News Analytics",
+      "Vector Embeddings",
+      "Geospatial",
+      "GDELT",
+      "Cloud Architecture",
+      "Serverless"
+    ],
+    links: {
+      github: "https://github.com/ShreeBohara/GlobaLens"
+    },
+    featured: true,
     sortOrder: 3
+  },
+  {
+    id: "project-4",
+    title: "PostgreSQL B-Tree Index Optimizations",
+    slug: "postgresql-btree-optimizations",
+    year: 2025,
+    duration: "2 months",
+    category: "Data Engineering",
+    summary: "Performance enhancements for PostgreSQL 17.4's B-tree index implementation, achieving up to 49.6% query speedup through linear search optimization and asynchronous leaf-page prefetching.",
+    problem: "B-tree indexes in PostgreSQL use binary search uniformly across all leaf page sizes, creating unnecessary overhead for small pages where linear scans would be more efficient. Additionally, range scans don't prefetch subsequent pages, causing I/O stalls during sequential access patterns.",
+    approach: "Implemented two core optimizations: (1) Linear search optimization that replaces binary search with linear scanning for leaf pages containing ≤4 items, reducing algorithmic overhead and improving CPU cache locality; (2) Asynchronous leaf-page prefetching that uses PostgreSQL's native PrefetchBuffer() API to overlap I/O operations with CPU processing during range scans. Both optimizations are configurable via GUC variables and backward compatible with no changes to index structures.",
+    impact: "Evaluated on 113 complex analytical queries from the Join Order Benchmark (JOB), the combined optimizations improved 37.2% of queries (42/113) with an average speedup of 302.29ms. Linear search alone benefited 56.6% of queries with 80.41ms average reduction, while prefetching improved 31.0% of queries by 150.91ms on average. Best case achieved 49.6% speedup (1,066ms reduction) on query-intensive workloads.",
+    metrics: [
+      { label: "Queries Improved", value: "37.2% (42/113)" },
+      { label: "Avg Speedup", value: "302.29ms" },
+      { label: "Best Case", value: "49.6% faster" },
+      { label: "Max Improvement", value: "4,572ms" },
+      { label: "Benchmark", value: "JOB (113 queries)" }
+    ],
+    myRole: "Co-developer - researched PostgreSQL internals, designed and implemented linear search optimization in C, modified core B-tree access methods (_bt_binsrch), integrated GUC configuration variables, developed benchmarking framework with Docker, and led performance analysis across 113 analytical queries. Collaborated with Soumya who implemented the prefetch optimization and contributed to benchmark scripts and testing infrastructure.",
+    teamSize: 2,
+    technologies: ["C", "PostgreSQL 17.4", "Shell Scripting", "Docker", "SQL", "IMDB/JOB Benchmark"],
+    tags: ["Database Systems", "Performance Optimization", "B-Tree", "Indexing", "PostgreSQL Internals", "Benchmarking", "Systems Programming"],
+    links: {
+      github: "https://github.com/ShreeBohara/postgresql-btree-optimizations"
+    },
+    featured: false,
+    sortOrder: 4
+  },
+  {
+    id: "project-5",
+    title: "KNN Classification: Vertebral Column Health Analysis",
+    slug: "knn-vertebral-column-analysis",
+    year: 2025,
+    duration: "1 month",
+    category: "AI/ML",
+    summary: "Comparative machine learning study implementing K-Nearest Neighbors classification on vertebral column biomechanical data, evaluating five distance metrics to predict normal vs. abnormal spinal conditions.",
+    problem: "Medical diagnosis of vertebral conditions requires accurate classification based on biomechanical measurements. Traditional approaches need systematic evaluation of different distance metrics and KNN configurations to optimize classification performance for clinical decision support.",
+    approach: "Conducted comprehensive KNN analysis using the UCI Vertebral Column dataset with 6 biomechanical features (pelvic incidence, tilt, lumbar lordosis angle, sacral slope, pelvic radius, spondylolisthesis grade). Implemented binary classification (normal=0, abnormal=1) comparing five distance metrics: Euclidean, Manhattan (Minkowski p=1), Minkowski (variable p), Chebyshev, and Mahalanobis. Evaluated performance using confusion matrices, sensitivity/specificity, precision, F1-scores, learning curves, and weighted voting analysis. Built complete analysis pipeline in Jupyter Notebook with pandas, NumPy, scikit-learn, matplotlib, and seaborn.",
+    impact: "Identified optimal distance metric and k-value combinations for vertebral condition classification through systematic comparison. Provided insights into trade-offs between different distance metrics for medical classification tasks, demonstrating how metric choice affects sensitivity vs. specificity in clinical contexts.",
+    metrics: [
+      { label: "Distance Metrics", value: "5 compared" },
+      { label: "Features", value: "6 biomechanical" },
+      { label: "Classification", value: "Binary (Normal/Abnormal)" },
+      { label: "Evaluation", value: "Multi-metric analysis" },
+      { label: "Dataset", value: "UCI ML Repository" }
+    ],
+    myRole: "Sole developer - conducted exploratory data analysis, implemented KNN classifiers with multiple distance metrics, performed comparative evaluation using sensitivity/specificity/F1-scores, generated learning curves and confusion matrices, documented methodology and findings in Jupyter Notebook. Course project for DSCI 552 (Machine Learning) at USC.",
+    teamSize: 1,
+    technologies: ["Python 3.12", "Jupyter Notebook", "pandas", "NumPy", "scikit-learn", "matplotlib", "seaborn", "SciPy"],
+    tags: ["Machine Learning", "KNN", "Classification", "Healthcare Analytics", "Distance Metrics", "UCI Dataset", "Biomechanics", "Medical Diagnosis"],
+    links: {
+      github: "https://github.com/ShreeBohara/KNN-Analysis-on-Vertebral-Column-Data-Set"
+    },
+    featured: false,
+    sortOrder: 5
+  },
+  {
+    id: "project-6",
+    title: "Power Plant Energy Output: Regression Model Comparison",
+    slug: "powerplant-regression-analysis",
+    year: 2025,
+    duration: "1 month",
+    category: "AI/ML",
+    summary: "Comparative machine learning study predicting net hourly electrical energy output from Combined Cycle Power Plants using multiple regression approaches, evaluating parametric vs. non-parametric models for optimal performance.",
+    problem: "Power plant operators need accurate energy output predictions based on atmospheric conditions to optimize operational efficiency and grid management. Requires systematic evaluation of different regression modeling approaches to determine which best captures the complex relationships between environmental factors and electrical generation.",
+    approach: "Analyzed the UCI Combined Cycle Power Plant (CCPP) dataset using comprehensive regression methodology. Started with exploratory data analysis including descriptive statistics (means, medians, quartiles, ranges), pairwise scatter plots, and correlation analyses. Implemented and compared four modeling approaches: (1) Simple linear regression with individual predictors, (2) Multiple linear regression with all predictors simultaneously, (3) Polynomial regression with interaction terms, and (4) K-nearest neighbors regression with feature normalization and optimized k-parameter selection. Evaluated statistical significance, identified outliers, and performed comparative performance analysis to determine optimal prediction strategy.",
+    impact: "Identified key atmospheric and operational predictors significantly affecting power plant electrical output through systematic model comparison. Demonstrated performance trade-offs between parametric linear approaches and non-parametric KNN regression, providing data-driven insights for power plant optimization and predictive maintenance strategies.",
+    metrics: [
+      { label: "Models Compared", value: "4 regression types" },
+      { label: "Dataset", value: "UCI CCPP" },
+      { label: "Target Variable", value: "Net hourly energy output" },
+      { label: "Analysis Types", value: "EDA + Regression + KNN" },
+      { label: "Evaluation", value: "Statistical validation" }
+    ],
+    myRole: "Sole developer - conducted exploratory data analysis with descriptive statistics and visualizations, implemented simple and multiple linear regression models, developed polynomial regression with interaction terms, optimized KNN regression with feature normalization, performed comparative model evaluation, documented findings and methodology in Jupyter Notebook. Course project for data science coursework at USC.",
+    teamSize: 1,
+    technologies: ["Python", "Jupyter Notebook", "scikit-learn", "pandas", "NumPy", "matplotlib"],
+    tags: ["Machine Learning", "Regression Analysis", "Energy Prediction", "Power Plants", "KNN", "Linear Regression", "Polynomial Regression", "Statistical Modeling"],
+    links: {
+      github: "https://github.com/ShreeBohara/PowerPlant_Analysis"
+    },
+    featured: false,
+    sortOrder: 6
+  },
+  {
+    id: "project-7",
+    title: "Time Series Feature Extraction: Human Activity Recognition",
+    slug: "time-series-har-feature-extraction",
+    year: 2025,
+    duration: "3 months",
+    category: "AI/ML",
+    summary: "Time series analysis project extracting statistical features from multivariate sensor data to classify human activities, leveraging the UCI AReM dataset with 6-channel sensor fusion and bootstrap statistical validation.",
+    problem: "Wearable sensors and IoT devices generate continuous multivariate time-series data for activity recognition, but raw sensor streams are noisy and high-dimensional. Requires systematic feature extraction to identify meaningful statistical patterns that distinguish different human activities for applications in healthcare monitoring, fitness tracking, and elderly care systems.",
+    approach: "Analyzed the UCI AReM (Activity Recognition system based on Multisensor data fusion) dataset containing 7 distinct human activities (walking, standing, sitting, bending1, bending2, and others) with 6 multivariate sensor channels per activity (avg_rss12, var_rss12, avg_rss13, var_rss13, avg_rss23, var_rss23). Implemented comprehensive time-domain feature extraction computing 7 statistical features per channel: minimum, maximum, mean, median, standard deviation, first quartile (Q1), and third quartile (Q3), yielding 42 total features (7 features × 6 channels). Applied bootstrap resampling to estimate 90% confidence intervals for feature standard deviations, enabling statistical validation and feature importance ranking. Performed train/test split with bending activities using 2 test files and other activities using 3 test files. Conducted feature selection analysis to identify top 3 most discriminative features for activity classification.",
+    impact: "Successfully extracted and validated 42 statistical time-domain features from multivariate sensor data with rigorous bootstrap confidence interval analysis. Identified key features that reliably distinguish human activities, providing foundation for classification models. Demonstrated systematic approach to time series feature engineering for wearable sensor applications, with extensibility to frequency-domain analysis and advanced ML classifiers (Random Forest, SVM).",
+    metrics: [
+      { label: "Features Extracted", value: "42 (7 per channel)" },
+      { label: "Sensor Channels", value: "6 multivariate" },
+      { label: "Activities", value: "7 types" },
+      { label: "Statistical Method", value: "Bootstrap CI (90%)" },
+      { label: "Dataset", value: "UCI AReM" }
+    ],
+    myRole: "Sole developer - preprocessed multivariate sensor data from 7 activity categories, implemented time-domain feature extraction pipeline computing 42 statistical features, applied bootstrap resampling for confidence interval estimation, conducted feature importance analysis using standard deviation distributions, performed train/test data splitting, identified top 3 discriminative features, documented methodology and statistical validation in Jupyter Notebook.",
+    teamSize: 1,
+    technologies: ["Python", "Jupyter Notebook", "pandas", "NumPy", "SciPy", "Bootstrap Resampling"],
+    tags: ["Time Series Analysis", "Feature Extraction", "Human Activity Recognition", "Sensor Fusion", "Statistical Analysis", "Bootstrap Methods", "Wearable Sensors", "UCI Dataset"],
+    links: {
+      github: "https://github.com/ShreeBohara/Time-Series-Feature-Extraction-Human-Activity-Recognition"
+    },
+    featured: false,
+    sortOrder: 7
   },
 ];
 
@@ -282,10 +425,10 @@ export const experiences: Experience[] = [
     startDate: "2025-06",
     endDate: null,
     current: true,
-    summary: "Shipping production features for insurance quote platform, building AI chat experiences, and optimizing onboarding flows.",
+    summary: "Shipping production features for insurance quote platform, building AI chat experiences, and optimizing onboarding flows. Currently working on Pond, an AI-powered insurance platform.",
     highlights: [
       {
-        text: "Shipped Pond (Live) from Figma to production in under 3 months; componentized UI and added reviewable flows",
+        text: "Shipped Pond from Figma to production in under 3 months (live at insurance.com/pond); componentized UI and added reviewable flows",
         metric: "Reduced integration rework and sped up releases"
       },
       {
@@ -310,6 +453,10 @@ export const experiences: Experience[] = [
       website: "https://quinstreet.com",
       industry: "InsurTech/Digital Marketing",
       size: "Public company"
+    },
+    links: {
+      company: "https://quinstreet.com",
+      project: "https://insurance.com/pond"
     }
   },
   {

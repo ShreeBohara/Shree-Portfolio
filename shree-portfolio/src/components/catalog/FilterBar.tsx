@@ -27,9 +27,10 @@ interface FilterBarProps {
 }
 
 const categories = [
-  { id: 'all', label: 'All', count: 3 },
-  { id: 'ai-ml', label: 'AI/ML', count: 2 },
+  { id: 'all', label: 'All', count: 7 },
+  { id: 'ai-ml', label: 'AI/ML', count: 5 },
   { id: 'full-stack', label: 'Full-Stack', count: 1 },
+  { id: 'data-engineering', label: 'Data Engineering', count: 1 },
 ];
 
 export function FilterBar({

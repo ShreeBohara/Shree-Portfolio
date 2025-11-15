@@ -32,12 +32,13 @@ interface UIState {
   setViewMode: (mode: 'grid' | 'list') => void;
   
   // Theme
-  theme: 'light' | 'dark' | 'system';
-  setTheme: (theme: 'light' | 'dark' | 'system') => void;
+  theme: 'light' | 'dark';
+  setTheme: (theme: 'light' | 'dark') => void;
+  toggleTheme: () => void;
 
   // Theme accent color
-  accentColor: 'teal' | 'purple' | 'blue' | 'pink' | 'orange' | 'yellow' | 'green' | 'red' | 'cyan' | 'violet';
-  setAccentColor: (color: 'teal' | 'purple' | 'blue' | 'pink' | 'orange' | 'yellow' | 'green' | 'red' | 'cyan' | 'violet') => void;
+  accentColor: 'teal' | 'blue' | 'pink' | 'orange' | 'yellow' | 'green' | 'red' | 'violet';
+  setAccentColor: (color: 'teal' | 'blue' | 'pink' | 'orange' | 'yellow' | 'green' | 'red' | 'violet') => void;
 }
 
 export const useUIStore = create<UIState>()(
@@ -88,8 +89,9 @@ export const useUIStore = create<UIState>()(
       setViewMode: (mode) => set({ viewMode: mode }),
       
       // Theme
-      theme: 'system',
+      theme: 'dark',
       setTheme: (theme) => set({ theme }),
+      toggleTheme: () => set((state) => ({ theme: state.theme === 'dark' ? 'light' : 'dark' })),
 
       // Theme accent color
       accentColor: 'teal',

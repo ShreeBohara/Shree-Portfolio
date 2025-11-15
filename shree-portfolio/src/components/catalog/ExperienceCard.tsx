@@ -11,6 +11,32 @@ interface ExperienceCardProps {
   index: number;
 }
 
+// Helper function to render text with clickable URLs
+const renderTextWithLinks = (text: string) => {
+  // Match both URLs with protocol (http://, https://) and without (domain.com/path)
+  const urlRegex = /((?:https?:\/\/)?(?:www\.)?[\w-]+\.[\w.-]+(?:\/[\w\-._~:/?#[\]@!$&'()*+,;=%]*)?)/g;
+  const parts = text.split(urlRegex);
+
+  return parts.map((part, index) => {
+    if (part.match(urlRegex) && (part.includes('.com') || part.includes('.org') || part.includes('.net') || part.includes('.io'))) {
+      const href = part.startsWith('http') ? part : `https://${part}`;
+      return (
+        <a
+          key={index}
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-accent-color hover:text-accent-color/80 underline underline-offset-2 transition-colors font-medium"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {part}
+        </a>
+      );
+    }
+    return part;
+  });
+};
+
 export function ExperienceCard({ experience, index }: ExperienceCardProps) {
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return 'Present';
@@ -28,7 +54,7 @@ export function ExperienceCard({ experience, index }: ExperienceCardProps) {
     >
       {/* Timeline dot */}
       <div className="absolute left-0 top-8 w-3 h-3 rounded-full bg-primary border-4 border-background z-10" />
-      
+
       {/* Timeline line */}
       {index !== 0 && (
         <div className="absolute left-[5px] top-0 w-0.5 h-8 bg-border" />
@@ -48,7 +74,7 @@ export function ExperienceCard({ experience, index }: ExperienceCardProps) {
               <CardDescription className="text-base font-medium flex items-center gap-2">
                 <span>{experience.company}</span>
                 {experience.companyInfo?.website && (
-                  <a 
+                  <a
                     href={experience.companyInfo.website}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -79,7 +105,7 @@ export function ExperienceCard({ experience, index }: ExperienceCardProps) {
 
         <CardContent className="space-y-4">
           {/* Summary */}
-          <p className="text-sm text-muted-foreground">{experience.summary}</p>
+          <p className="text-sm text-muted-foreground">{renderTextWithLinks(experience.summary)}</p>
 
           {/* Highlights */}
           {experience.highlights && experience.highlights.length > 0 && (
@@ -93,7 +119,7 @@ export function ExperienceCard({ experience, index }: ExperienceCardProps) {
                   <li key={idx} className="text-sm flex items-start gap-2">
                     <span className="text-primary mt-1">•</span>
                     <div className="flex-1">
-                      <span className="text-foreground">{highlight.text}</span>
+                      <span className="text-foreground">{renderTextWithLinks(highlight.text)}</span>
                       {highlight.metric && (
                         <span className="ml-2 text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded">
                           {highlight.metric}

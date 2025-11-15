@@ -1,6 +1,6 @@
 'use client';
 
-import { Menu, Download, Calendar, Mail, Github as GithubIcon, Linkedin, Moon, Sun, Monitor } from 'lucide-react';
+import { Menu, Download, Calendar, Mail, Github as GithubIcon, Linkedin, Moon, Sun } from 'lucide-react';
 import { useUIStore } from '@/store/ui-store';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -17,7 +17,7 @@ import { personalInfo } from '@/data/portfolio';
 import { ThemeColorPicker } from '@/components/ui/theme-color-picker';
 
 export function Header() {
-  const { toggleSidebar, isSidebarOpen, theme, setTheme, triggerNewChat } = useUIStore();
+  const { toggleSidebar, isSidebarOpen, theme, toggleTheme, triggerNewChat } = useUIStore();
   const pathname = usePathname();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -33,18 +33,10 @@ export function Header() {
   useEffect(() => {
     const root = window.document.documentElement;
     root.classList.remove('light', 'dark');
-    
-    if (theme === 'system') {
-      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-      root.classList.add(systemTheme);
-    } else {
-      root.classList.add(theme);
-    }
+    root.classList.add(theme);
   }, [theme]);
 
-  const themeIcon = theme === 'dark' ? <Sun className="h-4 w-4" /> : 
-                    theme === 'light' ? <Moon className="h-4 w-4" /> : 
-                    <Monitor className="h-4 w-4" />;
+  const themeIcon = theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />;
 
   return (
     <header className={cn(
@@ -145,27 +137,15 @@ export function Header() {
           <ThemeColorPicker />
 
           {/* Theme toggle */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label="Toggle theme" className="hover:text-accent-color hover:bg-accent-color/10">
-                {themeIcon}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setTheme('light')} className="hover:text-accent-color hover:bg-accent-color/10">
-                <Sun className="h-4 w-4 mr-2" />
-                Light
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme('dark')} className="hover:text-accent-color hover:bg-accent-color/10">
-                <Moon className="h-4 w-4 mr-2" />
-                Dark
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme('system')} className="hover:text-accent-color hover:bg-accent-color/10">
-                <Monitor className="h-4 w-4 mr-2" />
-                System
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            aria-label="Toggle theme" 
+            onClick={toggleTheme}
+            className="hover:text-accent-color hover:bg-accent-color/10"
+          >
+            {themeIcon}
+          </Button>
         </div>
       </div>
     </header>
