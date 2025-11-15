@@ -461,6 +461,24 @@
   }
 }
 
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes wind-flow {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
 /* Shimmer loading effect */
 .shimmer {
   background: linear-gradient(
@@ -500,3 +518,139 @@
     scrollbar-color: rgba(155, 155, 155, 0.2) transparent;
   }
 }
+
+/* Terminal input border animation */
+@keyframes borderSlide {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Terminal/Monospace Font Optimizations */
+body {
+  letter-spacing: -0.015em;
+  font-feature-settings: 'liga' 1, 'calt' 1;
+}
+
+/* Headings - slightly tighter for monospace */
+h1, h2, h3, h4, h5, h6 {
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+
+/* Better button text */
+button {
+  letter-spacing: -0.01em;
+}
+
+/* Optimize prose/markdown for monospace */
+.prose {
+  letter-spacing: -0.01em;
+}
+
+.prose code {
+  letter-spacing: 0;
+}
+
+/* Input placeholders */
+::placeholder {
+  letter-spacing: -0.01em;
+  opacity: 0.6;
+}
+
+/* Hide scrollbar while keeping scroll functionality */
+.scrollbar-hide {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* Ensure native input caret is always hidden for terminal input */
+input[type="text"].opacity-0 {
+  caret-color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
+  text-shadow: none !important;
+}
+
+/* Accessibility: Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  /* Increase touch targets on mobile */
+  button,
+  a,
+  input,
+  [role="button"] {
+    min-height: 44px; /* iOS recommended minimum */
+  }
+
+  /* Prevent text size adjustment on mobile */
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* Optimize font sizes for mobile */
+  .text-4xl {
+    font-size: 2rem; /* Smaller heading on mobile */
+  }
+
+  .text-3xl {
+    font-size: 1.75rem;
+  }
+}
+
+/* Smooth scrolling for supported browsers */
+@supports (scroll-behavior: smooth) {
+  .scroll-smooth {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Touch-action optimizations */
+.touch-pan-y {
+  touch-action: pan-y;
+}
+
+.touch-pan-x {
+  touch-action: pan-x;
+}
+
+/* Safe area insets for notched devices */
+@supports (padding: max(0px)) {
+  .safe-top {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+
+  .safe-bottom {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .safe-left {
+    padding-left: max(1rem, env(safe-area-inset-left));
+  }
+
+  .safe-right {
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+}
+

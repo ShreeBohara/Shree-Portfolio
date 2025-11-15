@@ -39,13 +39,17 @@ interface UIState {
   // Theme accent color
   accentColor: 'teal' | 'blue' | 'pink' | 'orange' | 'yellow' | 'green' | 'red' | 'violet';
   setAccentColor: (color: 'teal' | 'blue' | 'pink' | 'orange' | 'yellow' | 'green' | 'red' | 'violet') => void;
+
+  // Initial animation state
+  isInitialAnimationComplete: boolean;
+  setInitialAnimationComplete: (complete: boolean) => void;
 }
 
 export const useUIStore = create<UIState>()(
   persist(
     (set) => ({
       // Sidebar
-      isSidebarOpen: true, // Default open on desktop
+      isSidebarOpen: false, // Default closed on load
       toggleSidebar: () => set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),
       setSidebarOpen: (open) => set({ isSidebarOpen: open }),
       
@@ -96,6 +100,10 @@ export const useUIStore = create<UIState>()(
       // Theme accent color
       accentColor: 'teal',
       setAccentColor: (color) => set({ accentColor: color }),
+
+      // Initial animation state
+      isInitialAnimationComplete: false,
+      setInitialAnimationComplete: (complete) => set({ isInitialAnimationComplete: complete }),
     }),
     {
       name: 'portfolio-ui-preferences',
