@@ -51,7 +51,7 @@ export function ThemeColorPicker() {
     <div className="relative" ref={containerRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 w-10 hover:text-accent-color hover:bg-accent-color/10"
+        className="h-10 w-10 rounded-md flex items-center justify-center transition-colors hover:text-accent-color hover:bg-accent-color/10"
         aria-label="Choose theme color"
       >
         <Paintbrush className="h-4 w-4" />
@@ -77,8 +77,8 @@ export function ThemeColorPicker() {
               transition={{ duration: 0.15 }}
               className="absolute top-full mt-2 right-0 z-[110] p-3 rounded-xl bg-card border border-border shadow-xl backdrop-blur-lg"
             >
-              <div className="text-xs font-medium text-muted-foreground mb-2 px-1">
-                Accent Color
+              <div className="text-xs font-mono font-medium text-muted-foreground mb-2 px-1">
+                $ set-color
               </div>
               <div className="flex flex-col gap-2 min-w-[180px]">
                 {colorOptions.map((option) => (
@@ -86,7 +86,7 @@ export function ThemeColorPicker() {
                     key={option.id}
                     onClick={() => handleColorChange(option.id)}
                     className={`
-                      flex items-center gap-2.5 px-2.5 py-2 rounded-lg transition-all
+                      flex items-center gap-2.5 px-2.5 py-2 rounded-lg transition-all font-mono
                       ${accentColor === option.id
                         ? 'bg-accent-color/10 border-2 border-accent-color/50'
                         : 'bg-muted/30 hover:bg-muted border-2 border-transparent'
@@ -108,7 +108,7 @@ export function ThemeColorPicker() {
                           : `0 2px 4px ${option.color}40`
                       }}
                     />
-                    <span className="text-xs font-medium flex-1 text-left">
+                    <span className="text-xs font-medium flex-1 text-left lowercase">
                       {option.name}
                     </span>
                     {accentColor === option.id && (

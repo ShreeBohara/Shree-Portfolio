@@ -127,28 +127,45 @@ export function PromptSuggestions({ onSelectPrompt, isVisible, contextType }: Pr
       {suggestions.map((item, index) => {
         const Icon = item.icon;
         return (
-          <motion.button
+          <motion.div
             key={item.prompt}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1, type: 'spring', stiffness: 100 }}
-            onClick={() => onSelectPrompt(item.prompt)}
-            className="group text-left px-5 py-4 rounded-xl border border-border/50 bg-card hover:bg-accent-color/5 hover:border-accent-color/50 hover:shadow-lg transition-all duration-200"
+            className="relative group"
           >
-            <div className="flex items-start gap-3">
-              <div className="bg-muted p-2.5 rounded-lg group-hover:bg-muted transition-all">
-                <Icon className="h-5 w-5 text-accent-color transition-colors" />
+            {/* Animated border gradient on hover */}
+            <div
+              className="absolute -inset-0.5 rounded-xl opacity-0 group-hover:opacity-75 blur-sm transition-opacity duration-300"
+              style={{
+                background: 'linear-gradient(90deg, var(--accent-color), transparent, var(--accent-color))',
+                backgroundSize: '200% 100%',
+                animation: 'borderSlide 3s linear infinite',
+              }}
+            />
+
+            <button
+              onClick={() => onSelectPrompt(item.prompt)}
+              className="relative w-full text-left px-5 py-4 rounded-xl border bg-gradient-to-br transition-all duration-200 backdrop-blur-sm hover:shadow-xl hover:shadow-accent-color/10 border-border/50 from-card/80 via-card/80 to-muted/40 dark:border-zinc-700/50 dark:from-zinc-900/50 dark:via-zinc-900/50 dark:to-zinc-800/50 group-hover:border-accent-color/50"
+            >
+              <div className="flex items-start gap-3">
+                <div className="bg-muted/80 dark:bg-zinc-800/50 p-2.5 rounded-lg group-hover:bg-accent-color/10 transition-all">
+                  <Icon className="h-5 w-5 text-accent-color transition-colors" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold mb-1 text-foreground group-hover:text-accent-color transition-colors">
+                    {item.title}
+                  </p>
+                  <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
+                    {item.prompt}
+                  </p>
+                  <p className="text-xs font-mono text-muted-foreground/60 group-hover:text-accent-color/70 transition-colors">
+                    $ click to ask
+                  </p>
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold mb-1 text-foreground group-hover:text-accent-color transition-colors">
-                  {item.title}
-                </p>
-                <p className="text-xs text-muted-foreground line-clamp-2">
-                  {item.prompt}
-                </p>
-              </div>
-            </div>
-          </motion.button>
+            </button>
+          </motion.div>
         );
       })}
     </motion.div>

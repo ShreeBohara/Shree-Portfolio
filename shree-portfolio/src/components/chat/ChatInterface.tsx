@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useRef, FormEvent, useEffect } from 'react';
-import { Send, Loader2, AlertCircle, X, FolderKanban, Briefcase, GraduationCap } from 'lucide-react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { AlertCircle, X, FolderKanban, Briefcase, GraduationCap, ArrowDown, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Message } from './Message';
+import { TerminalInput, TerminalInputRef } from '@/components/ui/terminal-input';
 import { PromptSuggestions } from './PromptSuggestions';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUIStore } from '@/store/ui-store';
@@ -21,6 +21,140 @@ interface ChatMessage {
   citations?: Citation[];
 }
 
+// Typing animation component for welcome text
+function TypingAnimation({ text, accentColor, showBlinkingCursor = true, hideCursor = false, onComplete }: { text: string; accentColor: string; showBlinkingCursor?: boolean; hideCursor?: boolean; onComplete?: () => void }) {
+  const [displayedText, setDisplayedText] = useState('');
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [cursorVisible, setCursorVisible] = useState(true);
+  const [typingComplete, setTypingComplete] = useState(false);
+
+  useEffect(() => {
+    if (currentIndex < text.length) {
+      const timeout = setTimeout(() => {
+        setDisplayedText(prev => prev + text[currentIndex]);
+        setCurrentIndex(prev => prev + 1);
+      }, 80); // Typing speed
+      return () => clearTimeout(timeout);
+    } else {
+      // Mark typing as complete
+      if (!typingComplete) {
+        setTypingComplete(true);
+        // Call onComplete when typing finishes
+        if (onComplete) {
+          setTimeout(() => onComplete(), 200);
+        }
+      }
+
+      if (showBlinkingCursor && !hideCursor) {
+        // Blinking cursor after typing is complete
+        const cursorInterval = setInterval(() => {
+          setCursorVisible(prev => !prev);
+        }, 530);
+        return () => clearInterval(cursorInterval);
+      }
+    }
+  }, [currentIndex, text, showBlinkingCursor, hideCursor, onComplete, typingComplete]);
+
+  return (
+    <span className="inline-flex items-center">
+      <span>{displayedText}</span>
+      {showBlinkingCursor && !hideCursor && (
+        <span
+          className="inline-block ml-1"
+          style={{
+            backgroundColor: accentColor,
+            width: '4px',
+            height: '1.2em',
+            boxShadow: `0 0 10px ${accentColor.replace(')', ' / 0.6)')}`,
+            opacity: cursorVisible ? 1 : 0,
+            transition: 'opacity 0.1s ease',
+          }}
+        />
+      )}
+    </span>
+  );
+}
+
+// Clean terminal-style loading component
+function TerminalLoading({ accentColor }: { accentColor: string }) {
+  const [frame, setFrame] = useState(0);
+  const [logIndex, setLogIndex] = useState(0);
+  const spinnerFrames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
+
+  const terminalLogs = [
+    '$ Analyzing query...',
+    '$ Loading context...',
+    '$ Processing request...',
+    '$ Searching knowledge base...',
+    '$ Generating response...',
+    '$ Optimizing output...',
+  ];
+
+  useEffect(() => {
+    const spinnerInterval = setInterval(() => {
+      setFrame((prev) => (prev + 1) % spinnerFrames.length);
+    }, 80);
+
+    const logInterval = setInterval(() => {
+      setLogIndex((prev) => (prev + 1) % terminalLogs.length);
+    }, 600);
+
+    return () => {
+      clearInterval(spinnerInterval);
+      clearInterval(logInterval);
+    };
+  }, [spinnerFrames.length, terminalLogs.length]);
+
+  return (
+    <motion.div
+      className="w-full py-6"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -5 }}
+      transition={{ duration: 0.2 }}
+    >
+      <div className="max-w-3xl mx-auto px-4 sm:px-6">
+        <div className="space-y-2 font-mono text-sm">
+          {/* Spinner and main status */}
+          <div className="flex items-center gap-3">
+            <span
+              className="text-xl"
+              style={{
+                color: accentColor,
+                textShadow: `0 0 10px ${accentColor.replace(')', ' / 0.4)')}`,
+              }}
+            >
+              {spinnerFrames[frame]}
+            </span>
+            <span className="text-muted-foreground">
+              Processing request<motion.span
+                animate={{ opacity: [0, 1, 0] }}
+                transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+              >...</motion.span>
+            </span>
+          </div>
+
+          {/* Terminal logs */}
+          <div className="pl-8 space-y-1">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={logIndex}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 10 }}
+                transition={{ duration: 0.3 }}
+                className="text-xs text-muted-foreground/70"
+              >
+                <span style={{ color: accentColor }}>›</span> {terminalLogs[logIndex]}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
 export function ChatInterface() {
   const [query, setQuery] = useState('');
   const [currentChat, setCurrentChat] = useState<ChatMessage | null>(null);
@@ -28,12 +162,23 @@ export function ChatInterface() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showSuggestions, setShowSuggestions] = useState(true);
-  const [isInputFocused, setIsInputFocused] = useState(false);
-  const [isInputHovered, setIsInputHovered] = useState(false);
+  const [lastQuery, setLastQuery] = useState<string>('');
   const [accentColor, setAccentColor] = useState('oklch(0.72 0.12 185)');
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [nameTypingComplete, setNameTypingComplete] = useState(false);
+  const [showScrollButton, setShowScrollButton] = useState(false);
+  const [isAtBottom, setIsAtBottom] = useState(true);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 }); // For spotlight effect in pixels
+  const [isMouseOverText, setIsMouseOverText] = useState(false);
+  const inputRef = useRef<TerminalInputRef>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const userScrolledRef = useRef(false);
+  const loadingStartTimeRef = useRef<number>(0);
+  const nameRef = useRef<HTMLHeadingElement>(null);
+  const textWrapperRef = useRef<HTMLSpanElement>(null);
+  const MIN_LOADING_DISPLAY_TIME = 2000; // 2 seconds minimum loading display
 
-  const { chatContext, clearChatContext, newChatTrigger } = useUIStore();
+  const { chatContext, clearChatContext, newChatTrigger, isInitialAnimationComplete, setInitialAnimationComplete } = useUIStore();
 
   // Get context item title
   const getContextItemTitle = () => {
@@ -81,33 +226,111 @@ export function ChatInterface() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [newChatTrigger]);
 
-  // Helper function to get glow style based on state
-  const getInputGlowStyle = (focused: boolean, hovered: boolean) => {
-    if (focused) {
-      // Intense glow when focused (clicked)
-      return `0 0 0 2px ${accentColor.replace(')', ' / 0.5)')}, 0 0 30px ${accentColor.replace(')', ' / 0.5)')}, 0 0 60px ${accentColor.replace(')', ' / 0.3)')}, 0 0 90px ${accentColor.replace(')', ' / 0.15)')}`;
-    } else if (hovered) {
-      // Medium glow when hovered
-      return `0 0 0 1px ${accentColor.replace(')', ' / 0.3)')}, 0 0 20px ${accentColor.replace(')', ' / 0.3)')}, 0 0 40px ${accentColor.replace(')', ' / 0.15)')}`;
-    } else {
-      // Normal shadow
-      return '0 1px 2px 0 rgb(0 0 0 / 0.05)';
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Cmd/Ctrl + K: Focus input
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        inputRef.current?.focus();
+      }
+
+      // Escape: Clear input or dismiss error
+      if (e.key === 'Escape') {
+        if (query) {
+          setQuery('');
+        } else if (error) {
+          handleDismissError();
+        } else {
+          inputRef.current?.focus();
+        }
+      }
+
+      // Cmd/Ctrl + Enter: New chat
+      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+        e.preventDefault();
+        handleNewChat();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [query, error]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Scroll to bottom with smooth animation
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior, block: 'end' });
+      userScrolledRef.current = false;
+      setIsAtBottom(true);
+      setShowScrollButton(false);
+    }
+  }, []);
+
+  // Check if user is at bottom
+  const checkIfAtBottom = useCallback(() => {
+    if (!scrollAreaRef.current) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = scrollAreaRef.current;
+    const atBottom = scrollHeight - scrollTop - clientHeight < 100; // 100px threshold
+    setIsAtBottom(atBottom);
+    setShowScrollButton(!atBottom && (currentChat !== null || response !== null));
+  }, [currentChat, response]);
+
+  // Handle scroll events
+  useEffect(() => {
+    const scrollArea = scrollAreaRef.current;
+    if (!scrollArea) return;
+
+    const handleScroll = () => {
+      userScrolledRef.current = true;
+      checkIfAtBottom();
+    };
+
+    scrollArea.addEventListener('scroll', handleScroll, { passive: true });
+    return () => scrollArea.removeEventListener('scroll', handleScroll);
+  }, [checkIfAtBottom]);
+
+  // Auto-scroll on new messages or streaming content
+  useEffect(() => {
+    // Only auto-scroll if user hasn't manually scrolled up, or if it's a new message
+    if (!userScrolledRef.current || isAtBottom) {
+      scrollToBottom('smooth');
+    }
+  }, [response?.content, currentChat, scrollToBottom, isAtBottom]);
+
+  // Scroll to bottom when conversation starts
+  useEffect(() => {
+    if (currentChat && !userScrolledRef.current) {
+      // Small delay to ensure DOM is updated
+      setTimeout(() => scrollToBottom('auto'), 100);
+    }
+  }, [currentChat, scrollToBottom]);
+
+  // Helper function to ensure minimum loading display time
+  const ensureMinimumLoadingTime = async () => {
+    const elapsedTime = Date.now() - loadingStartTimeRef.current;
+    const remainingTime = MIN_LOADING_DISPLAY_TIME - elapsedTime;
+
+    if (remainingTime > 0) {
+      await new Promise(resolve => setTimeout(resolve, remainingTime));
     }
   };
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+  const handleSubmitInput = async () => {
     if (!query.trim() || isLoading) return;
 
     const userMessage = query.trim();
+    setLastQuery(userMessage);
     setQuery('');
     setError(null);
     setShowSuggestions(false);
 
     // Set user message
     setCurrentChat({ role: 'user', content: userMessage });
-    setResponse({ role: 'assistant', content: '', citations: [] });
+    setResponse(null); // Don't set response until we get data
     setIsLoading(true);
+    loadingStartTimeRef.current = Date.now(); // Track loading start time
 
     try {
       // Call streaming API
@@ -132,6 +355,7 @@ export function ChatInterface() {
       const decoder = new TextDecoder();
       let citations: Citation[] = [];
       let accumulatedContent = '';
+      let isFirstChunk = true;
 
       if (!reader) {
         throw new Error('No response body');
@@ -150,8 +374,19 @@ export function ChatInterface() {
 
             if (data.type === 'metadata') {
               citations = data.citations || [];
-              setResponse({ role: 'assistant', content: '', citations });
+              // Wait for minimum display time before showing response
+              if (isFirstChunk) {
+                await ensureMinimumLoadingTime();
+                isFirstChunk = false;
+              }
+              // Initialize response with citations
+              setResponse({ role: 'assistant', content: accumulatedContent, citations });
             } else if (data.type === 'chunk') {
+              // Wait for minimum display time before showing first chunk
+              if (isFirstChunk) {
+                await ensureMinimumLoadingTime();
+                isFirstChunk = false;
+              }
               accumulatedContent += data.content;
               setResponse({ role: 'assistant', content: accumulatedContent, citations });
             } else if (data.type === 'error') {
@@ -179,13 +414,110 @@ export function ChatInterface() {
     inputRef.current?.focus();
   };
 
+  const handleRetry = async () => {
+    if (!lastQuery || isLoading) return;
+
+    setError(null);
+    setIsLoading(true);
+    loadingStartTimeRef.current = Date.now(); // Track loading start time
+
+    // Set user message
+    setCurrentChat({ role: 'user', content: lastQuery });
+    setResponse(null); // Don't set response until we get data
+
+    try {
+      // Call streaming API
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query: lastQuery,
+          context: chatContext,
+          stream: true,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.statusText}`);
+      }
+
+      // Handle streaming response
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let citations: Citation[] = [];
+      let accumulatedContent = '';
+      let isFirstChunk = true;
+
+      if (!reader) {
+        throw new Error('No response body');
+      }
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value);
+        const lines = chunk.split('\n').filter(line => line.trim());
+
+        for (const line of lines) {
+          try {
+            const data = JSON.parse(line);
+
+            if (data.type === 'metadata') {
+              citations = data.citations || [];
+              // Wait for minimum display time before showing response
+              if (isFirstChunk) {
+                await ensureMinimumLoadingTime();
+                isFirstChunk = false;
+              }
+              // Initialize response with citations
+              setResponse({ role: 'assistant', content: accumulatedContent, citations });
+            } else if (data.type === 'chunk') {
+              // Wait for minimum display time before showing first chunk
+              if (isFirstChunk) {
+                await ensureMinimumLoadingTime();
+                isFirstChunk = false;
+              }
+              accumulatedContent += data.content;
+              setResponse({ role: 'assistant', content: accumulatedContent, citations });
+            } else if (data.type === 'error') {
+              throw new Error(data.error || 'Streaming error');
+            } else if (data.type === 'done') {
+              // Streaming complete
+            }
+          } catch (parseError) {
+            // Skip invalid JSON lines
+            console.warn('Failed to parse chunk:', parseError);
+          }
+        }
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred while processing your request.');
+      setCurrentChat(null);
+      setResponse(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDismissError = () => {
+    setError(null);
+    setCurrentChat(null);
+    setResponse(null);
+    inputRef.current?.focus();
+  };
+
   const handleNewChat = () => {
     setCurrentChat(null);
     setResponse(null);
     setError(null);
     setShowSuggestions(true);
-    setIsInputFocused(false);
-    setIsInputHovered(false);
+    setLastQuery('');
+    // Reset typing animations
+    setNameTypingComplete(false);
+    setInitialAnimationComplete(false);
     clearChatContext();
     inputRef.current?.focus();
   };
@@ -228,154 +560,278 @@ export function ChatInterface() {
       {/* Main chat area */}
       <div className="flex-1 overflow-y-auto flex flex-col">
         {!currentChat && !response && !error ? (
-          /* Empty state - clean minimal design */
-          <div className="flex-1 flex items-center justify-center px-4">
-            <div className="w-full max-w-3xl">
-              {/* Centered title */}
-              <div className="text-center mb-12">
-                <h1
-                  className="text-4xl font-semibold mb-3 transition-all duration-300 hover:scale-105 cursor-pointer"
+          /* Empty state - clean minimal design with animations */
+          <div className="flex-1 flex items-center justify-center px-4 relative overflow-hidden">
+            {/* Subtle background gradient animation */}
+            <motion.div
+              className="absolute inset-0 opacity-30 pointer-events-none"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.3 }}
+              transition={{ duration: 1 }}
+            >
+              <div
+                className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl"
+                style={{
+                  background: `radial-gradient(circle, ${accentColor.replace(')', ' / 0.1)')}, transparent)`,
+                }}
+              />
+              <div
+                className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full blur-3xl"
+                style={{
+                  background: `radial-gradient(circle, ${accentColor.replace(')', ' / 0.08)')}, transparent)`,
+                }}
+              />
+            </motion.div>
+
+            <motion.div
+              className="w-full max-w-3xl relative z-10"
+              layout
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            >
+              {/* Centered title with animations */}
+              <motion.div
+                className="text-center mb-8"
+                layout
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+              >
+                <motion.h1
+                  ref={nameRef}
+                  className="text-3xl sm:text-4xl font-semibold mb-3 cursor-pointer relative group"
                   data-cursor-expand
-                  style={{
-                    transition: 'all 0.3s ease',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.textShadow = `0 0 20px ${accentColor.replace(')', ' / 0.5)')}, 0 0 40px ${accentColor.replace(')', ' / 0.3)')}`;
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.textShadow = 'none';
+                  layout
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{
+                    duration: 0.3,
+                    delay: 0.2,
+                    layout: { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
                   }}
                 >
-                  Hi, I'm {personalInfo.name.split(' ')[0]}
-                </h1>
-                <p className="text-lg text-muted-foreground">
-                  {personalInfo.tagline}
-                </p>
-              </div>
-
-              {/* Larger centered input */}
-              <form onSubmit={handleSubmit} className="mb-8">
-                <div className="relative">
-                  <Input
-                    ref={inputRef}
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Ask about projects, experience, or skills..."
-                    disabled={isLoading}
-                    className="w-full h-16 text-base px-6 pr-16 rounded-xl shadow-sm focus-visible:ring-accent-color transition-all duration-300"
+                  {/* Text with spotlight effect */}
+                  <span
+                    ref={textWrapperRef}
+                    className="relative inline-block"
                     style={{
-                      transition: 'all 0.3s ease',
-                      boxShadow: getInputGlowStyle(isInputFocused, isInputHovered),
+                      color: 'currentColor',
+                      position: 'relative',
                     }}
-                    onFocus={() => setIsInputFocused(true)}
-                    onBlur={() => setIsInputFocused(false)}
-                    onMouseEnter={() => setIsInputHovered(true)}
-                    onMouseLeave={() => setIsInputHovered(false)}
-                    data-cursor-expand
-                  />
-                  <Button
-                    type="submit"
-                    disabled={!query.trim() || isLoading}
-                    size="icon"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 h-10 w-10 rounded-lg bg-accent-color hover:bg-accent-color/90 text-white border-0"
+                    onMouseMove={(e) => {
+                      if (textWrapperRef.current) {
+                        const rect = textWrapperRef.current.getBoundingClientRect();
+                        const x = e.clientX - rect.left;
+                        const y = e.clientY - rect.top;
+                        setMousePosition({ x, y });
+                        setIsMouseOverText(true);
+                      }
+                    }}
+                    onMouseEnter={() => setIsMouseOverText(true)}
+                    onMouseLeave={() => setIsMouseOverText(false)}
                   >
-                    {isLoading ? (
-                      <Loader2 className="h-5 w-5 animate-spin" />
-                    ) : (
-                      <Send className="h-4 w-4" />
-                    )}
-                  </Button>
-                </div>
-              </form>
+                    {/* Base text that shows without hover */}
+                    <span className="group-hover:opacity-0 transition-opacity duration-200">
+                      <TypingAnimation
+                        text={`Hi, I'm ${personalInfo.name.split(' ')[0]}`}
+                        accentColor={accentColor}
+                        hideCursor={nameTypingComplete}
+                        onComplete={() => setNameTypingComplete(true)}
+                      />
+                    </span>
 
-              {/* Suggestions */}
-              {showSuggestions && (
-                <PromptSuggestions
-                  onSelectPrompt={handlePromptSelect}
-                  isVisible={true}
-                  contextType={chatContext.enabled ? chatContext.itemType : null}
-                />
-              )}
-            </div>
+                    {/* Gradient text that shows on hover - ONLY through letters */}
+                    <span
+                      className="absolute inset-0 pointer-events-none select-none transition-opacity duration-150"
+                      style={{
+                        opacity: isMouseOverText ? 1 : 0,
+                        backgroundImage: `radial-gradient(circle 60px at ${mousePosition.x}px ${mousePosition.y}px, ${accentColor} 0%, ${accentColor.replace(')', ' / 0.65)')} 25%, currentColor 60%)`,
+                        WebkitBackgroundClip: 'text',
+                        backgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        color: 'transparent',
+                        fontFamily: 'inherit',
+                        fontSize: 'inherit',
+                        fontWeight: 'inherit',
+                        letterSpacing: 'inherit',
+                        lineHeight: 'inherit',
+                      }}
+                      aria-hidden="true"
+                    >
+                      Hi, I'm {personalInfo.name.split(' ')[0]}
+                    </span>
+                  </span>
+                </motion.h1>
+                <AnimatePresence>
+                  {nameTypingComplete && (
+                    <motion.p
+                      className="text-lg text-muted-foreground"
+                      layout
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{
+                        duration: 0.3,
+                        layout: { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
+                      }}
+                    >
+                      <TypingAnimation
+                        text={personalInfo.tagline}
+                        accentColor={accentColor}
+                        showBlinkingCursor={false}
+                        onComplete={() => {
+                          setTimeout(() => setInitialAnimationComplete(true), 400);
+                        }}
+                      />
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+
+              {/* Suggestions - only show after typing completes */}
+              <AnimatePresence>
+                {showSuggestions && isInitialAnimationComplete && (
+                  <motion.div
+                    layout
+                    initial={{ opacity: 0, y: 40, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{
+                      duration: 0.7,
+                      delay: 0.3,
+                      ease: [0.22, 1, 0.36, 1],
+                      layout: { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
+                    }}
+                  >
+                    <PromptSuggestions
+                      onSelectPrompt={handlePromptSelect}
+                      isVisible={true}
+                      contextType={chatContext.enabled ? chatContext.itemType : null}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
           </div>
         ) : (
-          // Chat messages
-          <div className="flex-1 overflow-y-auto">
-            <div className="space-y-0">
+          // Chat messages with scroll container
+          <div ref={scrollAreaRef} className="flex-1 overflow-y-auto scroll-smooth relative">
+            <div className="space-y-0 pb-4">
               {currentChat && <Message {...currentChat} />}
               {response && (
-                <Message 
-                  {...response} 
+                <Message
+                  {...response}
                   isStreaming={isLoading && response.content.length > 0}
                 />
               )}
-              {isLoading && !response && (
-                <div className="w-full">
-                  <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6">
-                    <div className="flex items-start gap-4">
-                      <div className="flex-shrink-0 mt-1">
-                        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                      </div>
-                      <span className="text-sm text-muted-foreground pt-0.5">Thinking...</span>
-                    </div>
-                  </div>
-                </div>
-              )}
+              <AnimatePresence mode="wait">
+                {isLoading && !response && (
+                  <TerminalLoading key="loading" accentColor={accentColor} />
+                )}
+              </AnimatePresence>
               {error && (
-                <div className="w-full py-6">
+                <motion.div
+                  className="w-full py-6"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3 }}
+                >
                   <div className="max-w-3xl mx-auto px-4 sm:px-6">
-                  <Alert variant="destructive" className="border-destructive/50">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription className="font-medium">{error}</AlertDescription>
-                  </Alert>
+                    <Alert variant="destructive" className="border-destructive/50 relative">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription className="font-medium pr-24">{error}</AlertDescription>
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 flex gap-2">
+                        <Button
+                          onClick={handleRetry}
+                          size="sm"
+                          variant="outline"
+                          className="h-8 gap-2 border-destructive/30 hover:border-destructive/60 hover:bg-destructive/10"
+                        >
+                          <RefreshCw className="h-3 w-3" />
+                          <span className="hidden sm:inline">Retry</span>
+                        </Button>
+                        <Button
+                          onClick={handleDismissError}
+                          size="sm"
+                          variant="ghost"
+                          className="h-8 w-8 p-0 hover:bg-destructive/10"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </Alert>
                   </div>
-                </div>
+                </motion.div>
               )}
+              {/* Scroll anchor */}
+              <div ref={messagesEndRef} className="h-4" />
             </div>
+
+            {/* Floating scroll to bottom button */}
+            <AnimatePresence>
+              {showScrollButton && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-10"
+                >
+                  <Button
+                    onClick={() => scrollToBottom('smooth')}
+                    size="sm"
+                    className="rounded-full shadow-lg bg-accent-color hover:bg-accent-color/90 active:bg-accent-color/80 text-white border-0 h-10 w-10 sm:h-12 sm:w-12 p-0 touch-manipulation"
+                    style={{
+                      boxShadow: `0 4px 12px ${accentColor.replace(')', ' / 0.3)')}, 0 2px 4px ${accentColor.replace(')', ' / 0.2)')}`,
+                    }}
+                  >
+                    <ArrowDown className="h-4 w-4 sm:h-5 sm:w-5" />
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         )}
       </div>
 
-      {/* Input area - only shown when in conversation */}
-      {(currentChat || response) && (
-        <div className="bg-background">
-          <div className="max-w-3xl mx-auto p-4">
-            <form onSubmit={handleSubmit}>
-              <div className="relative">
-                <Input
-                  ref={inputRef}
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Ask a follow-up question..."
-                  disabled={isLoading}
-                  className="w-full h-14 text-base px-5 pr-16 rounded-xl focus-visible:ring-accent-color transition-all duration-300"
-                  style={{
-                    transition: 'all 0.3s ease',
-                    boxShadow: getInputGlowStyle(isInputFocused, isInputHovered),
-                  }}
-                  onFocus={() => setIsInputFocused(true)}
-                  onBlur={() => setIsInputFocused(false)}
-                  onMouseEnter={() => setIsInputHovered(true)}
-                  onMouseLeave={() => setIsInputHovered(false)}
-                  data-cursor-expand
-                />
-                  <Button 
-                    type="submit" 
-                    disabled={!query.trim() || isLoading}
-                    size="icon"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 h-10 w-10 rounded-lg bg-accent-color hover:bg-accent-color/90 text-white border-0"
-                  >
-                    {isLoading ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Send className="h-4 w-4" />
-                    )}
-                  </Button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* Input area - reveal after typing completes */}
+      <AnimatePresence>
+        {(isInitialAnimationComplete || currentChat || response) && (
+          <motion.div
+            className=" bg-background/95 backdrop-blur-xl backdrop-saturate-150 sticky bottom-0 z-20"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{
+              duration: 0.6,
+              delay: 0.4,
+              ease: [0.22, 1, 0.36, 1]
+            }}
+          >
+            <div
+              className="absolute inset-x-0 bottom-full h-12 pointer-events-none"
+              style={{
+                background: 'linear-gradient(to bottom, transparent, hsl(var(--background) / 0.95))',
+              }}
+            />
+            <div className="max-w-3xl mx-auto p-4 sm:p-6">
+              <TerminalInput
+                ref={inputRef}
+                value={query}
+                onChange={setQuery}
+                onSubmit={handleSubmitInput}
+                placeholder={
+                  currentChat || response
+                    ? "Ask a follow-up question..."
+                    : "Ask about projects, experience, or skills..."
+                }
+                disabled={isLoading}
+                accentColor={accentColor}
+                showMobileSendButton={true}
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
