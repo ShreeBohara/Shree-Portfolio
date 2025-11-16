@@ -43,6 +43,10 @@ interface UIState {
   // Initial animation state
   isInitialAnimationComplete: boolean;
   setInitialAnimationComplete: (complete: boolean) => void;
+
+  // Track if layout (Header/Sidebar) has animated at least once
+  hasLayoutAnimatedOnce: boolean;
+  setHasLayoutAnimatedOnce: (animated: boolean) => void;
 }
 
 export const useUIStore = create<UIState>()(
@@ -104,6 +108,10 @@ export const useUIStore = create<UIState>()(
       // Initial animation state
       isInitialAnimationComplete: false,
       setInitialAnimationComplete: (complete) => set({ isInitialAnimationComplete: complete }),
+
+      // Layout animation tracking
+      hasLayoutAnimatedOnce: false,
+      setHasLayoutAnimatedOnce: (animated) => set({ hasLayoutAnimatedOnce: animated }),
     }),
     {
       name: 'portfolio-ui-preferences',

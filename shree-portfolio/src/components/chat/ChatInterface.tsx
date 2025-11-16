@@ -515,9 +515,9 @@ export function ChatInterface() {
     setError(null);
     setShowSuggestions(true);
     setLastQuery('');
-    // Reset typing animations
+    // Reset typing animations for welcome text only
     setNameTypingComplete(false);
-    setInitialAnimationComplete(false);
+    // DON'T reset isInitialAnimationComplete - keep UI components visible!
     clearChatContext();
     inputRef.current?.focus();
   };

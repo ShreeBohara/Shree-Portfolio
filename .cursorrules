@@ -1,0 +1,91 @@
+# Cursor Rules for Shree Portfolio Project
+
+## ❓ When in Doubt, Ask First!
+
+**Before making major changes or if you're unsure about something:**
+- 🙋 Ask Shree for clarification
+- 🤔 Don't guess or assume requirements
+- 💬 Better to ask a quick question than make wrong assumptions
+- ✨ This is a collaborative project - your input matters!
+
+## 📚 Documentation First
+
+When working on this project, **always refer to the `/docs` folder** for:
+- Architecture decisions
+- Component patterns
+- API structure
+- Data models
+- Styling guidelines
+
+**Quick Reference:**
+- `docs/README.md` - Start here for navigation
+- `docs/01-ARCHITECTURE.md` - System design & data flow
+- `docs/02-AI-RAG-SYSTEM.md` - AI implementation details
+- `docs/07-DATA-MODEL.md` - Data structure & types
+- `docs/10-API-ROUTES.md` - API endpoints
+
+## 🔄 Keep Docs Updated
+
+When you make code changes:
+- ✅ Update relevant docs if you change architecture, APIs, or data models
+- ✅ Add brief notes for new patterns or components
+- ❌ Don't update docs for minor bug fixes or refactors
+- ❌ Don't be verbose - keep updates concise
+
+**Example:** If you add a new API endpoint, update `docs/10-API-ROUTES.md` with a brief section.
+
+## 🎯 Code Style
+
+- **TypeScript:** Use strict types, avoid `any`
+- **Components:** Functional components with hooks
+- **Styling:** Tailwind utility classes + `cn()` helper
+- **State:** Zustand for global state (see `docs/08-STATE-MANAGEMENT.md`)
+- **Imports:** Use `@/` aliases for clean imports
+
+## 🎨 UI Patterns
+
+- Use Radix UI primitives (see `docs/06-UI-COMPONENTS.md`)
+- Follow existing component structure
+- Support dark/light theme via CSS variables
+- Use Framer Motion for animations
+- Keep accessibility in mind (ARIA labels, keyboard nav)
+
+## 🤖 AI/RAG System
+
+- Check `docs/02-AI-RAG-SYSTEM.md` before modifying AI code
+- Maintain streaming responses for chat
+- Keep rate limiting (20 req/hour)
+- Use fallback placeholder if vector store unavailable
+
+## 📝 Prompt Engineering Essentials
+
+When writing AI prompts or system messages:
+
+1. **Clear Role + Task:** "You are X. Your job is Y."
+2. **Structure:** [Role] → [Context] → [Guidelines] → [Examples]
+3. **Control Output:** Specify length (2-4 paragraphs), format (bullets), tone (warm/casual)
+4. **Provide Context:** Include relevant info, cite sources when possible
+5. **Handle Edge Cases:** Define fallbacks (e.g., "if no info, suggest booking a call")
+6. **Test & Iterate:** Try various queries, refine based on actual responses
+
+See `docs/02-AI-RAG-SYSTEM.md` for full prompt examples.
+
+## 🚀 Quick Tips
+
+- **Before major changes:** Check docs for existing patterns
+- **After adding features:** Brief doc update if it affects architecture
+- **When stuck:** Refer to relevant doc file first
+- **Keep it simple:** Don't over-engineer solutions
+
+## 💡 Friendly Reminders
+
+- This is a portfolio project - keep it maintainable
+- Documentation helps future you (and others)
+- Small, incremental updates > big rewrites
+- **Keep responses concise** - avoid being overly verbose to save credits
+- Ask if unsure rather than guessing
+
+---
+
+**Remember:** These rules are lightweight guidelines, not strict requirements. Use your judgment and ask Shree if you need clarification! 🎉
+

@@ -10,7 +10,7 @@ import { EducationSection } from '@/components/catalog/EducationSection';
 import { SectionTabs } from '@/components/catalog/SectionTabs';
 import { useUIStore } from '@/store/ui-store';
 import { cn } from '@/lib/utils';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 interface PortfolioLayoutProps {
   children: React.ReactNode;
@@ -19,7 +19,13 @@ interface PortfolioLayoutProps {
 }
 
 export function PortfolioLayout({ children, showCatalog = false, initialSection = 'projects' }: PortfolioLayoutProps) {
-  const { isDetailsPanelOpen, isSidebarOpen, isInitialAnimationComplete } = useUIStore();
+  const {
+    isDetailsPanelOpen,
+    isSidebarOpen,
+    isInitialAnimationComplete,
+    hasLayoutAnimatedOnce,
+    setHasLayoutAnimatedOnce
+  } = useUIStore();
   const [activeSection, setActiveSection] = useState<'projects' | 'experience' | 'education'>(initialSection);
 
   // Update activeSection when initialSection changes
@@ -27,50 +33,53 @@ export function PortfolioLayout({ children, showCatalog = false, initialSection 
     setActiveSection(initialSection);
   }, [initialSection]);
 
+  // Mark layout as animated once the initial animation completes
+  useEffect(() => {
+    if (isInitialAnimationComplete && !hasLayoutAnimatedOnce) {
+      setHasLayoutAnimatedOnce(true);
+    }
+  }, [isInitialAnimationComplete, hasLayoutAnimatedOnce, setHasLayoutAnimatedOnce]);
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Sidebar - Full height */}
-      <AnimatePresence>
-        {isInitialAnimationComplete && (
-          <motion.div
-            initial={{ opacity: 0, x: -40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{
-              duration: 0.6,
-              ease: [0.22, 1, 0.36, 1],
-              opacity: { duration: 0.4 }
-            }}
-          >
-            <Sidebar
-              activeSection={showCatalog ? activeSection : undefined}
-              onSectionChange={showCatalog ? setActiveSection : undefined}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Sidebar - Full height - Animate only on very first load, never again */}
+      {isInitialAnimationComplete && (
+        <motion.div
+          initial={hasLayoutAnimatedOnce ? false : { opacity: 0, x: -40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{
+            duration: 0.6,
+            ease: [0.22, 1, 0.36, 1],
+            opacity: { duration: 0.4 }
+          }}
+        >
+          <Sidebar
+            activeSection={showCatalog ? activeSection : undefined}
+            onSectionChange={showCatalog ? setActiveSection : undefined}
+          />
+        </motion.div>
+      )}
 
       {/* Main layout - starts after sidebar */}
       <div className={cn(
         "flex flex-col h-screen transition-all duration-500",
         isInitialAnimationComplete && (isSidebarOpen ? "lg:ml-[280px]" : "lg:ml-[60px]")
       )}>
-        {/* Header */}
-        <AnimatePresence>
-          {isInitialAnimationComplete && (
-            <motion.div
-              initial={{ opacity: 0, y: -30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{
-                duration: 0.6,
-                delay: 0.15,
-                ease: [0.22, 1, 0.36, 1],
-                opacity: { duration: 0.4 }
-              }}
-            >
-              <Header />
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Header - Animate only on very first load, never again */}
+        {isInitialAnimationComplete && (
+          <motion.div
+            initial={hasLayoutAnimatedOnce ? false : { opacity: 0, y: -30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              duration: 0.6,
+              delay: 0.15,
+              ease: [0.22, 1, 0.36, 1],
+              opacity: { duration: 0.4 }
+            }}
+          >
+            <Header />
+          </motion.div>
+        )}
 
         {/* Main content area */}
         <main
