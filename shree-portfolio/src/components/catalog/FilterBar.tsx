@@ -45,6 +45,20 @@ export function FilterBar({
 }: FilterBarProps) {
   const { viewMode, setViewMode } = useUIStore();
 
+  const handleClearFilters = () => {
+    onCategoryChange(['all']);
+    onSearchChange('');
+    onSortChange('recent');
+    onGroupChange('none');
+  };
+
+  const isDefaultFilters =
+    selectedCategories.length === 1 &&
+    selectedCategories[0] === 'all' &&
+    searchQuery === '' &&
+    sortBy === 'recent' &&
+    groupBy === 'none';
+
   const toggleCategory = (categoryId: string) => {
     if (categoryId === 'all') {
       onCategoryChange(['all']);
@@ -144,7 +158,13 @@ export function FilterBar({
 
           <div className="flex-1" />
           
-          <Button variant="outline" size="sm" className="gap-2 hover:border-accent-color/50 hover:text-accent-color hover:bg-accent-color/10">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2 hover:border-accent-color/50 hover:text-accent-color hover:bg-accent-color/10"
+            onClick={handleClearFilters}
+            disabled={isDefaultFilters}
+          >
             <Filter className="h-4 w-4" />
             Clear filters
           </Button>
