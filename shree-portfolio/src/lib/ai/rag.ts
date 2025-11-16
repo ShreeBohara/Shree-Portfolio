@@ -1,6 +1,6 @@
 import { retrieveRelevantContent, extractCitations } from './retrieval';
 import { buildMessages } from './prompts';
-import { openai } from './client';
+import { getOpenAIClient, isOpenAIConfigured } from './client';
 import { AI_CONFIG } from './config';
 import { Citation } from '@/data/types';
 import { getAIResponse } from './rag-placeholder'; // Fallback
@@ -27,9 +27,9 @@ export async function getRAGResponse(
 ): Promise<RAGResponse> {
   // Check if vector store is available
   const { isVectorStoreAvailable } = await import('./vector-store');
-  
-  if (!isVectorStoreAvailable()) {
-    console.warn('Vector store not available, using placeholder response');
+
+  if (!isVectorStoreAvailable() || !isOpenAIConfigured()) {
+    console.warn('Vector store or OpenAI client not available, using placeholder response');
     return getAIResponse(query, context);
   }
 
@@ -66,6 +66,7 @@ export async function getRAGResponse(
     console.log(`[RAG] User prompt preview: ${messages[1].content.substring(0, 500)}...`);
 
     // Generate response using OpenAI
+    const openai = getOpenAIClient();
     const completion = await openai.chat.completions.create({
       model: AI_CONFIG.model,
       messages: messages as any,
@@ -102,8 +103,8 @@ export async function* streamRAGResponse(
   // Check if vector store is available
   const { isVectorStoreAvailable } = await import('./vector-store');
   
-  if (!isVectorStoreAvailable()) {
-    console.warn('Vector store not available, using placeholder response');
+  if (!isVectorStoreAvailable() || !isOpenAIConfigured()) {
+    console.warn('Vector store or OpenAI client not available, using placeholder response');
     const response = await getAIResponse(query, context);
     // Stream the response word by word as fallback
     const words = response.answer.split(' ');
@@ -150,6 +151,7 @@ export async function* streamRAGResponse(
     const messages = buildMessages(query, retrievedChunks, context);
 
     // Stream response using OpenAI
+    const openai = getOpenAIClient();
     const stream = await openai.chat.completions.create({
       model: AI_CONFIG.model,
       messages: messages as any,

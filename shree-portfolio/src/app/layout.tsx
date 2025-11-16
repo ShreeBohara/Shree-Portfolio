@@ -1,19 +1,6 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeColorProvider } from "@/components/providers/ThemeColorProvider";
-
-const inter = Inter({
-  subsets: ["latin"],
-  display: 'swap',
-  variable: '--font-sans',
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  display: 'swap',
-  variable: '--font-mono',
-});
 
 export const metadata: Metadata = {
   title: "Shree Bohara - Portfolio",
@@ -34,9 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body
-        className={`${inter.variable} ${jetbrainsMono.variable} font-mono antialiased bg-background text-foreground`}
-      >
+      <body className="font-mono antialiased bg-background text-foreground">
         <ThemeColorProvider>
           {children}
         </ThemeColorProvider>

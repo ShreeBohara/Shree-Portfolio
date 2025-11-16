@@ -1,4 +1,4 @@
-import { openai } from './client';
+import { getOpenAIClient, isOpenAIConfigured } from './client';
 import { ContentChunk } from './chunking';
 import { getCachedEmbedding, setCachedEmbedding } from './cache';
 
@@ -10,6 +10,11 @@ const BATCH_SIZE = 100; // OpenAI allows up to 2048 inputs per request
  * Generates embeddings for a single text (with caching)
  */
 export async function generateEmbedding(text: string): Promise<number[]> {
+  if (!isOpenAIConfigured()) {
+    throw new Error('OpenAI is not configured. Set OPENAI_API_KEY to generate embeddings.');
+  }
+
+  const openai = getOpenAIClient();
   // Check cache first
   const cached = getCachedEmbedding(text);
   if (cached) {
@@ -39,6 +44,11 @@ export async function generateEmbedding(text: string): Promise<number[]> {
  * Generates embeddings for multiple texts in batches
  */
 export async function generateEmbeddingsBatch(texts: string[]): Promise<number[][]> {
+  if (!isOpenAIConfigured()) {
+    throw new Error('OpenAI is not configured. Set OPENAI_API_KEY to generate embeddings.');
+  }
+
+  const openai = getOpenAIClient();
   const embeddings: number[][] = [];
   
   // Process in batches
