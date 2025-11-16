@@ -2,6 +2,7 @@
 
 ## 📋 Table of Contents
 
+
 1. [Executive Summary](#executive-summary)
 2. [Architecture Overview](#architecture-overview)
 3. [Technology Stack](#technology-stack)
