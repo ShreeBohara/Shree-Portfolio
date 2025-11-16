@@ -63,7 +63,7 @@ function TypingAnimation({ text, accentColor, showBlinkingCursor = true, hideCur
           className="inline-block ml-1"
           style={{
             backgroundColor: accentColor,
-            width: '4px',
+            width: '6px',
             height: '1.2em',
             boxShadow: `0 0 10px ${accentColor.replace(')', ' / 0.6)')}`,
             opacity: cursorVisible ? 1 : 0,
@@ -165,6 +165,7 @@ export function ChatInterface() {
   const [lastQuery, setLastQuery] = useState<string>('');
   const [accentColor, setAccentColor] = useState('oklch(0.72 0.12 185)');
   const [nameTypingComplete, setNameTypingComplete] = useState(false);
+  const [taglineTypingComplete, setTaglineTypingComplete] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 }); // For spotlight effect in pixels
@@ -517,6 +518,7 @@ export function ChatInterface() {
     setLastQuery('');
     // Reset typing animations for welcome text only
     setNameTypingComplete(false);
+    setTaglineTypingComplete(false);
     // DON'T reset isInitialAnimationComplete - keep UI components visible!
     clearChatContext();
     inputRef.current?.focus();
@@ -560,8 +562,8 @@ export function ChatInterface() {
       {/* Main chat area */}
       <div className="flex-1 overflow-y-auto flex flex-col">
         {!currentChat && !response && !error ? (
-          /* Empty state - clean minimal design with animations */
-          <div className="flex-1 flex items-center justify-center px-4 relative overflow-hidden">
+          /* Empty state - properly centered */
+          <div className="flex-1 px-4 relative overflow-hidden flex items-center justify-center">
             {/* Subtle background gradient animation */}
             <motion.div
               className="absolute inset-0 opacity-30 pointer-events-none"
@@ -583,32 +585,32 @@ export function ChatInterface() {
               />
             </motion.div>
 
-            <motion.div
-              className="w-full max-w-3xl relative z-10"
-              layout
-              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            >
-              {/* Centered title with animations */}
-              <motion.div
-                className="text-center mb-8"
-                layout
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, ease: "easeOut" }}
-              >
-                <motion.h1
-                  ref={nameRef}
-                  className="text-3xl sm:text-4xl font-semibold mb-3 cursor-pointer relative group"
-                  data-cursor-expand
-                  layout
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{
-                    duration: 0.3,
-                    delay: 0.2,
-                    layout: { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
-                  }}
-                >
+            <div className="w-full max-w-3xl relative z-10">
+              {/* Title at FINAL position - both shrink together after ALL typing completes */}
+              {/* Wrapper to prevent layout shift during scale */}
+              <div className="text-center mb-6 relative">
+                <div className="flex flex-col items-center justify-start">
+                  {/* Name - stays big until BOTH done typing */}
+                  <motion.h1
+                    ref={nameRef}
+                    className="text-3xl sm:text-4xl font-semibold mb-3 cursor-pointer group"
+                    data-cursor-expand
+                    initial={{ opacity: 0, scale: 1.5 }}
+                    animate={{
+                      opacity: 1,
+                      scale: taglineTypingComplete ? 1 : 1.5  // Shrinks only after tagline completes
+                    }}
+                    transition={{
+                      opacity: { duration: 0.4, delay: 0.2 },
+                      scale: { duration: 0.8, ease: [0.22, 1, 0.36, 1] }
+                    }}
+                    style={{
+                      transformOrigin: 'center center',
+                      willChange: 'transform',
+                      position: 'relative',
+                      display: 'inline-block'
+                    }}
+                  >
                   {/* Text with spotlight effect */}
                   <span
                     ref={textWrapperRef}
@@ -660,45 +662,53 @@ export function ChatInterface() {
                       Hi, I'm {personalInfo.name.split(' ')[0]}
                     </span>
                   </span>
-                </motion.h1>
-                <AnimatePresence>
-                  {nameTypingComplete && (
-                    <motion.p
-                      className="text-lg text-muted-foreground"
-                      layout
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{
-                        duration: 0.3,
-                        layout: { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
-                      }}
-                    >
+                  </motion.h1>
+
+                  {/* Tagline - stays big until typing completes, then BOTH shrink together */}
+                  <motion.p
+                    className="text-lg text-muted-foreground"
+                    initial={{ opacity: 0, scale: 1.4 }}
+                    animate={{
+                      opacity: nameTypingComplete ? 1 : 0,
+                      scale: taglineTypingComplete ? 1 : 1.4  // Shrinks at same time as name
+                    }}
+                    transition={{
+                      opacity: { duration: 0.3 },
+                      scale: { duration: 0.8, ease: [0.22, 1, 0.36, 1] }
+                    }}
+                    style={{
+                      transformOrigin: 'center center',
+                      willChange: 'transform',
+                      position: 'relative',
+                      display: 'inline-block'
+                    }}
+                  >
+                    {nameTypingComplete && (
                       <TypingAnimation
                         text={personalInfo.tagline}
                         accentColor={accentColor}
-                        showBlinkingCursor={false}
+                        showBlinkingCursor={true}
                         onComplete={() => {
+                          setTaglineTypingComplete(true);
                           setTimeout(() => setInitialAnimationComplete(true), 400);
                         }}
                       />
-                    </motion.p>
-                  )}
-                </AnimatePresence>
-              </motion.div>
+                    )}
+                  </motion.p>
+                </div>
+              </div>
 
-              {/* Suggestions - only show after typing completes */}
-              <AnimatePresence>
+              {/* Suggestions - reserve exact space to prevent position shift */}
+              <div style={{ minHeight: '220px' }}>
                 {showSuggestions && isInitialAnimationComplete && (
                   <motion.div
-                    layout
-                    initial={{ opacity: 0, y: 40, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -10 }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
                     transition={{
                       duration: 0.7,
                       delay: 0.3,
-                      ease: [0.22, 1, 0.36, 1],
-                      layout: { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
+                      ease: [0.22, 1, 0.36, 1]
                     }}
                   >
                     <PromptSuggestions
@@ -708,8 +718,8 @@ export function ChatInterface() {
                     />
                   </motion.div>
                 )}
-              </AnimatePresence>
-            </motion.div>
+              </div>
+            </div>
           </div>
         ) : (
           // Chat messages with scroll container
