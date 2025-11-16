@@ -42,44 +42,44 @@ export function PortfolioLayout({ children, showCatalog = false, initialSection 
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Sidebar - Full height - Animate only on very first load, never again */}
-      {isInitialAnimationComplete && (
-        <motion.div
-          initial={hasLayoutAnimatedOnce ? false : { opacity: 0, x: -40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{
-            duration: 0.6,
-            ease: [0.22, 1, 0.36, 1],
-            opacity: { duration: 0.4 }
-          }}
-        >
-          <Sidebar
-            activeSection={showCatalog ? activeSection : undefined}
-            onSectionChange={showCatalog ? setActiveSection : undefined}
-          />
-        </motion.div>
-      )}
+      {/* Sidebar - Always rendered, control visibility with opacity */}
+      <motion.div
+        initial={hasLayoutAnimatedOnce ? { opacity: 1 } : { opacity: 0 }}
+        animate={{ opacity: isInitialAnimationComplete ? 1 : 0 }}
+        transition={{
+          duration: 0.6,
+          ease: [0.22, 1, 0.36, 1]
+        }}
+      >
+        <Sidebar
+          activeSection={showCatalog ? activeSection : undefined}
+          onSectionChange={showCatalog ? setActiveSection : undefined}
+        />
+      </motion.div>
 
       {/* Main layout - starts after sidebar */}
       <div className={cn(
         "flex flex-col h-screen transition-all duration-500",
-        isInitialAnimationComplete && (isSidebarOpen ? "lg:ml-[280px]" : "lg:ml-[60px]")
+        isSidebarOpen ? "lg:ml-[280px]" : "lg:ml-[60px]"
       )}>
-        {/* Header - Animate only on very first load, never again */}
-        {isInitialAnimationComplete && (
-          <motion.div
-            initial={hasLayoutAnimatedOnce ? false : { opacity: 0, y: -30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{
-              duration: 0.6,
-              delay: 0.15,
-              ease: [0.22, 1, 0.36, 1],
-              opacity: { duration: 0.4 }
-            }}
-          >
-            <Header />
-          </motion.div>
-        )}
+        {/* Header - Always rendered, control visibility with opacity */}
+        <motion.div
+          initial={hasLayoutAnimatedOnce ? { opacity: 1 } : { opacity: 0 }}
+          animate={{ opacity: isInitialAnimationComplete ? 1 : 0 }}
+          transition={{
+            duration: 0.6,
+            delay: 0.15,
+            ease: [0.22, 1, 0.36, 1]
+          }}
+          onAnimationComplete={() => {
+            console.log('🎨 HEADER FADE ANIMATION COMPLETE:', {
+              opacity: isInitialAnimationComplete ? 1 : 0,
+              isInitialAnimationComplete
+            });
+          }}
+        >
+          <Header />
+        </motion.div>
 
         {/* Main content area */}
         <main

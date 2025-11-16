@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 // Removed placeholder import - using streaming API instead
 import { personalInfo, projects, experiences, education } from '@/data/portfolio';
 import { getCurrentAccentColor } from '@/hooks/useThemeColor';
+import { cn } from '@/lib/utils';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -179,7 +180,13 @@ export function ChatInterface() {
   const textWrapperRef = useRef<HTMLSpanElement>(null);
   const MIN_LOADING_DISPLAY_TIME = 2000; // 2 seconds minimum loading display
 
-  const { chatContext, clearChatContext, newChatTrigger, isInitialAnimationComplete, setInitialAnimationComplete } = useUIStore();
+  const { chatContext, clearChatContext, newChatTrigger, isInitialAnimationComplete, setInitialAnimationComplete, hasLayoutAnimatedOnce } = useUIStore();
+
+  // DEBUG: Track container and positions
+  const containerRef = useRef<HTMLDivElement>(null);
+  const outerContainerRef = useRef<HTMLDivElement>(null);
+  const animationFrameRef = useRef<number | null>(null);
+  const previousPositionRef = useRef<{ top: number; left: number } | null>(null);
 
   // Get context item title
   const getContextItemTitle = () => {
@@ -218,6 +225,36 @@ export function ChatInterface() {
 
     return () => observer.disconnect();
   }, []);
+
+  // DEBUG: Log position measurements at key moments
+  useEffect(() => {
+    if (nameRef.current && outerContainerRef.current && containerRef.current) {
+      const nameRect = nameRef.current.getBoundingClientRect();
+      const containerRect = outerContainerRef.current.getBoundingClientRect();
+      const innerContainerRect = containerRef.current.getBoundingClientRect();
+
+      // Get computed styles to check for any transforms
+      const nameStyles = window.getComputedStyle(nameRef.current);
+      const transform = nameStyles.transform;
+
+      console.log('🔵 STATE CHANGE:', {
+        nameTypingComplete,
+        taglineTypingComplete,
+        isInitialAnimationComplete,
+        namePosition: {
+          top: nameRect.top.toFixed(2) + 'px',
+          left: nameRect.left.toFixed(2) + 'px',
+          height: nameRect.height.toFixed(2) + 'px',
+          width: nameRect.width.toFixed(2) + 'px'
+        },
+        outerContainerHeight: containerRect.height.toFixed(2) + 'px',
+        innerContainerTop: innerContainerRect.top.toFixed(2) + 'px',
+        innerContainerHeight: innerContainerRect.height.toFixed(2) + 'px',
+        transform: transform,
+        viewportHeight: window.innerHeight
+      });
+    }
+  }, [nameTypingComplete, taglineTypingComplete, isInitialAnimationComplete]);
 
   // Listen for new chat trigger from navbar
   useEffect(() => {
@@ -563,7 +600,7 @@ export function ChatInterface() {
       <div className="flex-1 overflow-y-auto flex flex-col">
         {!currentChat && !response && !error ? (
           /* Empty state - properly centered */
-          <div className="flex-1 px-4 relative overflow-hidden flex items-center justify-center">
+          <div ref={outerContainerRef} className="flex-1 px-4 relative overflow-hidden flex items-center justify-center">
             {/* Subtle background gradient animation */}
             <motion.div
               className="absolute inset-0 opacity-30 pointer-events-none"
@@ -585,30 +622,117 @@ export function ChatInterface() {
               />
             </motion.div>
 
-            <div className="w-full max-w-3xl relative z-10">
+            <div ref={containerRef} className="w-full max-w-3xl relative z-10">
               {/* Title at FINAL position - both shrink together after ALL typing completes */}
               {/* Wrapper to prevent layout shift during scale */}
               <div className="text-center mb-6 relative">
                 <div className="flex flex-col items-center justify-start">
-                  {/* Name - stays big until BOTH done typing */}
+                  {/* Name - stays big until BOTH done typing (only on first load) */}
                   <motion.h1
                     ref={nameRef}
-                    className="text-3xl sm:text-4xl font-semibold mb-3 cursor-pointer group"
-                    data-cursor-expand
-                    initial={{ opacity: 0, scale: 1.5 }}
+                    className={cn(
+                      "text-3xl sm:text-4xl font-semibold mb-3 group",
+                      hasLayoutAnimatedOnce && "cursor-pointer"
+                    )}
+                    data-cursor-expand={hasLayoutAnimatedOnce ? true : undefined}
+                    initial={{ opacity: 0, scale: hasLayoutAnimatedOnce ? 1 : 1.5 }}
                     animate={{
                       opacity: 1,
-                      scale: taglineTypingComplete ? 1 : 1.5  // Shrinks only after tagline completes
+                      scale: hasLayoutAnimatedOnce ? 1 : (taglineTypingComplete ? 1 : 1.5)  // Only scale on first load
                     }}
                     transition={{
                       opacity: { duration: 0.4, delay: 0.2 },
                       scale: { duration: 0.8, ease: [0.22, 1, 0.36, 1] }
                     }}
+                    onAnimationStart={() => {
+                      if (nameRef.current && outerContainerRef.current && containerRef.current) {
+                        const nameRect = nameRef.current.getBoundingClientRect();
+                        const outerRect = outerContainerRef.current.getBoundingClientRect();
+                        const innerRect = containerRef.current.getBoundingClientRect();
+                        const nameStyles = window.getComputedStyle(nameRef.current);
+
+                        previousPositionRef.current = { top: nameRect.top, left: nameRect.left };
+
+                        console.log('🟢 NAME SCALE ANIMATION START:', {
+                          targetScale: taglineTypingComplete ? '1.0 (shrinking)' : '1.5 (big)',
+                          name: {
+                            top: nameRect.top.toFixed(2) + 'px',
+                            left: nameRect.left.toFixed(2) + 'px',
+                            height: nameRect.height.toFixed(2) + 'px',
+                            width: nameRect.width.toFixed(2) + 'px'
+                          },
+                          containers: {
+                            outerHeight: outerRect.height.toFixed(2) + 'px',
+                            innerTop: innerRect.top.toFixed(2) + 'px',
+                            innerHeight: innerRect.height.toFixed(2) + 'px'
+                          },
+                          transform: nameStyles.transform,
+                          transformOrigin: nameStyles.transformOrigin
+                        });
+
+                        // Start frame-by-frame tracking to catch the flick
+                        const trackPosition = () => {
+                          if (nameRef.current && previousPositionRef.current) {
+                            const currentRect = nameRef.current.getBoundingClientRect();
+                            const deltaTop = Math.abs(currentRect.top - previousPositionRef.current.top);
+                            const deltaLeft = Math.abs(currentRect.left - previousPositionRef.current.left);
+
+                            // Only log if position changed by more than 1px
+                            if (deltaTop > 1 || deltaLeft > 1) {
+                              console.log('🔍 POSITION SHIFT DETECTED:', {
+                                previousTop: previousPositionRef.current.top.toFixed(2) + 'px',
+                                currentTop: currentRect.top.toFixed(2) + 'px',
+                                deltaTop: deltaTop.toFixed(2) + 'px',
+                                deltaLeft: deltaLeft.toFixed(2) + 'px'
+                              });
+                            }
+
+                            previousPositionRef.current = { top: currentRect.top, left: currentRect.left };
+                          }
+                          animationFrameRef.current = requestAnimationFrame(trackPosition);
+                        };
+
+                        animationFrameRef.current = requestAnimationFrame(trackPosition);
+                      }
+                    }}
+                    onAnimationComplete={() => {
+                      // Stop frame-by-frame tracking
+                      if (animationFrameRef.current) {
+                        cancelAnimationFrame(animationFrameRef.current);
+                        animationFrameRef.current = null;
+                      }
+
+                      if (nameRef.current && outerContainerRef.current && containerRef.current) {
+                        const nameRect = nameRef.current.getBoundingClientRect();
+                        const outerRect = outerContainerRef.current.getBoundingClientRect();
+                        const innerRect = containerRef.current.getBoundingClientRect();
+                        const nameStyles = window.getComputedStyle(nameRef.current);
+
+                        console.log('🔴 NAME SCALE ANIMATION COMPLETE:', {
+                          finalScale: taglineTypingComplete ? '1.0 (normal)' : '1.5 (big)',
+                          name: {
+                            top: nameRect.top.toFixed(2) + 'px',
+                            left: nameRect.left.toFixed(2) + 'px',
+                            height: nameRect.height.toFixed(2) + 'px',
+                            width: nameRect.width.toFixed(2) + 'px'
+                          },
+                          containers: {
+                            outerHeight: outerRect.height.toFixed(2) + 'px',
+                            innerTop: innerRect.top.toFixed(2) + 'px',
+                            innerHeight: innerRect.height.toFixed(2) + 'px'
+                          },
+                          transform: nameStyles.transform,
+                          transformOrigin: nameStyles.transformOrigin
+                        });
+                      }
+                    }}
                     style={{
-                      transformOrigin: 'center center',
+                      transformOrigin: 'center top',
+
                       willChange: 'transform',
                       position: 'relative',
-                      display: 'inline-block'
+                      display: 'inline-flex',
+                      justifyContent: 'center'
                     }}
                   >
                   {/* Text with spotlight effect */}
@@ -620,7 +744,8 @@ export function ChatInterface() {
                       position: 'relative',
                     }}
                     onMouseMove={(e) => {
-                      if (textWrapperRef.current) {
+                      // Disable glow effect during first load animation
+                      if (textWrapperRef.current && hasLayoutAnimatedOnce) {
                         const rect = textWrapperRef.current.getBoundingClientRect();
                         const x = e.clientX - rect.left;
                         const y = e.clientY - rect.top;
@@ -628,24 +753,30 @@ export function ChatInterface() {
                         setIsMouseOverText(true);
                       }
                     }}
-                    onMouseEnter={() => setIsMouseOverText(true)}
+                    onMouseEnter={() => hasLayoutAnimatedOnce && setIsMouseOverText(true)}
                     onMouseLeave={() => setIsMouseOverText(false)}
                   >
                     {/* Base text that shows without hover */}
-                    <span className="group-hover:opacity-0 transition-opacity duration-200">
+                    <span className={cn(
+                      "transition-opacity duration-200",
+                      hasLayoutAnimatedOnce && "group-hover:opacity-0"
+                    )}>
                       <TypingAnimation
                         text={`Hi, I'm ${personalInfo.name.split(' ')[0]}`}
                         accentColor={accentColor}
                         hideCursor={nameTypingComplete}
-                        onComplete={() => setNameTypingComplete(true)}
+                        onComplete={() => {
+                          console.log('✅ NAME TYPING COMPLETE');
+                          setNameTypingComplete(true);
+                        }}
                       />
                     </span>
 
-                    {/* Gradient text that shows on hover - ONLY through letters */}
+                    {/* Gradient text that shows on hover - ONLY through letters (disabled during first load) */}
                     <span
                       className="absolute inset-0 pointer-events-none select-none transition-opacity duration-150"
                       style={{
-                        opacity: isMouseOverText ? 1 : 0,
+                        opacity: (isMouseOverText && hasLayoutAnimatedOnce) ? 1 : 0,
                         backgroundImage: `radial-gradient(circle 60px at ${mousePosition.x}px ${mousePosition.y}px, ${accentColor} 0%, ${accentColor.replace(')', ' / 0.65)')} 25%, currentColor 60%)`,
                         WebkitBackgroundClip: 'text',
                         backgroundClip: 'text',
@@ -664,23 +795,24 @@ export function ChatInterface() {
                   </span>
                   </motion.h1>
 
-                  {/* Tagline - stays big until typing completes, then BOTH shrink together */}
+                  {/* Tagline - stays big until typing completes, then BOTH shrink together (only on first load) */}
                   <motion.p
                     className="text-lg text-muted-foreground"
-                    initial={{ opacity: 0, scale: 1.4 }}
+                    initial={{ opacity: 0, scale: hasLayoutAnimatedOnce ? 1 : 1.4 }}
                     animate={{
                       opacity: nameTypingComplete ? 1 : 0,
-                      scale: taglineTypingComplete ? 1 : 1.4  // Shrinks at same time as name
+                      scale: hasLayoutAnimatedOnce ? 1 : (taglineTypingComplete ? 1 : 1.4)  // Only scale on first load
                     }}
                     transition={{
                       opacity: { duration: 0.3 },
                       scale: { duration: 0.8, ease: [0.22, 1, 0.36, 1] }
                     }}
                     style={{
-                      transformOrigin: 'center center',
+                      transformOrigin: 'center top',
                       willChange: 'transform',
                       position: 'relative',
-                      display: 'inline-block'
+                      display: 'inline-flex',
+                      justifyContent: 'center'
                     }}
                   >
                     {nameTypingComplete && (
@@ -689,8 +821,12 @@ export function ChatInterface() {
                         accentColor={accentColor}
                         showBlinkingCursor={true}
                         onComplete={() => {
+                          console.log('✅ TAGLINE TYPING COMPLETE');
                           setTaglineTypingComplete(true);
-                          setTimeout(() => setInitialAnimationComplete(true), 400);
+                          setTimeout(() => {
+                            console.log('✅ SET INITIAL ANIMATION COMPLETE');
+                            setInitialAnimationComplete(true);
+                          }, 400);
                         }}
                       />
                     )}
@@ -698,27 +834,36 @@ export function ChatInterface() {
                 </div>
               </div>
 
-              {/* Suggestions - reserve exact space to prevent position shift */}
-              <div style={{ minHeight: '220px' }}>
-                {showSuggestions && isInitialAnimationComplete && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{
-                      duration: 0.7,
-                      delay: 0.3,
-                      ease: [0.22, 1, 0.36, 1]
-                    }}
-                  >
-                    <PromptSuggestions
-                      onSelectPrompt={handlePromptSelect}
-                      isVisible={true}
-                      contextType={chatContext.enabled ? chatContext.itemType : null}
-                    />
-                  </motion.div>
-                )}
-              </div>
+              {/* Suggestions - always rendered, control visibility with opacity */}
+              <motion.div
+                initial={hasLayoutAnimatedOnce ? { opacity: 1 } : { opacity: 0 }}
+                animate={{
+                  opacity: (showSuggestions && isInitialAnimationComplete) ? 1 : 0
+                }}
+                transition={{
+                  duration: 0.7,
+                  delay: 0.3,
+                  ease: [0.22, 1, 0.36, 1]
+                }}
+                onAnimationStart={() => {
+                  console.log('💡 SUGGESTIONS FADE START');
+                }}
+                onAnimationComplete={() => {
+                  if (nameRef.current) {
+                    const nameRect = nameRef.current.getBoundingClientRect();
+                    console.log('💡 SUGGESTIONS FADE COMPLETE - Name position:', {
+                      top: nameRect.top.toFixed(2) + 'px',
+                      left: nameRect.left.toFixed(2) + 'px'
+                    });
+                  }
+                }}
+              >
+                <PromptSuggestions
+                  onSelectPrompt={handlePromptSelect}
+                  isVisible={true}
+                  contextType={chatContext.enabled ? chatContext.itemType : null}
+                />
+              </motion.div>
             </div>
           </div>
         ) : (
@@ -803,45 +948,62 @@ export function ChatInterface() {
         )}
       </div>
 
-      {/* Input area - reveal after typing completes */}
-      <AnimatePresence>
-        {(isInitialAnimationComplete || currentChat || response) && (
-          <motion.div
-            className=" bg-background/95 backdrop-blur-xl backdrop-saturate-150 sticky bottom-0 z-20"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            transition={{
-              duration: 0.6,
-              delay: 0.4,
-              ease: [0.22, 1, 0.36, 1]
-            }}
-          >
-            <div
-              className="absolute inset-x-0 bottom-full h-12 pointer-events-none"
-              style={{
-                background: 'linear-gradient(to bottom, transparent, hsl(var(--background) / 0.95))',
-              }}
-            />
-            <div className="max-w-3xl mx-auto p-4 sm:p-6">
-              <TerminalInput
-                ref={inputRef}
-                value={query}
-                onChange={setQuery}
-                onSubmit={handleSubmitInput}
-                placeholder={
-                  currentChat || response
-                    ? "Ask a follow-up question..."
-                    : "Ask about projects, experience, or skills..."
-                }
-                disabled={isLoading}
-                accentColor={accentColor}
-                showMobileSendButton={true}
-              />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Input area - always rendered, control visibility with opacity */}
+      <motion.div
+        className=" bg-background/95 backdrop-blur-xl backdrop-saturate-150 sticky bottom-0 z-20"
+        initial={hasLayoutAnimatedOnce ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+        animate={{
+          opacity: (isInitialAnimationComplete || currentChat || response) ? 1 : 0,
+          y: 0
+        }}
+        transition={{
+          duration: 0.6,
+          delay: 0.4,
+          ease: [0.22, 1, 0.36, 1]
+        }}
+        onAnimationComplete={() => {
+          if (nameRef.current && outerContainerRef.current) {
+            const nameRect = nameRef.current.getBoundingClientRect();
+            const containerRect = outerContainerRef.current.getBoundingClientRect();
+
+            console.log('⌨️ INPUT BOX ANIMATION COMPLETE:', {
+              opacity: (isInitialAnimationComplete || currentChat || response) ? 1 : 0,
+              isInitialAnimationComplete,
+              hasCurrentChat: !!currentChat,
+              hasResponse: !!response,
+              namePositionAfter: {
+                top: nameRect.top.toFixed(2) + 'px',
+                left: nameRect.left.toFixed(2) + 'px'
+              },
+              containerHeight: containerRect.height.toFixed(2) + 'px'
+            });
+          }
+        }}
+      >
+        <div
+          className="absolute inset-x-0 bottom-full h-12 pointer-events-none"
+          style={{
+            background: 'linear-gradient(to bottom, transparent, hsl(var(--background) / 0.95))',
+          }}
+        />
+        <div className="max-w-3xl mx-auto p-4 sm:p-6">
+          <TerminalInput
+            ref={inputRef}
+            value={query}
+            onChange={setQuery}
+            onSubmit={handleSubmitInput}
+            placeholder={
+              currentChat || response
+                ? "Ask a follow-up question..."
+                : "Ask about projects, experience, or skills..."
+            }
+            disabled={isLoading}
+            accentColor={accentColor}
+            showMobileSendButton={true}
+          />
+        </div>
+      </motion.div>
     </div>
   );
 }
+
