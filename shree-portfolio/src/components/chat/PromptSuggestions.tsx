@@ -109,7 +109,7 @@ export function PromptSuggestions({ onSelectPrompt, isVisible, contextType }: Pr
   if (!isVisible) return null;
 
   // Select the appropriate suggestions based on context
-  const suggestions = contextType === 'project'
+  const allSuggestions = contextType === 'project'
     ? projectSuggestions
     : contextType === 'experience'
     ? experienceSuggestions
@@ -117,26 +117,32 @@ export function PromptSuggestions({ onSelectPrompt, isVisible, contextType }: Pr
     ? educationSuggestions
     : defaultSuggestions;
 
+  // Show only first 2 suggestions on mobile for minimalist design
+  const suggestions = allSuggestions;
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="grid gap-3 sm:grid-cols-2 max-w-3xl mx-auto"
+      className="grid gap-2 sm:gap-3 grid-cols-2 max-w-3xl mx-auto"
     >
       {suggestions.map((item, index) => {
         const Icon = item.icon;
+        // Hide last 2 cards on mobile
+        const isHiddenOnMobile = index >= 2;
+
         return (
           <motion.div
             key={item.prompt}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1, type: 'spring', stiffness: 100 }}
-            className="relative group"
+            className={`relative group ${isHiddenOnMobile ? 'hidden sm:block' : ''}`}
           >
-            {/* Animated border gradient on hover */}
+            {/* Animated border gradient on hover - hidden on mobile for performance */}
             <div
-              className="absolute -inset-0.5 rounded-xl opacity-0 group-hover:opacity-75 blur-sm transition-opacity duration-300"
+              className="hidden sm:block absolute -inset-0.5 rounded-xl opacity-0 group-hover:opacity-75 blur-sm transition-opacity duration-300"
               style={{
                 background: 'linear-gradient(90deg, var(--accent-color), transparent, var(--accent-color))',
                 backgroundSize: '200% 100%',
@@ -146,17 +152,17 @@ export function PromptSuggestions({ onSelectPrompt, isVisible, contextType }: Pr
 
             <button
               onClick={() => onSelectPrompt(item.prompt)}
-              className="relative w-full text-left px-5 py-4 rounded-xl border bg-gradient-to-br transition-all duration-200 backdrop-blur-sm hover:shadow-xl hover:shadow-accent-color/10 border-border/50 from-card/80 via-card/80 to-muted/40 dark:border-zinc-700/50 dark:from-zinc-900/50 dark:via-zinc-900/50 dark:to-zinc-800/50 group-hover:border-accent-color/50"
+              className="relative w-full text-left px-3 py-3 sm:px-5 sm:py-4 rounded-lg sm:rounded-xl border bg-gradient-to-br transition-all duration-200 backdrop-blur-sm hover:shadow-xl hover:shadow-accent-color/10 border-border/50 from-card/80 via-card/80 to-muted/40 dark:border-zinc-700/50 dark:from-zinc-900/50 dark:via-zinc-900/50 dark:to-zinc-800/50 group-hover:border-accent-color/50 touch-manipulation"
             >
-              <div className="flex items-start gap-3">
-                <div className="bg-muted/80 dark:bg-zinc-800/50 p-2.5 rounded-lg group-hover:bg-accent-color/10 transition-all">
-                  <Icon className="h-5 w-5 text-accent-color transition-colors" />
+              <div className="flex items-start gap-2 sm:gap-3">
+                <div className="bg-muted/80 dark:bg-zinc-800/50 p-1.5 sm:p-2.5 rounded-lg group-hover:bg-accent-color/10 transition-all shrink-0">
+                  <Icon className="h-4 w-4 sm:h-5 sm:w-5 text-accent-color transition-colors" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold mb-1 text-foreground group-hover:text-accent-color transition-colors">
+                  <p className="text-xs sm:text-sm font-semibold mb-0.5 sm:mb-1 text-foreground group-hover:text-accent-color transition-colors">
                     {item.title}
                   </p>
-                  <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
+                  <p className="text-xs text-muted-foreground line-clamp-2 mb-1 sm:mb-2 hidden sm:block">
                     {item.prompt}
                   </p>
                   <p className="text-xs font-mono text-muted-foreground/60 group-hover:text-accent-color/70 transition-colors">

@@ -180,7 +180,7 @@ export function ChatInterface() {
   const textWrapperRef = useRef<HTMLSpanElement>(null);
   const MIN_LOADING_DISPLAY_TIME = 2000; // 2 seconds minimum loading display
 
-  const { chatContext, clearChatContext, newChatTrigger, isInitialAnimationComplete, setInitialAnimationComplete, hasLayoutAnimatedOnce } = useUIStore();
+  const { chatContext, clearChatContext, newChatTrigger, isInitialAnimationComplete, setInitialAnimationComplete, hasLayoutAnimatedOnce, setHasLayoutAnimatedOnce } = useUIStore();
 
   // DEBUG: Track container and positions
   const containerRef = useRef<HTMLDivElement>(null);
@@ -226,34 +226,9 @@ export function ChatInterface() {
     return () => observer.disconnect();
   }, []);
 
-  // DEBUG: Log position measurements at key moments
+  // Track state changes for animation coordination
   useEffect(() => {
-    if (nameRef.current && outerContainerRef.current && containerRef.current) {
-      const nameRect = nameRef.current.getBoundingClientRect();
-      const containerRect = outerContainerRef.current.getBoundingClientRect();
-      const innerContainerRect = containerRef.current.getBoundingClientRect();
-
-      // Get computed styles to check for any transforms
-      const nameStyles = window.getComputedStyle(nameRef.current);
-      const transform = nameStyles.transform;
-
-      console.log('🔵 STATE CHANGE:', {
-        nameTypingComplete,
-        taglineTypingComplete,
-        isInitialAnimationComplete,
-        namePosition: {
-          top: nameRect.top.toFixed(2) + 'px',
-          left: nameRect.left.toFixed(2) + 'px',
-          height: nameRect.height.toFixed(2) + 'px',
-          width: nameRect.width.toFixed(2) + 'px'
-        },
-        outerContainerHeight: containerRect.height.toFixed(2) + 'px',
-        innerContainerTop: innerContainerRect.top.toFixed(2) + 'px',
-        innerContainerHeight: innerContainerRect.height.toFixed(2) + 'px',
-        transform: transform,
-        viewportHeight: window.innerHeight
-      });
-    }
+    // Empty effect to coordinate name and tagline typing completion
   }, [nameTypingComplete, taglineTypingComplete, isInitialAnimationComplete]);
 
   // Listen for new chat trigger from navbar
@@ -344,6 +319,47 @@ export function ChatInterface() {
       setTimeout(() => scrollToBottom('auto'), 100);
     }
   }, [currentChat, scrollToBottom]);
+
+  // Mobile keyboard optimization
+  useEffect(() => {
+    let resizeTimer: NodeJS.Timeout;
+    let initialHeight = window.visualViewport?.height || window.innerHeight;
+
+    const handleViewportResize = () => {
+      // Detect if viewport height changed (keyboard opened/closed)
+      const currentHeight = window.visualViewport?.height || window.innerHeight;
+      const heightDifference = initialHeight - currentHeight;
+
+      // If keyboard opened (viewport shrunk by more than 150px)
+      if (heightDifference > 150) {
+        // Ensure input remains visible and scroll to bottom
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+          scrollToBottom('auto');
+        }, 100);
+      } else if (Math.abs(heightDifference) < 50) {
+        // Keyboard closed (viewport back to normal)
+        initialHeight = currentHeight;
+      }
+    };
+
+    // Listen to visual viewport resize (better for mobile keyboards)
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleViewportResize);
+    } else {
+      // Fallback to window resize
+      window.addEventListener('resize', handleViewportResize);
+    }
+
+    return () => {
+      clearTimeout(resizeTimer);
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', handleViewportResize);
+      } else {
+        window.removeEventListener('resize', handleViewportResize);
+      }
+    };
+  }, [scrollToBottom]);
 
   // Helper function to ensure minimum loading display time
   const ensureMinimumLoadingTime = async () => {
@@ -600,7 +616,7 @@ export function ChatInterface() {
       <div className="flex-1 overflow-y-auto flex flex-col">
         {!currentChat && !response && !error ? (
           /* Empty state - properly centered */
-          <div ref={outerContainerRef} className="flex-1 px-4 relative overflow-hidden flex items-center justify-center">
+          <div ref={outerContainerRef} className="flex-1 px-3 sm:px-4 relative overflow-hidden flex items-center justify-center">
             {/* Subtle background gradient animation */}
             <motion.div
               className="absolute inset-0 opacity-30 pointer-events-none"
@@ -625,74 +641,36 @@ export function ChatInterface() {
             <div ref={containerRef} className="w-full max-w-3xl relative z-10">
               {/* Title at FINAL position - both shrink together after ALL typing completes */}
               {/* Wrapper to prevent layout shift during scale */}
-              <div className="text-center mb-6 relative">
+              <div className="text-center mb-4 sm:mb-6 relative">
                 <div className="flex flex-col items-center justify-start">
                   {/* Name - stays big until BOTH done typing (only on first load) */}
                   <motion.h1
                     ref={nameRef}
                     className={cn(
-                      "text-3xl sm:text-4xl font-semibold mb-3 group",
+                      "text-2xl sm:text-4xl font-semibold group",
                       hasLayoutAnimatedOnce && "cursor-pointer"
                     )}
                     data-cursor-expand={hasLayoutAnimatedOnce ? true : undefined}
-                    initial={{ opacity: 0, scale: hasLayoutAnimatedOnce ? 1 : 1.5 }}
+                    initial={{
+                      opacity: 0,
+                      scale: hasLayoutAnimatedOnce ? 1 : 1.5,
+                      marginBottom: hasLayoutAnimatedOnce ? 12 : 32
+                    }}
                     animate={{
                       opacity: 1,
-                      scale: hasLayoutAnimatedOnce ? 1 : (taglineTypingComplete ? 1 : 1.5)  // Only scale on first load
+                      scale: hasLayoutAnimatedOnce ? 1 : (taglineTypingComplete ? 1 : 1.5),  // Only scale on first load
+                      marginBottom: hasLayoutAnimatedOnce ? 12 : (taglineTypingComplete ? 12 : 32)  // Smooth margin transition
                     }}
                     transition={{
                       opacity: { duration: 0.4, delay: 0.2 },
-                      scale: { duration: 0.8, ease: [0.22, 1, 0.36, 1] }
+                      scale: { duration: 0.8, ease: [0.22, 1, 0.36, 1] },
+                      marginBottom: { duration: 0.8, ease: [0.22, 1, 0.36, 1] }  // Same timing as scale
                     }}
                     onAnimationStart={() => {
-                      if (nameRef.current && outerContainerRef.current && containerRef.current) {
+                      // Track position for animation frame cleanup
+                      if (nameRef.current) {
                         const nameRect = nameRef.current.getBoundingClientRect();
-                        const outerRect = outerContainerRef.current.getBoundingClientRect();
-                        const innerRect = containerRef.current.getBoundingClientRect();
-                        const nameStyles = window.getComputedStyle(nameRef.current);
-
                         previousPositionRef.current = { top: nameRect.top, left: nameRect.left };
-
-                        console.log('🟢 NAME SCALE ANIMATION START:', {
-                          targetScale: taglineTypingComplete ? '1.0 (shrinking)' : '1.5 (big)',
-                          name: {
-                            top: nameRect.top.toFixed(2) + 'px',
-                            left: nameRect.left.toFixed(2) + 'px',
-                            height: nameRect.height.toFixed(2) + 'px',
-                            width: nameRect.width.toFixed(2) + 'px'
-                          },
-                          containers: {
-                            outerHeight: outerRect.height.toFixed(2) + 'px',
-                            innerTop: innerRect.top.toFixed(2) + 'px',
-                            innerHeight: innerRect.height.toFixed(2) + 'px'
-                          },
-                          transform: nameStyles.transform,
-                          transformOrigin: nameStyles.transformOrigin
-                        });
-
-                        // Start frame-by-frame tracking to catch the flick
-                        const trackPosition = () => {
-                          if (nameRef.current && previousPositionRef.current) {
-                            const currentRect = nameRef.current.getBoundingClientRect();
-                            const deltaTop = Math.abs(currentRect.top - previousPositionRef.current.top);
-                            const deltaLeft = Math.abs(currentRect.left - previousPositionRef.current.left);
-
-                            // Only log if position changed by more than 1px
-                            if (deltaTop > 1 || deltaLeft > 1) {
-                              console.log('🔍 POSITION SHIFT DETECTED:', {
-                                previousTop: previousPositionRef.current.top.toFixed(2) + 'px',
-                                currentTop: currentRect.top.toFixed(2) + 'px',
-                                deltaTop: deltaTop.toFixed(2) + 'px',
-                                deltaLeft: deltaLeft.toFixed(2) + 'px'
-                              });
-                            }
-
-                            previousPositionRef.current = { top: currentRect.top, left: currentRect.left };
-                          }
-                          animationFrameRef.current = requestAnimationFrame(trackPosition);
-                        };
-
-                        animationFrameRef.current = requestAnimationFrame(trackPosition);
                       }
                     }}
                     onAnimationComplete={() => {
@@ -702,28 +680,9 @@ export function ChatInterface() {
                         animationFrameRef.current = null;
                       }
 
-                      if (nameRef.current && outerContainerRef.current && containerRef.current) {
-                        const nameRect = nameRef.current.getBoundingClientRect();
-                        const outerRect = outerContainerRef.current.getBoundingClientRect();
-                        const innerRect = containerRef.current.getBoundingClientRect();
-                        const nameStyles = window.getComputedStyle(nameRef.current);
-
-                        console.log('🔴 NAME SCALE ANIMATION COMPLETE:', {
-                          finalScale: taglineTypingComplete ? '1.0 (normal)' : '1.5 (big)',
-                          name: {
-                            top: nameRect.top.toFixed(2) + 'px',
-                            left: nameRect.left.toFixed(2) + 'px',
-                            height: nameRect.height.toFixed(2) + 'px',
-                            width: nameRect.width.toFixed(2) + 'px'
-                          },
-                          containers: {
-                            outerHeight: outerRect.height.toFixed(2) + 'px',
-                            innerTop: innerRect.top.toFixed(2) + 'px',
-                            innerHeight: innerRect.height.toFixed(2) + 'px'
-                          },
-                          transform: nameStyles.transform,
-                          transformOrigin: nameStyles.transformOrigin
-                        });
+                      // Animation complete - mark layout as animated if tagline is done
+                      if (taglineTypingComplete && !hasLayoutAnimatedOnce) {
+                        setHasLayoutAnimatedOnce(true);
                       }
                     }}
                     style={{
@@ -766,7 +725,6 @@ export function ChatInterface() {
                         accentColor={accentColor}
                         hideCursor={nameTypingComplete}
                         onComplete={() => {
-                          console.log('✅ NAME TYPING COMPLETE');
                           setNameTypingComplete(true);
                         }}
                       />
@@ -797,7 +755,7 @@ export function ChatInterface() {
 
                   {/* Tagline - stays big until typing completes, then BOTH shrink together (only on first load) */}
                   <motion.p
-                    className="text-lg text-muted-foreground"
+                    className="text-sm sm:text-lg text-muted-foreground"
                     initial={{ opacity: 0, scale: hasLayoutAnimatedOnce ? 1 : 1.4 }}
                     animate={{
                       opacity: nameTypingComplete ? 1 : 0,
@@ -821,10 +779,8 @@ export function ChatInterface() {
                         accentColor={accentColor}
                         showBlinkingCursor={true}
                         onComplete={() => {
-                          console.log('✅ TAGLINE TYPING COMPLETE');
                           setTaglineTypingComplete(true);
                           setTimeout(() => {
-                            console.log('✅ SET INITIAL ANIMATION COMPLETE');
                             setInitialAnimationComplete(true);
                           }, 400);
                         }}
@@ -844,18 +800,6 @@ export function ChatInterface() {
                   duration: 0.7,
                   delay: 0.3,
                   ease: [0.22, 1, 0.36, 1]
-                }}
-                onAnimationStart={() => {
-                  console.log('💡 SUGGESTIONS FADE START');
-                }}
-                onAnimationComplete={() => {
-                  if (nameRef.current) {
-                    const nameRect = nameRef.current.getBoundingClientRect();
-                    console.log('💡 SUGGESTIONS FADE COMPLETE - Name position:', {
-                      top: nameRect.top.toFixed(2) + 'px',
-                      left: nameRect.left.toFixed(2) + 'px'
-                    });
-                  }
                 }}
               >
                 <PromptSuggestions
@@ -960,24 +904,6 @@ export function ChatInterface() {
           duration: 0.6,
           delay: 0.4,
           ease: [0.22, 1, 0.36, 1]
-        }}
-        onAnimationComplete={() => {
-          if (nameRef.current && outerContainerRef.current) {
-            const nameRect = nameRef.current.getBoundingClientRect();
-            const containerRect = outerContainerRef.current.getBoundingClientRect();
-
-            console.log('⌨️ INPUT BOX ANIMATION COMPLETE:', {
-              opacity: (isInitialAnimationComplete || currentChat || response) ? 1 : 0,
-              isInitialAnimationComplete,
-              hasCurrentChat: !!currentChat,
-              hasResponse: !!response,
-              namePositionAfter: {
-                top: nameRect.top.toFixed(2) + 'px',
-                left: nameRect.left.toFixed(2) + 'px'
-              },
-              containerHeight: containerRect.height.toFixed(2) + 'px'
-            });
-          }
         }}
       >
         <div

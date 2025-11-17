@@ -59,8 +59,9 @@ export function PortfolioLayout({ children, showCatalog = false, initialSection 
 
       {/* Main layout - starts after sidebar */}
       <div className={cn(
-        "flex flex-col h-screen transition-all duration-500",
-        isSidebarOpen ? "lg:ml-[280px]" : "lg:ml-[60px]"
+        "flex flex-col h-screen transition-all duration-300",
+        // On mobile: no margin when closed, on desktop: always account for sidebar
+        isSidebarOpen ? "ml-0 lg:ml-[280px]" : "ml-0 lg:ml-[60px]"
       )}>
         {/* Header - Always rendered, control visibility with opacity */}
         <motion.div
@@ -70,12 +71,6 @@ export function PortfolioLayout({ children, showCatalog = false, initialSection 
             duration: 0.6,
             delay: 0.15,
             ease: [0.22, 1, 0.36, 1]
-          }}
-          onAnimationComplete={() => {
-            console.log('🎨 HEADER FADE ANIMATION COMPLETE:', {
-              opacity: isInitialAnimationComplete ? 1 : 0,
-              isInitialAnimationComplete
-            });
           }}
         >
           <Header />
@@ -92,7 +87,7 @@ export function PortfolioLayout({ children, showCatalog = false, initialSection 
             {showCatalog ? (
               <div className="flex flex-col h-full">
                 {/* Section Tabs */}
-                <div className="px-6 lg:px-8 pt-6">
+                <div className="px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6">
                   <SectionTabs
                     activeSection={activeSection}
                     onSectionChange={setActiveSection}
@@ -100,7 +95,7 @@ export function PortfolioLayout({ children, showCatalog = false, initialSection 
                 </div>
 
                 {/* Catalog Content */}
-                <div className="flex-1 px-6 lg:px-8 py-6">
+                <div className="flex-1 px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
                   {activeSection === 'projects' && <ProjectGrid />}
                   {activeSection === 'experience' && <ExperienceSection />}
                   {activeSection === 'education' && <EducationSection />}

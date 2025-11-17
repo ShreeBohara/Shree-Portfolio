@@ -29,8 +29,8 @@ export function SectionTabs({ activeSection, onSectionChange }: SectionTabsProps
   };
 
   return (
-    <div className="border-b border-border">
-      <div className="flex items-center gap-1">
+    <div className="border-b border-border overflow-x-auto">
+      <div className="flex items-center gap-0.5 sm:gap-1 min-w-max">
         {tabs.map((tab) => {
           const isActive = activeSection === tab.id;
 
@@ -39,16 +39,16 @@ export function SectionTabs({ activeSection, onSectionChange }: SectionTabsProps
               key={tab.id}
               onClick={() => handleTabClick(tab.id)}
               className={cn(
-                "relative px-6 py-3 text-sm font-medium transition-colors",
+                "relative px-3 sm:px-6 py-3 text-sm font-medium transition-colors touch-manipulation min-h-[44px]",
                 "hover:text-accent-color",
                 isActive
                   ? "text-accent-color"
                   : "text-muted-foreground"
               )}
             >
-              <span className="flex items-center gap-2">
-                <tab.Icon className="h-4 w-4" />
-                <span>{tab.label}</span>
+              <span className="flex items-center gap-1.5 sm:gap-2">
+                <tab.Icon className="h-4 w-4 shrink-0" />
+                <span className="whitespace-nowrap">{tab.label}</span>
               </span>
 
               {/* Active indicator */}

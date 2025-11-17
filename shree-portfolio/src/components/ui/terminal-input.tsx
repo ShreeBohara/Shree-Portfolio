@@ -43,6 +43,8 @@ export const TerminalInput = forwardRef<TerminalInputRef, TerminalInputProps>(({
   const [selectionStartPos, setSelectionStartPos] = useState<number | null>(null);
   const mouseDownPosRef = useRef<number | null>(null);
   const hasMovedRef = useRef(false);
+  const touchStartXRef = useRef<number | null>(null);
+  const isTouchRef = useRef(false);
 
   // Expose focus and setSelectionRange methods to parent
   useImperativeHandle(ref, () => ({
@@ -283,27 +285,79 @@ export const TerminalInput = forwardRef<TerminalInputRef, TerminalInputProps>(({
 
   // Handle mouse up to end selection
   const handleMouseUp = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!inputRef.current || disabled) return;
-    
+    if (!inputRef.current || disabled || isTouchRef.current) return;
+
     if (isSelecting && hasMovedRef.current) {
       e.preventDefault();
       const position = getCharPositionFromClick(e.clientX);
       const start = selectionStartPos ?? position;
-      
+
       // Always pass smaller value as start, larger as end (setSelectionRange requirement)
       const selectionStart = Math.min(start, position);
       const selectionEnd = Math.max(start, position);
-      
+
       inputRef.current.setSelectionRange(selectionStart, selectionEnd);
       updateCursorPosition();
     }
-    
+
     setIsSelecting(false);
     setSelectionStartPos(null);
     mouseDownPosRef.current = null;
     // Reset move flag after a short delay to allow click handler to check it
     setTimeout(() => {
       hasMovedRef.current = false;
+    }, 0);
+  };
+
+  // Touch event handlers for mobile support
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!inputRef.current || disabled) return;
+
+    isTouchRef.current = true;
+    const touch = e.touches[0];
+    const position = getCharPositionFromClick(touch.clientX);
+    touchStartXRef.current = touch.clientX;
+    hasMovedRef.current = false;
+    setIsSelecting(true);
+    setSelectionStartPos(position);
+    inputRef.current.focus();
+    inputRef.current.setSelectionRange(position, position);
+    updateCursorPosition();
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!inputRef.current || disabled || !isSelecting) return;
+
+    const touch = e.touches[0];
+
+    // Check if touch has moved significantly
+    if (touchStartXRef.current !== null) {
+      const moveDistance = Math.abs(touch.clientX - touchStartXRef.current);
+      if (moveDistance > 3) {
+        hasMovedRef.current = true;
+      }
+    }
+
+    const position = getCharPositionFromClick(touch.clientX);
+    const start = selectionStartPos ?? position;
+
+    const selectionStart = Math.min(start, position);
+    const selectionEnd = Math.max(start, position);
+
+    inputRef.current.setSelectionRange(selectionStart, selectionEnd);
+    updateCursorPosition();
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!inputRef.current || disabled) return;
+
+    setIsSelecting(false);
+    setSelectionStartPos(null);
+    touchStartXRef.current = null;
+
+    setTimeout(() => {
+      hasMovedRef.current = false;
+      isTouchRef.current = false;
     }, 0);
   };
 
@@ -425,22 +479,30 @@ export const TerminalInput = forwardRef<TerminalInputRef, TerminalInputProps>(({
               onBlur={() => setIsFocused(false)}
               disabled={disabled}
               className="absolute inset-0 w-full h-full opacity-0 cursor-text"
-              style={{ 
+              style={{
                 caretColor: 'transparent',
                 WebkitTextFillColor: 'transparent',
                 color: 'transparent',
+                fontSize: '16px', // Prevent iOS zoom on focus
               }}
               aria-label="Terminal input"
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
+              spellCheck="false"
             />
 
             {/* Visible text display */}
             <div
               ref={textDisplayRef}
-              className="relative flex items-center text-base font-mono cursor-text min-h-[24px] w-max min-w-full"
+              className="relative flex items-center text-base font-mono cursor-text min-h-[24px] w-max min-w-full touch-manipulation"
               onClick={handleTextClick}
               onMouseDown={handleMouseDown}
               onMouseUp={handleMouseUp}
-              style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              style={{ userSelect: 'none', WebkitUserSelect: 'none', touchAction: 'pan-y' }}
             >
               {showPlaceholder ? (
                 <span className="text-zinc-500 dark:text-zinc-600">

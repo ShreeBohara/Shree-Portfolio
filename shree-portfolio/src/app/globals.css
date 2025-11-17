@@ -610,6 +610,24 @@ input[type="text"].opacity-0 {
   .text-3xl {
     font-size: 1.75rem;
   }
+
+  /* Consistent mobile container padding */
+  .mobile-container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Reduced motion for performance and accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* Smooth scrolling for supported browsers */
@@ -626,6 +644,31 @@ input[type="text"].opacity-0 {
 
 .touch-pan-x {
   touch-action: pan-x;
+}
+
+.touch-manipulation {
+  touch-action: manipulation;
+}
+
+/* Prevent pull-to-refresh on mobile */
+body {
+  overscroll-behavior-y: contain;
+}
+
+/* Smooth scrolling on mobile */
+.scroll-smooth-mobile {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* Hide scrollbar but keep functionality */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
 
 /* Safe area insets for notched devices */

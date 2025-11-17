@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { useRouter, usePathname } from 'next/navigation';
 import { personalInfo } from '@/data/portfolio';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
+import { useSwipeable } from 'react-swipeable';
 
 type Section = 'projects' | 'experience' | 'education';
 
@@ -31,6 +32,39 @@ export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
     }
   };
 
+  // Swipe handlers for mobile
+  const swipeHandlers = useSwipeable({
+    onSwipedRight: () => {
+      // Only open on mobile when closed
+      if (!isSidebarOpen && window.innerWidth < 1024) {
+        setSidebarOpen(true);
+      }
+    },
+    onSwipedLeft: () => {
+      // Only close on mobile when open
+      if (isSidebarOpen && window.innerWidth < 1024) {
+        setSidebarOpen(false);
+      }
+    },
+    trackMouse: false,
+    trackTouch: true,
+    delta: 50, // Minimum swipe distance
+    preventScrollOnSwipe: false,
+  });
+
+  // Swipe handlers for edge swipe to open (swipe from left edge)
+  const edgeSwipeHandlers = useSwipeable({
+    onSwipedRight: () => {
+      if (!isSidebarOpen && window.innerWidth < 1024) {
+        setSidebarOpen(true);
+      }
+    },
+    trackMouse: false,
+    trackTouch: true,
+    delta: 30,
+    preventScrollOnSwipe: false,
+  });
+
   return (
     <>
       {/* Mobile backdrop */}
@@ -41,13 +75,22 @@ export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
         />
       )}
 
+      {/* Edge swipe detector - swipe from left edge to open sidebar */}
+      {!isSidebarOpen && (
+        <div
+          {...edgeSwipeHandlers}
+          className="fixed left-0 top-0 h-screen w-6 z-20 lg:hidden touch-pan-y"
+          aria-hidden="true"
+        />
+      )}
+
       {/* Sidebar */}
       <aside
+        {...swipeHandlers}
         className={cn(
-          "fixed left-0 top-0 z-40 h-screen bg-sidebar border-r transition-all duration-300",
+          "fixed left-0 top-0 z-40 h-screen bg-sidebar border-r transition-all duration-300 touch-pan-y overflow-hidden",
           isSidebarOpen ? "w-[280px]" : "w-0 lg:w-[60px]"
         )}
-        
       >
         <div className={cn(
           "h-full flex flex-col",

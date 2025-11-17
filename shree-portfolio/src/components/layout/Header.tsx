@@ -63,28 +63,28 @@ export function Header() {
       "fixed top-0 right-0 z-40 bg-background/80 backdrop-blur-sm header-height left-0 transition-all duration-300",
       isSidebarOpen ? "lg:left-[280px]" : "lg:left-[60px]"
     )}>
-      <div className="h-full px-4 lg:px-6 flex items-center justify-between">
+      <div className="h-full px-3 sm:px-4 lg:px-6 flex items-center justify-between gap-2">
         {/* Left side - Navigation tabs */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           {/* Mobile menu toggle */}
           <Button
             variant="ghost"
             size="icon"
             onClick={toggleSidebar}
-            className="lg:hidden hover:text-accent-color hover:bg-accent-color/10"
+            className="lg:hidden hover:text-accent-color hover:bg-accent-color/10 h-10 w-10"
             aria-label="Toggle sidebar"
           >
             <Menu className="h-5 w-5" />
           </Button>
-          
+
           {/* Navigation tabs */}
-          <div className="flex items-center gap-1 border rounded-lg p-1">
+          <div className="flex items-center gap-0.5 sm:gap-1 border rounded-lg p-0.5 sm:p-1">
             <Button
               variant={pathname === '/' ? 'default' : 'ghost'}
               size="sm"
               asChild
               className={cn(
-                "h-8",
+                "h-9 min-h-[44px] sm:h-8 sm:min-h-0 px-3 text-sm",
                 pathname !== '/' && "hover:text-accent-color hover:bg-accent-color/10"
               )}
             >
@@ -95,7 +95,7 @@ export function Header() {
               size="sm"
               asChild
               className={cn(
-                "h-8",
+                "h-9 min-h-[44px] sm:h-8 sm:min-h-0 px-3 text-sm",
                 pathname !== '/browse' && "hover:text-accent-color hover:bg-accent-color/10"
               )}
             >
@@ -105,15 +105,16 @@ export function Header() {
         </div>
 
         {/* Right side - Actions and Theme toggle */}
-        <div className="flex items-center gap-3">
-          {/* Links dropdown */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Links dropdown - Now visible on mobile */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
-                className="hidden sm:flex items-center gap-1.5 px-2 py-1 rounded-md text-sm font-medium text-foreground/70 hover:text-accent-color hover:bg-accent-color/5 transition-all cursor-pointer bg-transparent border-0 outline-none"
+                className="flex items-center gap-1.5 px-2 py-1 rounded-md text-sm font-medium text-foreground/70 hover:text-accent-color hover:bg-accent-color/5 transition-all cursor-pointer bg-transparent border-0 outline-none"
+                aria-label="External links menu"
               >
-                <span>Links</span>
-                <svg className="h-3 w-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <span className="hidden xs:inline">Links</span>
+                <svg className="h-4 w-4 xs:h-3 xs:w-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
@@ -168,8 +169,8 @@ export function Header() {
                   LinkedIn
                 </a>
               </DropdownMenuItem>
-              <DropdownMenuItem 
-                asChild 
+              <DropdownMenuItem
+                asChild
                 className="group transition-colors"
                 onMouseEnter={(e) => {
                   const target = e.currentTarget;
@@ -192,6 +193,31 @@ export function Header() {
                   GitHub
                 </a>
               </DropdownMenuItem>
+              {/* Book a Call - visible in dropdown on mobile */}
+              <DropdownMenuItem
+                asChild
+                className="group transition-colors sm:hidden"
+                onMouseEnter={(e) => {
+                  const target = e.currentTarget;
+                  target.style.color = accentColor;
+                  const bgColor = accentColor.replace(')', ' / 0.1)');
+                  target.style.backgroundColor = bgColor;
+                  const icon = target.querySelector('svg');
+                  if (icon) icon.style.color = accentColor;
+                }}
+                onMouseLeave={(e) => {
+                  const target = e.currentTarget;
+                  target.style.color = '';
+                  target.style.backgroundColor = '';
+                  const icon = target.querySelector('svg');
+                  if (icon) icon.style.color = '';
+                }}
+              >
+                <a href={personalInfo.links.calendar} target="_blank" rel="noopener noreferrer" className="cursor-pointer">
+                  <Calendar className="h-4 w-4 mr-2" />
+                  Book a Call
+                </a>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -210,7 +236,7 @@ export function Header() {
           <div className="hidden sm:block h-6 w-px bg-border" />
 
           {/* Tools section */}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-0.5 sm:gap-1">
             {/* Theme Color Picker */}
             <ThemeColorPicker />
 
@@ -218,7 +244,7 @@ export function Header() {
             <button
               onClick={toggleTheme}
               aria-label="Toggle theme"
-              className="h-10 w-10 rounded-md flex items-center justify-center transition-colors hover:text-accent-color hover:bg-accent-color/10"
+              className="h-10 w-10 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 rounded-md flex items-center justify-center transition-colors hover:text-accent-color hover:bg-accent-color/10"
             >
               {themeIcon}
             </button>

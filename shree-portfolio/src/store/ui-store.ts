@@ -47,6 +47,11 @@ interface UIState {
   // Track if layout (Header/Sidebar) has animated at least once
   hasLayoutAnimatedOnce: boolean;
   setHasLayoutAnimatedOnce: (animated: boolean) => void;
+
+  // Mobile detection
+  isMobile: boolean;
+  windowWidth: number;
+  setWindowDimensions: (width: number, isMobile: boolean) => void;
 }
 
 export const useUIStore = create<UIState>()(
@@ -102,7 +107,7 @@ export const useUIStore = create<UIState>()(
       toggleTheme: () => set((state) => ({ theme: state.theme === 'dark' ? 'light' : 'dark' })),
 
       // Theme accent color
-      accentColor: 'teal',
+      accentColor: 'blue',
       setAccentColor: (color) => set({ accentColor: color }),
 
       // Initial animation state
@@ -112,6 +117,11 @@ export const useUIStore = create<UIState>()(
       // Layout animation tracking
       hasLayoutAnimatedOnce: false,
       setHasLayoutAnimatedOnce: (animated) => set({ hasLayoutAnimatedOnce: animated }),
+
+      // Mobile detection - default to desktop, will be updated on client
+      isMobile: false,
+      windowWidth: typeof window !== 'undefined' ? window.innerWidth : 1920,
+      setWindowDimensions: (width, isMobile) => set({ windowWidth: width, isMobile }),
     }),
     {
       name: 'portfolio-ui-preferences',
