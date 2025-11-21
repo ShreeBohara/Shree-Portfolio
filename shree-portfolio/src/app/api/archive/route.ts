@@ -34,8 +34,10 @@ export async function POST(request: Request) {
     try {
         const formData = await request.formData();
         const file = formData.get('file') as File;
-        const title = formData.get('title') as string;
+        const title = formData.get('title') as string || 'Untitled';
+        const description = formData.get('description') as string;
         const year = parseInt(formData.get('year') as string);
+        const month = formData.get('month') as string;
         const width = parseInt(formData.get('width') as string);
         const height = parseInt(formData.get('height') as string);
         const category = formData.get('category') as string;
@@ -74,10 +76,11 @@ export async function POST(request: Request) {
                 thumbnail: publicUrl, // Use same URL for now, optimization can come later
                 title,
                 year,
+                month,
                 width,
                 height,
                 category,
-                description: `Uploaded on ${new Date().toLocaleDateString()}`
+                description
             })
             .select()
             .single();

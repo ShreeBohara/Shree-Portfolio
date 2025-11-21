@@ -11,7 +11,9 @@ export default function AdminArchivePage() {
 
     // Form state
     const [title, setTitle] = useState('');
+    const [description, setDescription] = useState('');
     const [year, setYear] = useState(new Date().getFullYear());
+    const [month, setMonth] = useState('January');
     const [category, setCategory] = useState('landscape');
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -59,8 +61,10 @@ export default function AdminArchivePage() {
 
             const formData = new FormData();
             formData.append('file', selectedFile);
-            formData.append('title', title);
+            formData.append('title', title || 'Untitled');
+            formData.append('description', description);
             formData.append('year', year.toString());
+            formData.append('month', month);
             formData.append('category', category);
             formData.append('width', img.width.toString());
             formData.append('height', img.height.toString());
@@ -73,6 +77,7 @@ export default function AdminArchivePage() {
             if (res.ok) {
                 // Reset form
                 setTitle('');
+                setDescription('');
                 setSelectedFile(null);
                 setPreviewUrl(null);
                 if (fileInputRef.current) fileInputRef.current.value = '';
@@ -89,6 +94,11 @@ export default function AdminArchivePage() {
             setIsUploading(false);
         }
     };
+
+    const months = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+    ];
 
     return (
         <div className="min-h-screen bg-black text-white p-8 font-sans">
@@ -131,14 +141,23 @@ export default function AdminArchivePage() {
                                 {/* Inputs */}
                                 <div className="space-y-4">
                                     <div>
-                                        <label className="block text-xs uppercase tracking-wider text-white/40 mb-2">Title</label>
+                                        <label className="block text-xs uppercase tracking-wider text-white/40 mb-2">Title (Optional)</label>
                                         <input
                                             type="text"
                                             value={title}
                                             onChange={(e) => setTitle(e.target.value)}
                                             className="w-full bg-white/5 border border-white/10 rounded px-4 py-2 focus:outline-none focus:border-white/30 transition-colors"
-                                            placeholder="e.g. Mountain View"
-                                            required
+                                            placeholder="Untitled"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-xs uppercase tracking-wider text-white/40 mb-2">Description</label>
+                                        <textarea
+                                            value={description}
+                                            onChange={(e) => setDescription(e.target.value)}
+                                            className="w-full bg-white/5 border border-white/10 rounded px-4 py-2 focus:outline-none focus:border-white/30 transition-colors h-24 resize-none"
+                                            placeholder="Tell a story about this photo..."
                                         />
                                     </div>
 
@@ -153,19 +172,32 @@ export default function AdminArchivePage() {
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-xs uppercase tracking-wider text-white/40 mb-2">Category</label>
+                                            <label className="block text-xs uppercase tracking-wider text-white/40 mb-2">Month</label>
                                             <select
-                                                value={category}
-                                                onChange={(e) => setCategory(e.target.value)}
+                                                value={month}
+                                                onChange={(e) => setMonth(e.target.value)}
                                                 className="w-full bg-white/5 border border-white/10 rounded px-4 py-2 focus:outline-none focus:border-white/30 transition-colors appearance-none"
                                             >
-                                                <option value="landscape">Landscape</option>
-                                                <option value="portrait">Portrait</option>
-                                                <option value="street">Street</option>
-                                                <option value="architecture">Architecture</option>
-                                                <option value="nature">Nature</option>
+                                                {months.map(m => (
+                                                    <option key={m} value={m}>{m}</option>
+                                                ))}
                                             </select>
                                         </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-xs uppercase tracking-wider text-white/40 mb-2">Category</label>
+                                        <select
+                                            value={category}
+                                            onChange={(e) => setCategory(e.target.value)}
+                                            className="w-full bg-white/5 border border-white/10 rounded px-4 py-2 focus:outline-none focus:border-white/30 transition-colors appearance-none"
+                                        >
+                                            <option value="landscape">Landscape</option>
+                                            <option value="portrait">Portrait</option>
+                                            <option value="street">Street</option>
+                                            <option value="architecture">Architecture</option>
+                                            <option value="nature">Nature</option>
+                                        </select>
                                     </div>
                                 </div>
 
@@ -173,8 +205,8 @@ export default function AdminArchivePage() {
                                     type="submit"
                                     disabled={!selectedFile || isUploading}
                                     className={`w-full py-3 rounded font-medium tracking-wide transition-all ${!selectedFile || isUploading
-                                            ? 'bg-white/10 text-white/20 cursor-not-allowed'
-                                            : 'bg-white text-black hover:bg-gray-200'
+                                        ? 'bg-white/10 text-white/20 cursor-not-allowed'
+                                        : 'bg-white text-black hover:bg-gray-200'
                                         }`}
                                 >
                                     {isUploading ? 'UPLOADING...' : 'UPLOAD PHOTO'}

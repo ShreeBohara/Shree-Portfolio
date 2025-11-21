@@ -11,6 +11,7 @@ export interface ArchivePhotoData {
   width: number;
   height: number;
   category?: string;
+  month?: string;
 }
 
 // Generate placeholder photos with varied dimensions

@@ -7,12 +7,12 @@ import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export function LightboxModal() {
-  const { 
-    photos, 
-    selectedPhotoId, 
-    setSelectedPhotoId, 
+  const {
+    photos,
+    selectedPhotoId,
+    setSelectedPhotoId,
     setState,
-    currentState 
+    currentState
   } = useArchiveStore();
 
   const isOpen = currentState === 'lightbox' && selectedPhotoId !== null;
@@ -23,10 +23,10 @@ export function LightboxModal() {
   const navigateTo = useCallback((direction: 'prev' | 'next') => {
     if (!photos.length) return;
 
-    const newIndex = direction === 'next' 
+    const newIndex = direction === 'next'
       ? (currentIndex + 1) % photos.length
       : (currentIndex - 1 + photos.length) % photos.length;
-    
+
     setSelectedPhotoId(photos[newIndex].id);
   }, [currentIndex, photos, setSelectedPhotoId]);
 
@@ -132,15 +132,10 @@ export function LightboxModal() {
                   className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent"
                 >
                   <h3 className="text-white text-xl font-medium mb-1">
-                    {currentPhoto.title || `Photo ${currentIndex + 1}`}
+                    {currentPhoto.month ? `${currentPhoto.month} ` : ''}{currentPhoto.year}
                   </h3>
-                  {currentPhoto.year && (
-                    <p className="text-white/70 text-sm">
-                      {currentPhoto.year}
-                    </p>
-                  )}
                   {currentPhoto.description && (
-                    <p className="text-white/60 text-sm mt-2">
+                    <p className="text-white/80 text-base mt-2 leading-relaxed">
                       {currentPhoto.description}
                     </p>
                   )}
