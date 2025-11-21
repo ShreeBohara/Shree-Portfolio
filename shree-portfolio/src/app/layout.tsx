@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { ThemeColorProvider } from "@/components/providers/ThemeColorProvider";
 import { MobileDetector } from "@/components/providers/MobileDetector";
@@ -7,6 +7,18 @@ import { Analytics } from "@vercel/analytics/next";
 import { PersonSchema, WebSiteSchema, FAQPageSchema } from "@/lib/schemas";
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://shreebohara.com';
+
+// Viewport configuration (Next.js 14+ pattern)
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#000000" },
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+  ],
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
@@ -67,20 +79,6 @@ export const metadata: Metadata = {
 
   // Manifest for PWA
   manifest: `${baseUrl}/manifest.json`,
-
-  // Theme color
-  themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#000000" },
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-  ],
-
-  // Viewport settings
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 5,
-    userScalable: true,
-  },
 
   // Apple Web App settings
   appleWebApp: {

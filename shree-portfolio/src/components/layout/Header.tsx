@@ -101,6 +101,17 @@ export function Header() {
             >
               <Link href="/browse">Browse</Link>
             </Button>
+            <Button
+              variant={pathname === '/archive' ? 'default' : 'ghost'}
+              size="sm"
+              asChild
+              className={cn(
+                "h-9 min-h-[44px] sm:h-8 sm:min-h-0 px-3 text-sm",
+                pathname !== '/archive' && "hover:text-accent-color hover:bg-accent-color/10"
+              )}
+            >
+              <Link href="/archive">Archive</Link>
+            </Button>
           </div>
         </div>
 
