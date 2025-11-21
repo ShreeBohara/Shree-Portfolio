@@ -8,6 +8,7 @@ interface ArchivePhoto {
   thumbnail?: string;
   title?: string;
   year?: number;
+  month?: string;
   description?: string;
   width?: number;
   height?: number;
@@ -33,6 +34,7 @@ interface ArchiveStoreState {
   // Photos data
   photos: ArchivePhoto[];
   setPhotos: (photos: ArchivePhoto[]) => void;
+  fetchPhotos: () => Promise<void>;
   updatePhotoPosition: (id: string, position: Partial<ArchivePhoto['position']>) => void;
 
   // Selected photo for lightbox
@@ -75,6 +77,19 @@ export const useArchiveStore = create<ArchiveStoreState>((set) => ({
   // Photos
   photos: [],
   setPhotos: (photos) => set({ photos }),
+  fetchPhotos: async () => {
+    try {
+      const res = await fetch('/api/archive');
+      if (res.ok) {
+        const apiPhotos = await res.json();
+        if (apiPhotos && apiPhotos.length > 0) {
+          set({ photos: apiPhotos });
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch archive photos:', error);
+    }
+  },
   updatePhotoPosition: (id, position) =>
     set((state) => ({
       photos: state.photos.map((photo) =>
