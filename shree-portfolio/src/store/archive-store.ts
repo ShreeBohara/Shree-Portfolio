@@ -20,6 +20,18 @@ interface ArchivePhoto {
     zIndex: number;
   };
   zDepth?: number; // For parallax effect (0.8 - 1.2)
+  filters?: {
+    brightness: number;
+    contrast: number;
+    saturation: number;
+    vignette: number;
+  };
+  crop?: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
 }
 
 interface ArchiveStoreState {

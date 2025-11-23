@@ -12,12 +12,24 @@ export interface ArchivePhotoData {
   height: number;
   category?: string;
   month?: string;
+  filters?: {
+    brightness: number;
+    contrast: number;
+    saturation: number;
+    vignette: number;
+  };
+  crop?: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
 }
 
 // Generate placeholder photos with varied dimensions
 const generatePlaceholderPhotos = (count: number): ArchivePhotoData[] => {
   const photos: ArchivePhotoData[] = [];
-  const categories = ['landscape', 'portrait', 'street', 'architecture', 'nature', 'people'];
+  const categories = ['landscape', 'portrait', 'street', 'architecture', 'nature', 'people', 'family', 'friends'];
   const years = [2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024];
 
   // Common aspect ratios for variety
@@ -46,6 +58,12 @@ const generatePlaceholderPhotos = (count: number): ArchivePhotoData[] => {
       width: ratio.width,
       height: ratio.height,
       category: category,
+      filters: {
+        brightness: 100,
+        contrast: 110,
+        saturation: 95,
+        vignette: 40,
+      },
     });
   }
 

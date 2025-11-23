@@ -131,9 +131,21 @@ export function LightboxModal() {
                   transition={{ delay: 0.1 }}
                   className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent"
                 >
-                  <h3 className="text-white text-xl font-medium mb-1">
-                    {currentPhoto.month ? `${currentPhoto.month} ` : ''}{currentPhoto.year}
-                  </h3>
+                  {/* Date Header - Only show if year or month exists */}
+                  {(currentPhoto.month || currentPhoto.year) && (
+                    <h3 className="text-white text-xl font-medium mb-1">
+                      {currentPhoto.month ? `${currentPhoto.month} ` : ''}{currentPhoto.year}
+                    </h3>
+                  )}
+
+                  {/* Title - Only show if it exists */}
+                  {currentPhoto.title && (
+                    <p className="text-white/60 text-sm mb-2">
+                      {currentPhoto.title}
+                    </p>
+                  )}
+
+                  {/* Description */}
                   {currentPhoto.description && (
                     <p className="text-white/80 text-base mt-2 leading-relaxed">
                       {currentPhoto.description}

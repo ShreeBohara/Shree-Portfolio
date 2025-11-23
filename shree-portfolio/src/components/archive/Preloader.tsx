@@ -17,39 +17,49 @@ export function Preloader() {
   } = useArchiveStore();
 
   const [isComplete, setIsComplete] = useState(false);
-  const stackPhotos = getStackPhotos(50); // Get all 50 photos for the stack
+  const [isLoading, setIsLoading] = useState(true);
+  const [stackPhotos, setStackPhotos] = useState<any[]>([])
 
   useEffect(() => {
     // Reset on mount
     resetLoadedImages();
     setPreloadProgress(0);
+    // Fetch photos from API
+    const loadPhotos = async () => {
+      try {
+        const res = await fetch('/api/archive');
+        if (res.ok) {
+          const apiPhotos = await res.json();
 
-    // Preload images
-    const loadImages = async () => {
-      const loadPromises = stackPhotos.map((photo) => {
-        return new Promise<void>((resolve) => {
-          const img = new Image();
-          img.onload = () => {
-            incrementLoadedImages();
-            resolve();
-          };
-          img.onerror = () => {
-            // Still increment to avoid hanging
-            incrementLoadedImages();
-            resolve();
-          };
-          img.src = photo.thumbnail; // Load thumbnails for faster initial load
-        });
-      });
-
-      await Promise.all(loadPromises);
+          if (apiPhotos && apiPhotos.length > 0) {
+            setStackPhotos(apiPhotos);
+            setIsLoading(false);
+          } else {
+            // Fallback to placeholder if no photos in database
+            const { getStackPhotos } = await import('@/data/archive-photos');
+            setStackPhotos(getStackPhotos(50));
+            setIsLoading(false);
+          }
+        } else {
+          // API error - use placeholders
+          const { getStackPhotos } = await import('@/data/archive-photos');
+          setStackPhotos(getStackPhotos(50));
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error('Failed to fetch photos:', error);
+        // Error - use placeholders
+        const { getStackPhotos } = await import('@/data/archive-photos');
+        setStackPhotos(getStackPhotos(50));
+        setIsLoading(false);
+      }
     };
-
-    loadImages();
+    loadPhotos();
   }, []);
 
   // Update progress based on loaded images
   useEffect(() => {
+    if (isLoading || stackPhotos.length === 0) return;
     const progress = Math.round((loadedImagesCount / stackPhotos.length) * 100);
     setPreloadProgress(progress);
 
@@ -76,6 +86,30 @@ export function Preloader() {
       }, 500);
     }
   }, [loadedImagesCount, stackPhotos.length, isComplete]);
+
+  useEffect(() => {
+    if (isLoading || stackPhotos.length === 0) return;
+    // Preload images
+    const loadImages = async () => {
+      const loadPromises = stackPhotos.map((photo) => {
+        return new Promise<void>((resolve) => {
+          const img = new Image();
+          img.onload = () => {
+            incrementLoadedImages();
+            resolve();
+          };
+          img.onerror = () => {
+            // Still increment to avoid hanging
+            incrementLoadedImages();
+            resolve();
+          };
+          img.src = photo.thumbnail || photo.src;
+        });
+      });
+      await Promise.all(loadPromises);
+    };
+    loadImages();
+  }, [isLoading, stackPhotos]);
 
   return (
     <AnimatePresence>

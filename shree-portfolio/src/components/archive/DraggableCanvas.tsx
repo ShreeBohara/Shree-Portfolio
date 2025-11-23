@@ -51,58 +51,33 @@ export function DraggableCanvas({ enabled = true }: DraggableCanvasProps) {
     // console.log(`[DraggableCanvas] ${ message } `, data || '');
   };
 
-  // Load all photos if not already loaded
+  // Load photos on mount
   useEffect(() => {
     const initPhotos = async () => {
-      if (photos.length === 0) {
-        // Try to fetch from API first
-        await fetchPhotos();
+      // 1. Try to fetch from API
+      await fetchPhotos();
 
-        // If still empty (or just to ensure we have data to scatter), get current photos from store
-        // Note: fetchPhotos updates the store, so we need to read from store again or just let the store update trigger a re-render?
-        // Actually, better to just get all photos (which might now be from API) and scatter them.
-        // However, `getAllPhotos` is static. We need to rely on the store's photos if they exist.
+      // 2. Check store state after fetch
+      // We need to get the latest state, but since we can't access it directly inside this closure without adding it to deps (which causes loops),
+      // we will rely on the fact that fetchPhotos updates the store.
+      // However, we need to know if we should fallback.
 
-        // Wait for next tick to allow store update? 
-        // Or better: The store update will trigger a re-render. 
-        // But we need to apply scattering.
+      // Let's check the API response directly in fetchPhotos? No, keep concerns separated.
+      // Instead, let's use a separate effect to react to photos changes, OR just check if the fetch resulted in data.
 
-        // Let's change logic: 
-        // 1. Fetch photos.
-        // 2. Then apply scatter.
+      // Actually, the cleanest way is:
+      // - Fetch photos.
+      // - If the fetch was successful and we have data, great.
+      // - If not, load static.
 
-        // But `fetchPhotos` is async.
-        // If we just call it, the store updates, component re-renders.
-        // Then we need to detect "we have photos but they aren't scattered yet".
-        // But `photos` in store are just data. Scattering adds `position`.
-
-        // Simplified approach for now:
-        // Just use static photos if API fails or is empty, but if API works, we need to scatter THEM.
-
-        // For this iteration, let's stick to the existing flow but inject API call.
-        // If API returns photos, we should use them.
-
-        // Actually, `fetchPhotos` sets `photos` in store.
-        // We need to intercept that or react to it.
-
-        // Let's just call fetchPhotos and let the user manually refresh for now? 
-        // No, that's bad UX.
-
-        // Correct flow:
-        // 1. Component mounts.
-        // 2. Call fetchPhotos().
-        // 3. Store updates with raw photo data.
-        // 4. We need a way to say "Scatter these new photos".
-
-        // Let's modify this effect to depend on `photos.length`.
-        // If photos are loaded but have no position, scatter them.
-      }
+      // But `fetchPhotos` is void. Let's modify it to return boolean or just check store in a separate effect?
+      // A separate effect is safer for React state updates.
     };
 
     initPhotos();
   }, []);
 
-  // Effect to scatter photos when they are loaded but not positioned
+  // React to photos update or lack thereof
   useEffect(() => {
     if (photos.length > 0 && !photos[0].position) {
       const scatteredPhotos = calculateBurstPositions(
@@ -111,15 +86,6 @@ export function DraggableCanvas({ enabled = true }: DraggableCanvasProps) {
         canvasSize.height
       );
       setPhotos(scatteredPhotos);
-    } else if (photos.length === 0) {
-      // Fallback to static if nothing loaded? 
-      // Or maybe `fetchPhotos` already handled it.
-      // If we want to use static as fallback:
-      const staticPhotos = getAllPhotos();
-      if (staticPhotos.length > 0 && photos.length === 0) {
-        // Only if we really have nothing.
-        // But we don't want to override API fetch if it's just taking time.
-      }
     }
   }, [photos.length, canvasSize.width, canvasSize.height]);
 
@@ -184,12 +150,6 @@ export function DraggableCanvas({ enabled = true }: DraggableCanvasProps) {
       },
 
       onDrag: function () {
-        // Calculate delta since last frame for manual velocity tracking
-        const dx = this.x - this.startX; // This isn't quite right for delta, let's use deltaX/Y if available or calc manually
-        // Actually Draggable updates this.x/y. We need to track delta manually in the ticker or here.
-        // Better approach: Update virtualPos here, and let ticker handle velocity calc for tilt.
-        // For inertia, we need the velocity AT RELEASE.
-
         virtualPos.current.x = this.x;
         virtualPos.current.y = this.y;
       },
@@ -218,14 +178,22 @@ export function DraggableCanvas({ enabled = true }: DraggableCanvasProps) {
     let lastTime = Date.now();
     let lastDragPos = { x: 0, y: 0 };
 
+    // Cache viewport dimensions to avoid layout thrashing
+    let viewportWidth = window.innerWidth;
+    let viewportHeight = window.innerHeight;
+
+    const handleResize = () => {
+      viewportWidth = window.innerWidth;
+      viewportHeight = window.innerHeight;
+    };
+    window.addEventListener('resize', handleResize);
+
     // Animation Loop (Ticker)
     function updatePositions() {
       const width = canvasSize.width;
       const height = canvasSize.height;
       const halfWidth = width / 2;
       const halfHeight = height / 2;
-      const viewportWidth = window.innerWidth;
-      const viewportHeight = window.innerHeight;
       const buffer = 400; // Render buffer
 
       // Apply scale to the content container
@@ -268,33 +236,35 @@ export function DraggableCanvas({ enabled = true }: DraggableCanvasProps) {
         }
       }
 
+      // Optimization: Pre-calculate common values
+      const vX = virtualPos.current.x;
+      const vY = virtualPos.current.y;
+      const vpW2 = viewportWidth / 2;
+      const vpH2 = viewportHeight / 2;
+
       photoRefs.current.forEach((element, id) => {
         const photo = photos.find(p => p.id === id);
         if (!photo || !photo.position) return;
 
         // Calculate parallaxed position
-        // We add the virtual position (drag offset) multiplied by zDepth
-        // zDepth > 1 moves faster (closer), < 1 moves slower (farther)
         const zDepth = photo.zDepth || 1;
-        const parallaxX = virtualPos.current.x * zDepth;
-        const parallaxY = virtualPos.current.y * zDepth;
+        const parallaxX = vX * zDepth;
+        const parallaxY = vY * zDepth;
 
         // Base position + Parallax
         let x = photo.position.x + parallaxX;
         let y = photo.position.y + parallaxY;
 
         // Infinite Wrapping (Modulo)
-        // We wrap the position around the canvas dimensions
-        // The wrap range is centered around 0 (-halfWidth to halfWidth)
         x = gsap.utils.wrap(-halfWidth, halfWidth, x);
         y = gsap.utils.wrap(-halfHeight, halfHeight, y);
 
         // Visibility Culling
         // Check if the wrapped position is within the viewport + buffer
-        // Note: x,y are relative to center, so we adjust for viewport center
-        const screenX = x + viewportWidth / 2;
-        const screenY = y + viewportHeight / 2;
+        const screenX = x + vpW2;
+        const screenY = y + vpH2;
 
+        // Use a slightly larger buffer for smoother appearance
         const isVisible =
           screenX > -buffer &&
           screenX < viewportWidth + buffer &&
@@ -302,11 +272,18 @@ export function DraggableCanvas({ enabled = true }: DraggableCanvasProps) {
           screenY < viewportHeight + buffer;
 
         if (isVisible) {
-          element.style.display = 'block';
+          // Only update style if visible
+          if (element.style.display === 'none') {
+            element.style.display = 'block';
+          }
           // Apply transform with static rotation only
+          // Using translate3d for GPU acceleration
           element.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) scale(${photo.position.scale || 1}) rotate(${photo.position.rotation || 0}deg)`;
         } else {
-          element.style.display = 'none';
+          // Only update if not already hidden
+          if (element.style.display !== 'none') {
+            element.style.display = 'none';
+          }
         }
       });
     };
@@ -315,6 +292,7 @@ export function DraggableCanvas({ enabled = true }: DraggableCanvasProps) {
     gsap.ticker.add(updatePositions);
 
     return () => {
+      window.removeEventListener('resize', handleResize);
       if (draggableInstance.current) {
         draggableInstance.current.kill();
         draggableInstance.current = null;
@@ -343,13 +321,36 @@ export function DraggableCanvas({ enabled = true }: DraggableCanvasProps) {
         className="absolute top-1/2 left-1/2 w-0 h-0"
         style={{
           perspective: '1000px',
-          marginTop: '-130px', // Corrected center offset
-          marginLeft: '0px'
         }}
       >
         {/* Center origin container */}
         <div className="relative w-0 h-0">
           {photos.map((photo) => {
+            // Log crop data
+            if (photo.crop) {
+              console.log(`🎨 [DraggableCanvas] Photo ${photo.id} has crop:`, photo.crop);
+            }
+
+            // Calculate dynamic dimensions based on aspect ratio
+            // Target area or max dimension to keep visual weight consistent
+            const MAX_DIMENSION = 300;
+            let displayWidth = 300;
+            let displayHeight = 225;
+
+            if (photo.width && photo.height) {
+              const aspectRatio = photo.width / photo.height;
+
+              if (aspectRatio > 1) {
+                // Landscape
+                displayWidth = MAX_DIMENSION;
+                displayHeight = MAX_DIMENSION / aspectRatio;
+              } else {
+                // Portrait or Square
+                displayHeight = MAX_DIMENSION;
+                displayWidth = MAX_DIMENSION * aspectRatio;
+              }
+            }
+
             // Apply wrapping to initial position to match ticker logic and prevent jump
             // This ensures React render matches the first GSAP frame
             const halfWidth = canvasSize.width / 2;
@@ -363,12 +364,23 @@ export function DraggableCanvas({ enabled = true }: DraggableCanvasProps) {
                 id={photo.id}
                 src={photo.src}
                 alt={photo.title}
-                width={300}
-                height={225}
+                width={displayWidth}
+                height={displayHeight}
                 // Pass wrapped position
                 position={{ ...photo.position!, x: wrappedX, y: wrappedY }}
                 zDepth={photo.zDepth}
-                className="w-[300px] h-[225px] transition-shadow hover:shadow-2xl"
+                filters={photo.filters || {
+                  brightness: 100,
+                  contrast: 110,
+                  saturation: 95,
+                  vignette: 40,
+                }}
+                crop={photo.crop}
+                className={`transition-shadow hover:shadow-2xl`}
+                style={{
+                  width: `${displayWidth}px`,
+                  height: `${displayHeight}px`
+                }}
               />
             );
           })}

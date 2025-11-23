@@ -31,6 +31,7 @@
     "react": "19.2.0",
     "react-countup": "^6.5.3",
     "react-dom": "19.2.0",
+    "react-easy-crop": "^5.5.5",
     "react-markdown": "^10.1.0",
     "react-swipeable": "^7.0.2",
     "remark-gfm": "^4.0.1",

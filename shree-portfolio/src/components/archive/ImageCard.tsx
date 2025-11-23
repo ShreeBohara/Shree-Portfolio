@@ -1,7 +1,6 @@
-'use client';
-
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, memo } from 'react';
 import { gsap } from 'gsap';
+import Image from 'next/image';
 
 interface ImageCardProps {
   id: string;
@@ -10,6 +9,7 @@ interface ImageCardProps {
   width?: number;
   height?: number;
   className?: string;
+  style?: React.CSSProperties;
   position?: {
     x: number;
     y: number;
@@ -21,23 +21,60 @@ interface ImageCardProps {
   animationDelay?: number;
   initialPosition?: { x: number; y: number };
   zDepth?: number;
+  filters?: {
+    brightness?: number;
+    contrast?: number;
+    saturation?: number;
+    vignette?: number;
+  };
+  crop?: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
 }
 
-export function ImageCard({
+export const ImageCard = memo(function ImageCard({
   id,
   src,
   alt = '',
   width,
   height,
   className = '',
+  style,
   position,
   onClick,
   animationDelay = 0,
   initialPosition,
   zDepth = 1,
+  filters = {
+    brightness: 100,
+    contrast: 110,
+    saturation: 95,
+    vignette: 40,
+  },
+  crop,
 }: ImageCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const isFirstRender = useRef(true);
+
+  // Log crop prop
+  useEffect(() => {
+    // console.log(`🖼️ [ImageCard ${id}] Crop prop:`, crop);
+    if (crop) {
+      const top = crop.y;
+      const right = 100 - crop.x - crop.width;
+      const bottom = 100 - crop.y - crop.height;
+      const left = crop.x;
+      // const clipPathValue = `inset(${top}% ${right}% ${bottom}% ${left}%)`;
+
+      // Warning if values look wrong
+      if (right < 0 || bottom < 0 || left < 0 || top < 0) {
+        console.warn(`⚠️ [ImageCard ${id}] NEGATIVE INSET VALUES! This will cause grey borders.`, { top, right, bottom, left });
+      }
+    }
+  }, [crop, id]);
 
   useEffect(() => {
     if (!cardRef.current || !isFirstRender.current) return;
@@ -105,6 +142,7 @@ export function ImageCard({
       data-zdepth={zDepth}
       className={`absolute cursor-pointer transition-shadow hover:shadow-2xl ${className}`}
       style={{
+        ...style,
         zIndex: position?.zIndex || 1,
         transform: `translate3d(${position?.x || 0}px, ${position?.y || 0}px, 0) translate(-50%, -50%) scale(${position?.scale || 1})`,
         transformOrigin: 'center center',
@@ -113,20 +151,48 @@ export function ImageCard({
       }}
       onClick={onClick}
     >
-      <div className="relative overflow-hidden rounded-sm shadow-lg">
-        <img
+      <div className="relative overflow-hidden rounded-sm shadow-lg w-full h-full">
+        <Image
           src={src}
-          alt={alt}
-          width={width}
-          height={height}
-          className="block w-full h-full object-cover"
+          alt={alt || ''}
+          fill
+          sizes="(max-width: 768px) 50vw, 300px"
+          className="object-cover"
           draggable={false}
-          loading="lazy" // Native lazy loading
-          decoding="async" // Non-blocking image decode
+          style={{
+            filter: `brightness(${filters.brightness}%) contrast(${filters.contrast}%) saturate(${filters.saturation}%)`,
+            clipPath: crop
+              ? `inset(${crop.y}% ${100 - crop.x - crop.width}% ${100 - crop.y - crop.height}% ${crop.x}%)`
+              : undefined,
+          }}
         />
+
+        {/* Vignette Overlay */}
+        {filters.vignette && filters.vignette > 0 && (
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: `radial-gradient(circle, transparent 0%, transparent 50%, rgba(0,0,0,${filters.vignette / 100}) 100%)`,
+              zIndex: 10 // Ensure vignette is above image
+            }}
+          />
+        )}
+
         {/* Subtle border for depth */}
-        <div className="absolute inset-0 border border-white/10 rounded-sm pointer-events-none" />
+        <div className="absolute inset-0 border border-white/10 rounded-sm pointer-events-none z-20" />
       </div>
     </div>
   );
-}
+}, (prevProps, nextProps) => {
+  // Custom comparison function for better performance
+  // Only re-render if critical props change
+  return (
+    prevProps.id === nextProps.id &&
+    prevProps.src === nextProps.src &&
+    prevProps.position?.x === nextProps.position?.x &&
+    prevProps.position?.y === nextProps.position?.y &&
+    prevProps.position?.scale === nextProps.position?.scale &&
+    prevProps.position?.rotation === nextProps.position?.rotation &&
+    prevProps.crop === nextProps.crop
+  );
+});

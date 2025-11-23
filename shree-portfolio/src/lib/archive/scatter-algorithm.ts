@@ -180,6 +180,8 @@ export function calculateBurstPositions(
           rotation: (Math.random() - 0.5) * 24, // Random rotation -12 to +12 deg
           // zIndex removed to maintain natural DOM order (last = top)
         },
+        // Random zDepth for parallax effect (0.8 to 1.2)
+        zDepth: 0.8 + Math.random() * 0.4,
         // Staggered delay based on batch
         burstDelay: batchIndex * 0.3 + i * 0.05,
       };

@@ -218,7 +218,7 @@ export function ArchiveCanvas() {
             ARCHIVE
           </h1>
           <p className="text-white/60 text-sm md:text-base tracking-[0.3em] mt-2">
-            2012 — 2024
+            US Collection
           </p>
         </div>
       </div>
