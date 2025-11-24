@@ -148,6 +148,7 @@ export const ImageCard = memo(function ImageCard({
         transformOrigin: 'center center',
         willChange: 'transform',
         backfaceVisibility: 'hidden', // Prevent flickering
+        pointerEvents: 'auto', // Ensure clickable by default
       }}
       onClick={onClick}
     >

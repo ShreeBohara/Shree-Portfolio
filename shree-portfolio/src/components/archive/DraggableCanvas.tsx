@@ -158,13 +158,21 @@ export function DraggableCanvas({ enabled = true }: DraggableCanvasProps) {
         // Check if this was a click (not a drag)
         const dragDistance = Math.abs(this.startX - this.endX) + Math.abs(this.startY - this.endY);
         if (dragDistance < 10) {
-          const target = e.target as HTMLElement;
-          const imageCard = target.closest('[data-id]');
-          if (imageCard) {
-            const photoId = imageCard.getAttribute('data-id');
-            if (photoId) {
-              setSelectedPhotoId(photoId);
-              setState('lightbox');
+          // Use elementFromPoint to get the actual topmost element at click position
+          // This is more reliable than e.target especially with overlapping elements
+          const clickedElement = document.elementFromPoint(e.clientX, e.clientY);
+
+          if (clickedElement) {
+            const imageCard = clickedElement.closest('[data-id]');
+            if (imageCard) {
+              const photoId = imageCard.getAttribute('data-id');
+              if (photoId) {
+                log('Photo clicked via elementFromPoint', { photoId });
+                setSelectedPhotoId(photoId);
+                setState('lightbox');
+              }
+            } else {
+              log('Click missed all photos - zoom out behavior');
             }
           }
         }
@@ -194,7 +202,7 @@ export function DraggableCanvas({ enabled = true }: DraggableCanvasProps) {
       const height = canvasSize.height;
       const halfWidth = width / 2;
       const halfHeight = height / 2;
-      const buffer = 400; // Render buffer
+      const buffer = 800; // Larger render buffer for better initial click detection
 
       // Apply scale to the content container
       if (contentRef.current) {
@@ -272,17 +280,20 @@ export function DraggableCanvas({ enabled = true }: DraggableCanvasProps) {
           screenY < viewportHeight + buffer;
 
         if (isVisible) {
-          // Only update style if visible
-          if (element.style.display === 'none') {
-            element.style.display = 'block';
+          // Ensure element is visible and interactive
+          if (element.style.visibility === 'hidden') {
+            element.style.visibility = 'visible';
+            element.style.pointerEvents = 'auto';
           }
           // Apply transform with static rotation only
           // Using translate3d for GPU acceleration
           element.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) scale(${photo.position.scale || 1}) rotate(${photo.position.rotation || 0}deg)`;
         } else {
-          // Only update if not already hidden
-          if (element.style.display !== 'none') {
-            element.style.display = 'none';
+          // Hide but keep in DOM for better click detection
+          // Use visibility instead of display:none to preserve layout
+          if (element.style.visibility !== 'hidden') {
+            element.style.visibility = 'hidden';
+            element.style.pointerEvents = 'none';
           }
         }
       });
