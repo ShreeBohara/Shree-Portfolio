@@ -19,18 +19,32 @@ export function EducationCard({ education }: EducationCardProps) {
     >
       <Card className="group hover:shadow-lg hover:border-accent-color/50 transition-all h-full">
         <CardHeader>
-          <div className="flex items-start justify-between gap-4">
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
+            {/* Institution Logo */}
+            <div className="shrink-0">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl border border-border/50 flex items-center justify-center overflow-hidden bg-white p-1 shadow-sm">
+                {education.logo ? (
+                  <img
+                    src={education.logo}
+                    alt={`${education.institution} logo`}
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <GraduationCap className="w-6 h-6 sm:w-7 sm:h-7 text-muted-foreground/50" />
+                )}
+              </div>
+            </div>
+
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                <GraduationCap className="h-5 w-5 text-accent-color" />
+              <div className="flex items-center gap-2 mb-1">
                 <CardTitle className="text-xl">{education.institution}</CardTitle>
               </div>
-              <CardDescription className="text-base font-medium">
+              <CardDescription className="text-base font-medium text-foreground/80">
                 {education.degree} in {education.field}
               </CardDescription>
             </div>
           </div>
-          
+
           <div className="flex flex-wrap gap-3 mt-3 text-sm text-muted-foreground">
             <div className="flex items-center gap-1">
               <MapPin className="h-3 w-3" />

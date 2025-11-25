@@ -419,6 +419,7 @@ export const experiences: Experience[] = [
   {
     id: "exp-1",
     company: "QuinStreet",
+    logo: "/QS_LOGO.png",
     role: "Software Engineer - Intern",
     type: "Internship",
     location: "Foster City, CA",
@@ -462,6 +463,7 @@ export const experiences: Experience[] = [
   {
     id: "exp-2",
     company: "DeepTek Medical Imaging Pvt Ltd",
+    logo: "/deeptek_logo.png",
     role: "Software Engineer - Intern",
     type: "Internship",
     location: "Pune, India",
@@ -496,26 +498,30 @@ export const education: Education[] = [
   {
     id: "edu-1",
     institution: "University of Southern California",
+    logo: "/usc_logo.png",
     degree: "Master of Science",
     field: "Computer Science",
     location: "Los Angeles, CA",
     startYear: 2024,
     endYear: 2026,
+    gpa: "3.7/4.0",
     relevantCoursework: [
       "Analysis of Algorithms",
-      "Web Technologies",
       "Database Systems",
-      "Information Retrieval"
+      "Web Technologies",
+      "Information Retrieval",
+      "Artificial Intelligence"
     ],
     achievements: [
-      "Published in YMER (June 2024): Showcased LSTM's superiority in sound classification on UrbanSound8K",
-      "Runner-Up among 30 teams at NIT-B Hackathon for developing health-tech app to streamline hospital referrals"
+      "Dean's List 2024",
+      "Graduate Merit Scholarship"
     ]
   },
   {
     id: "edu-2",
-    institution: "Dr. Vishwanath Karad MIT World Peace University",
-    degree: "Bachelor of Science",
+    institution: "MIT World Peace University",
+    logo: "/MIT_LOGO.png",
+    degree: "Bachelor of Technology",
     field: "Computer Science",
     location: "Pune, India",
     startYear: 2020,

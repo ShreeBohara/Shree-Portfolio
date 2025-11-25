@@ -19,6 +19,11 @@ export function ArchiveCanvas() {
     console.log(`[ArchiveCanvas] ${message}`, data || '');
   };
 
+  // Reset state on mount to ensure full animation sequence
+  useEffect(() => {
+    setState('preloader');
+  }, [setState]);
+
   // Log state transitions
   useEffect(() => {
     log('State changed to:', currentState);

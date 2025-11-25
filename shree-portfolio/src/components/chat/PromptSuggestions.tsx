@@ -112,10 +112,10 @@ export function PromptSuggestions({ onSelectPrompt, isVisible, contextType }: Pr
   const allSuggestions = contextType === 'project'
     ? projectSuggestions
     : contextType === 'experience'
-    ? experienceSuggestions
-    : contextType === 'education'
-    ? educationSuggestions
-    : defaultSuggestions;
+      ? experienceSuggestions
+      : contextType === 'education'
+        ? educationSuggestions
+        : defaultSuggestions;
 
   // Show only first 2 suggestions on mobile for minimalist design
   const suggestions = allSuggestions;

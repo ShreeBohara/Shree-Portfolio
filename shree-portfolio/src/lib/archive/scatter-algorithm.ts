@@ -177,11 +177,11 @@ export function calculateBurstPositions(
           ...photo.position,
           x: centeredX,
           y: centeredY,
-          rotation: (Math.random() - 0.5) * 24, // Random rotation -12 to +12 deg
+          rotation: 0, // No rotation
           // zIndex removed to maintain natural DOM order (last = top)
         },
-        // Random zDepth for parallax effect (0.8 to 1.2)
-        zDepth: 0.8 + Math.random() * 0.4,
+        // Random zDepth for parallax effect (0.5 to 2.0)
+        zDepth: 0.5 + Math.random() * 1.1,
         // Staggered delay based on batch
         burstDelay: batchIndex * 0.3 + i * 0.05,
       };

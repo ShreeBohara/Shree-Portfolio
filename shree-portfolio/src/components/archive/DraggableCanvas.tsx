@@ -36,6 +36,8 @@ export function DraggableCanvas({ enabled = true }: DraggableCanvasProps) {
   const photoRefs = useRef<Map<string, HTMLElement>>(new Map());
   const [isDragging, setIsDragging] = useState(false);
   const draggableInstance = useRef<globalThis.Draggable | null>(null);
+  const pressedElementRef = useRef<Element | null>(null);
+  const pressPosRef = useRef({ x: 0, y: 0 });
 
   // Track virtual position (infinite scroll offset)
   const virtualPos = useRef({ x: 0, y: 0 });
@@ -48,14 +50,16 @@ export function DraggableCanvas({ enabled = true }: DraggableCanvasProps) {
 
   // Debug logger
   const log = (message: string, data?: any) => {
-    // console.log(`[DraggableCanvas] ${ message } `, data || '');
+    console.log(`[DebugClick] ${message} `, data || '');
   };
 
   // Load photos on mount
   useEffect(() => {
     const initPhotos = async () => {
-      // 1. Try to fetch from API
-      await fetchPhotos();
+      // 1. Try to fetch from API only if we don't have photos yet
+      if (photos.length === 0) {
+        await fetchPhotos();
+      }
 
       // 2. Check store state after fetch
       // We need to get the latest state, but since we can't access it directly inside this closure without adding it to deps (which causes loops),
@@ -126,14 +130,33 @@ export function DraggableCanvas({ enabled = true }: DraggableCanvasProps) {
       activeCursor: 'grabbing',
       allowNativeTouchScrolling: false,
 
-      onPress: function () {
+      onPress: function (e: any) {
         setIsDragging(true);
         // Kill any existing momentum
         currentVelocity.current = { x: 0, y: 0 };
 
-        // Zoom out effect on press
+        // Capture element under cursor BEFORE zoom happens
+        // This ensures we know what was clicked even if it moves during zoom
+        let clientX, clientY;
+        if (e.touches && e.touches.length > 0) {
+          clientX = e.touches[0].clientX;
+          clientY = e.touches[0].clientY;
+        } else {
+          clientX = e.clientX;
+          clientY = e.clientY;
+        }
+
+        if (clientX !== undefined && clientY !== undefined) {
+          pressedElementRef.current = document.elementFromPoint(clientX, clientY);
+          pressPosRef.current = { x: clientX, y: clientY };
+        } else {
+          pressedElementRef.current = null;
+          pressPosRef.current = { x: 0, y: 0 };
+        }
+
+        // Zoom in effect on press
         gsap.to(scaleRef, {
-          current: 0.95,
+          current: 1.2,
           duration: 0.4,
           ease: 'power2.out'
         });
@@ -144,8 +167,8 @@ export function DraggableCanvas({ enabled = true }: DraggableCanvasProps) {
         // Zoom in effect on release
         gsap.to(scaleRef, {
           current: 1,
-          duration: 0.5,
-          ease: 'elastic.out(1, 0.5)'
+          duration: 0.6,
+          ease: 'power2.out'
         });
       },
 
@@ -155,24 +178,33 @@ export function DraggableCanvas({ enabled = true }: DraggableCanvasProps) {
       },
 
       onClick: function (e: MouseEvent) {
-        // Check if this was a click (not a drag)
-        const dragDistance = Math.abs(this.startX - this.endX) + Math.abs(this.startY - this.endY);
+        // Check if this was a click (not a drag) based on POINTER movement
+        // This handles cases where the canvas is drifting (momentum) but the mouse stayed still
+        const dragDistance = Math.abs(e.clientX - pressPosRef.current.x) + Math.abs(e.clientY - pressPosRef.current.y);
+
         if (dragDistance < 10) {
-          // Use elementFromPoint to get the actual topmost element at click position
-          // This is more reliable than e.target especially with overlapping elements
-          const clickedElement = document.elementFromPoint(e.clientX, e.clientY);
+          // Use the element we captured on press, or fall back to e.target, then elementFromPoint
+          // The press element is more reliable because it was captured BEFORE the zoom animation
+          let clickedElement = pressedElementRef.current;
+
+          if (!clickedElement) {
+            // Fallback to event target (if it's not the container)
+            if (e.target !== containerRef.current && e.target !== dragProxyRef.current) {
+              clickedElement = e.target as Element;
+            } else {
+              // Last resort: elementFromPoint
+              clickedElement = document.elementFromPoint(e.clientX, e.clientY);
+            }
+          }
 
           if (clickedElement) {
             const imageCard = clickedElement.closest('[data-id]');
             if (imageCard) {
               const photoId = imageCard.getAttribute('data-id');
               if (photoId) {
-                log('Photo clicked via elementFromPoint', { photoId });
                 setSelectedPhotoId(photoId);
                 setState('lightbox');
               }
-            } else {
-              log('Click missed all photos - zoom out behavior');
             }
           }
         }
@@ -337,11 +369,6 @@ export function DraggableCanvas({ enabled = true }: DraggableCanvasProps) {
         {/* Center origin container */}
         <div className="relative w-0 h-0">
           {photos.map((photo) => {
-            // Log crop data
-            if (photo.crop) {
-              console.log(`🎨 [DraggableCanvas] Photo ${photo.id} has crop:`, photo.crop);
-            }
-
             // Calculate dynamic dimensions based on aspect ratio
             // Target area or max dimension to keep visual weight consistent
             const MAX_DIMENSION = 300;
