@@ -140,19 +140,24 @@ export function PromptSuggestions({ onSelectPrompt, isVisible, contextType }: Pr
             transition={{ delay: index * 0.1, type: 'spring', stiffness: 100 }}
             className={`relative group ${isHiddenOnMobile ? 'hidden sm:block' : ''}`}
           >
-            {/* Animated border gradient on hover - hidden on mobile for performance */}
+            {/* Sharp gradient border on hover */}
             <div
-              className="hidden sm:block absolute -inset-0.5 rounded-xl opacity-0 group-hover:opacity-75 blur-sm transition-opacity duration-300"
+              className="absolute -inset-px rounded-lg sm:rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
               style={{
                 background: 'linear-gradient(90deg, var(--accent-color), transparent, var(--accent-color))',
                 backgroundSize: '200% 100%',
                 animation: 'borderSlide 3s linear infinite',
+                padding: '1px',
+                mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                maskComposite: 'exclude',
+                WebkitMaskComposite: 'xor',
               }}
             />
 
             <button
               onClick={() => onSelectPrompt(item.prompt)}
-              className="relative w-full text-left px-3 py-3 sm:px-5 sm:py-4 rounded-lg sm:rounded-xl border bg-gradient-to-br transition-all duration-200 backdrop-blur-sm hover:shadow-xl hover:shadow-accent-color/10 border-border/50 from-card/80 via-card/80 to-muted/40 dark:border-zinc-700/50 dark:from-zinc-900/50 dark:via-zinc-900/50 dark:to-zinc-800/50 group-hover:border-accent-color/50 touch-manipulation"
+              className="relative w-full text-left px-3 py-3 sm:px-5 sm:py-4 rounded-lg sm:rounded-xl border bg-gradient-to-br transition-all duration-200 backdrop-blur-sm hover:shadow-xl hover:shadow-accent-color/10 border-border/50 from-card/80 via-card/80 to-muted/40 dark:border-zinc-700/50 dark:from-zinc-900/50 dark:via-zinc-900/50 dark:to-zinc-800/50 group-hover:border-transparent touch-manipulation"
             >
               <div className="flex items-start gap-2 sm:gap-3">
                 <div className="bg-muted/80 dark:bg-zinc-800/50 p-1.5 sm:p-2.5 rounded-lg group-hover:bg-accent-color/10 transition-all shrink-0">

@@ -12,6 +12,8 @@ import { useUIStore } from '@/store/ui-store';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
+import { usePathname } from 'next/navigation';
+
 interface PortfolioLayoutProps {
   children: React.ReactNode;
   showCatalog?: boolean;
@@ -19,10 +21,12 @@ interface PortfolioLayoutProps {
 }
 
 export function PortfolioLayout({ children, showCatalog = false, initialSection = 'projects' }: PortfolioLayoutProps) {
+  const pathname = usePathname();
   const {
     isDetailsPanelOpen,
     isSidebarOpen,
     isInitialAnimationComplete,
+    setInitialAnimationComplete,
     hasLayoutAnimatedOnce,
     setHasLayoutAnimatedOnce
   } = useUIStore();
@@ -33,7 +37,21 @@ export function PortfolioLayout({ children, showCatalog = false, initialSection 
     setActiveSection(initialSection);
   }, [initialSection]);
 
-  // Mark layout as animated once the initial animation completes
+  // Handle initial animation state based on route
+  useEffect(() => {
+    // If we are NOT on the home page, we should show the layout immediately
+    // The typing animation only happens on the home page ('/')
+    if (pathname !== '/') {
+      if (!isInitialAnimationComplete) {
+        setInitialAnimationComplete(true);
+      }
+      if (!hasLayoutAnimatedOnce) {
+        setHasLayoutAnimatedOnce(true);
+      }
+    }
+  }, [pathname, isInitialAnimationComplete, hasLayoutAnimatedOnce, setInitialAnimationComplete, setHasLayoutAnimatedOnce]);
+
+  // Mark layout as animated once the initial animation completes (for Home page flow)
   useEffect(() => {
     if (isInitialAnimationComplete && !hasLayoutAnimatedOnce) {
       setHasLayoutAnimatedOnce(true);
