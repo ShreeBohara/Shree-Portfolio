@@ -11,7 +11,7 @@ export async function GET() {
     try {
         const { data, error } = await supabase
             .from('archive_photos')
-            .select('id, src, title, year, month, width, height, category, filter_brightness, filter_contrast, filter_saturation, filter_vignette, crop_x, crop_y, crop_width, crop_height')
+            .select('id, src, thumbnail, title, year, month, width, height, category, filter_brightness, filter_contrast, filter_saturation, filter_vignette, crop_x, crop_y, crop_width, crop_height')
             .order('created_at', { ascending: false });
 
         if (error) {
@@ -60,6 +60,10 @@ export async function GET() {
     }
 }
 
+import sharp from 'sharp';
+
+// ... (existing imports)
+
 // POST endpoint - upload new photo
 export async function POST(request: NextRequest) {
     try {
@@ -99,7 +103,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'No file provided' }, { status: 400 });
         }
 
-        // 1. Upload file to Storage
+        // 1. Upload file to Storage (Original)
         const fileExt = file.name.split('.').pop();
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
         const filePath = `${fileName}`;
@@ -116,15 +120,48 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: uploadError.message }, { status: 500 });
         }
 
-        // Get public URL
+        // Get public URL for original
         const { data: { publicUrl } } = supabase.storage
             .from('archive-photos')
             .getPublicUrl(filePath);
 
-        // 2. Insert record into Database
+        // 2. Generate and Upload Thumbnail
+        let thumbnailUrl = publicUrl; // Default to original if resizing fails
+        try {
+            const arrayBuffer = await file.arrayBuffer();
+            const buffer = Buffer.from(arrayBuffer);
+
+            const thumbnailBuffer = await sharp(buffer)
+                .resize({ width: 600, withoutEnlargement: true })
+                .jpeg({ quality: 80, mozjpeg: true })
+                .toBuffer();
+
+            const thumbnailPath = `thumbnails/thumb-${fileName}`;
+
+            const { error: thumbUploadError } = await supabase.storage
+                .from('archive-photos')
+                .upload(thumbnailPath, thumbnailBuffer, {
+                    contentType: 'image/jpeg',
+                    upsert: true
+                });
+
+            if (!thumbUploadError) {
+                const { data: { publicUrl: thumbUrl } } = supabase.storage
+                    .from('archive-photos')
+                    .getPublicUrl(thumbnailPath);
+                thumbnailUrl = thumbUrl;
+                console.log('✅ [API] Generated thumbnail:', thumbnailUrl);
+            } else {
+                console.error('Thumbnail upload error:', thumbUploadError);
+            }
+        } catch (resizeError) {
+            console.error('Thumbnail generation failed:', resizeError);
+        }
+
+        // 3. Insert record into Database
         const recordData = {
             src: publicUrl,
-            thumbnail: publicUrl,
+            thumbnail: thumbnailUrl,
             title,
             year,
             month,

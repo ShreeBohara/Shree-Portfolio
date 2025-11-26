@@ -400,7 +400,7 @@ export function DraggableCanvas({ enabled = true }: DraggableCanvasProps) {
               <ImageCard
                 key={photo.id}
                 id={photo.id}
-                src={photo.src}
+                src={photo.thumbnail || photo.src}
                 alt={photo.title}
                 width={displayWidth}
                 height={displayHeight}

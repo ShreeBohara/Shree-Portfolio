@@ -166,6 +166,7 @@ export const ImageCard = memo(function ImageCard({
               ? `inset(${crop.y}% ${100 - crop.x - crop.width}% ${100 - crop.y - crop.height}% ${crop.x}%)`
               : undefined,
           }}
+          onLoad={() => console.log(`🖼️ [Grid] Loaded: ${src.includes('thumb') ? '✅ Thumbnail' : '⚠️ Full Size'} (${src.split('/').pop()})`)}
         />
 
         {/* Vignette Overlay */}
