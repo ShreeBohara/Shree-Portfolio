@@ -51,10 +51,10 @@ export function useThemeColor() {
 
   useEffect(() => {
     const root = document.documentElement;
-    const isDark = root.classList.contains('dark');
 
+    // Always use dark mode colors
     const selectedColor = colorDefinitions[accentColor];
-    const colorValue = isDark ? selectedColor.dark : selectedColor.light;
+    const colorValue = selectedColor.dark;
 
     // Update the main accent color variable
     root.style.setProperty('--accent-color', colorValue);
@@ -63,39 +63,18 @@ export function useThemeColor() {
     root.style.setProperty('--accent-teal', colorValue);
   }, [accentColor]);
 
-  useEffect(() => {
-    // Watch for theme changes (light/dark mode)
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.attributeName === 'class') {
-          const root = document.documentElement;
-          const isDark = root.classList.contains('dark');
-          const selectedColor = colorDefinitions[accentColor];
-          const colorValue = isDark ? selectedColor.dark : selectedColor.light;
-          root.style.setProperty('--accent-color', colorValue);
-          root.style.setProperty('--accent-teal', colorValue);
-        }
-      });
-    });
-
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['class'],
-    });
-
-    return () => observer.disconnect();
-  }, [accentColor]);
-
   return accentColor;
 }
 
 // Helper function to get current accent color value
-export function getAccentColorValue(colorName: keyof typeof colorDefinitions, isDark: boolean = false) {
+export function getAccentColorValue(colorName: keyof typeof colorDefinitions, isDark: boolean = true) {
   const color = colorDefinitions[colorName];
-  return isDark ? color.dark : color.light;
+  // Always return dark variant or fallback to dark if isDark is false (though we enforce dark)
+  return color.dark;
 }
 
 // Helper to get current accent color from CSS variable
 export function getCurrentAccentColor() {
+  if (typeof window === 'undefined') return '';
   return getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim();
 }

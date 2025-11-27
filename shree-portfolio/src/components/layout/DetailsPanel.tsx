@@ -4,7 +4,7 @@ import { X, ExternalLink, Github, FileText, Play, MessageCircle, Calendar } from
 import { useUIStore } from '@/store/ui-store';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
+import { cn, formatDate } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { projects, experiences, education, personalInfo } from '@/data/portfolio';
 import { Project, Experience, Education } from '@/data/types';
@@ -257,7 +257,7 @@ export function DetailsPanel() {
                 <h2 className="heading-2 mb-1">{experience.role}</h2>
                 <p className="text-lg font-medium text-muted-foreground mb-2">{experience.company}</p>
                 <p className="text-sm text-muted-foreground">
-                  {experience.startDate} - {experience.current ? 'Present' : experience.endDate}
+                  {formatDate(experience.startDate)} - {formatDate(experience.endDate)}
                 </p>
               </div>
 

@@ -28,7 +28,7 @@ export default function AdminArchivePage() {
 
     // Log crop changes
     useEffect(() => {
-        console.log('📐 [Admin] Crop state changed:', crop);
+
     }, [crop]);
 
     useEffect(() => {
@@ -95,20 +95,14 @@ export default function AdminArchivePage() {
             formData.append('filterVignette', filters.vignette.toString());
 
             // Add crop values if crop was applied
-            console.log('📤 [Admin] Uploading with crop:', crop);
+
             if (crop) {
                 formData.append('cropX', crop.x.toString());
                 formData.append('cropY', crop.y.toString());
                 formData.append('cropWidth', crop.width.toString());
                 formData.append('cropHeight', crop.height.toString());
-                console.log('📤 [Admin] Crop values added to FormData:', {
-                    cropX: crop.x,
-                    cropY: crop.y,
-                    cropWidth: crop.width,
-                    cropHeight: crop.height
-                });
             } else {
-                console.log('⚠️ [Admin] No crop to upload');
+
             }
 
             const res = await fetch('/api/archive', {
@@ -148,14 +142,14 @@ export default function AdminArchivePage() {
         if (!confirmDelete) return;
 
         try {
-            console.log('🗑️ [Admin] Deleting photo:', photoId);
+
 
             const res = await fetch(`/api/archive?id=${photoId}`, {
                 method: 'DELETE',
             });
 
             if (res.ok) {
-                console.log('✅ [Admin] Photo deleted successfully');
+
                 alert('Photo deleted successfully!');
                 // Refresh the photo list
                 fetchPhotos();
@@ -353,7 +347,7 @@ export default function AdminArchivePage() {
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                console.log('🗑️ [Admin] Delete button clicked for:', photo.id);
+
                                                 handleDelete(photo.id, photo.title);
                                             }}
                                             className="absolute top-2 left-2 bg-red-500 hover:bg-red-600 text-white p-2 rounded opacity-80 hover:opacity-100 transition-all cursor-pointer z-10"

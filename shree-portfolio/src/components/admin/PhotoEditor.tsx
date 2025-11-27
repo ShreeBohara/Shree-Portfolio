@@ -101,20 +101,20 @@ export function PhotoEditor({
                 width: croppedArea.width,
                 height: croppedArea.height,
             };
-            console.log('Crop complete - saving percentages:', cropValues);
+
             onCropChange(cropValues);
         }
     }, [onCropChange]);
 
     const toggleCropMode = () => {
         const newCropMode = !cropMode;
-        console.log('Toggle crop mode:', { from: cropMode, to: newCropMode, croppedArea });
+
 
         setCropMode(newCropMode);
 
         // When entering crop mode, initialize with full image crop if no crop exists
         if (!cropMode && !croppedArea && onCropChange) {
-            console.log('Entering crop mode - setting default full crop');
+
             const defaultCrop: CropValues = {
                 x: 0,
                 y: 0,
@@ -126,7 +126,7 @@ export function PhotoEditor({
 
         // When exiting crop mode, ensure crop is saved using PERCENTAGE values
         if (cropMode && croppedArea && onCropChange) {
-            console.log('Exiting crop mode - saving PERCENTAGE crop:', croppedArea);
+
             const cropValues: CropValues = {
                 x: croppedArea.x,  // PERCENTAGE
                 y: croppedArea.y,

@@ -18,9 +18,10 @@ if (typeof window !== 'undefined') {
 
 interface DraggableCanvasProps {
   enabled?: boolean;
+  startInvisible?: boolean;
 }
 
-export function DraggableCanvas({ enabled = true }: DraggableCanvasProps) {
+export function DraggableCanvas({ enabled = true, startInvisible = false }: DraggableCanvasProps) {
   const {
     photos,
     setPhotos,
@@ -48,10 +49,7 @@ export function DraggableCanvas({ enabled = true }: DraggableCanvasProps) {
   const currentVelocity = useRef({ x: 0, y: 0 });
   const lastPos = useRef({ x: 0, y: 0 });
 
-  // Debug logger
-  const log = (message: string, data?: any) => {
-    console.log(`[DebugClick] ${message} `, data || '');
-  };
+
 
   // Load photos on mount
   useEffect(() => {
@@ -414,7 +412,7 @@ export function DraggableCanvas({ enabled = true }: DraggableCanvasProps) {
                   vignette: 40,
                 }}
                 crop={photo.crop}
-                className={`transition-shadow hover:shadow-2xl`}
+                className={`transition-shadow hover:shadow-2xl ${startInvisible ? 'opacity-0 grayscale' : ''}`}
                 style={{
                   width: `${displayWidth}px`,
                   height: `${displayHeight}px`
@@ -427,7 +425,7 @@ export function DraggableCanvas({ enabled = true }: DraggableCanvasProps) {
 
       {/* Instructions overlay */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/40 text-sm tracking-wider pointer-events-none select-none text-center">
-        Click & drag to explore • Click image for details
+        Click & drag to explore • Click image to view
       </div>
     </div>
   );

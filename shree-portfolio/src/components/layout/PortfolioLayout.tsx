@@ -97,13 +97,13 @@ export function PortfolioLayout({ children, showCatalog = false, initialSection 
         {/* Main content area */}
         <main
           className={cn(
-            "flex-1 transition-all duration-300 pt-[var(--header-height)]",
+            "flex-1 min-h-0 transition-all duration-300 pt-[var(--header-height)]",
             isDetailsPanelOpen && "lg:mr-[400px]" // Reserve space for details panel on desktop
           )}
         >
-          <div className="h-full overflow-y-auto">
+          <div className="h-full min-h-0 overflow-hidden">
             {showCatalog ? (
-              <div className="flex flex-col h-full">
+              <div className="flex flex-col h-full overflow-y-auto">
                 {/* Section Tabs */}
                 <div className="px-3 sm:px-6 lg:px-8 pt-4 sm:pt-6">
                   <SectionTabs
@@ -120,7 +120,7 @@ export function PortfolioLayout({ children, showCatalog = false, initialSection 
                 </div>
               </div>
             ) : (
-              <div className="h-full">
+              <div className="h-full min-h-0 flex flex-col">
                 {children}
               </div>
             )}

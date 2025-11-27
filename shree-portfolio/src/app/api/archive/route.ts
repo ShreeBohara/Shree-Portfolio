@@ -19,7 +19,7 @@ export async function GET() {
             return NextResponse.json({ error: error.message }, { status: 500 });
         }
 
-        console.log('📤 [API GET] Fetched photos from database:', data?.length);
+
 
         // Transform crop data from database format to app format
         try {
@@ -35,7 +35,7 @@ export async function GET() {
                         width: photo.crop_width,
                         height: photo.crop_height
                     };
-                    console.log(`📤 [API GET] Photo ${photo.id} has crop:`, transformed.crop);
+
                 }
 
                 // Remove the individual crop columns (they're now in the crop object)
@@ -90,14 +90,14 @@ export async function POST(request: NextRequest) {
         const cropWidthStr = formData.get('cropWidth') as string;
         const cropHeightStr = formData.get('cropHeight') as string;
 
-        console.log('📥 [API] Received crop strings:', { cropXStr, cropYStr, cropWidthStr, cropHeightStr });
+
 
         const cropX = cropXStr ? parseFloat(cropXStr) : null;
         const cropY = cropYStr ? parseFloat(cropYStr) : null;
         const cropWidth = cropWidthStr ? parseFloat(cropWidthStr) : null;
         const cropHeight = cropHeightStr ? parseFloat(cropHeightStr) : null;
 
-        console.log('📥 [API] Parsed crop values:', { cropX, cropY, cropWidth, cropHeight });
+
 
         if (!file) {
             return NextResponse.json({ error: 'No file provided' }, { status: 400 });
@@ -150,7 +150,7 @@ export async function POST(request: NextRequest) {
                     .from('archive-photos')
                     .getPublicUrl(thumbnailPath);
                 thumbnailUrl = thumbUrl;
-                console.log('✅ [API] Generated thumbnail:', thumbnailUrl);
+
             } else {
                 console.error('Thumbnail upload error:', thumbUploadError);
             }
@@ -179,7 +179,7 @@ export async function POST(request: NextRequest) {
             crop_height: cropHeight,
         };
 
-        console.log('💾 [API] About to insert into database:', recordData);
+
 
         const { data: record, error: dbError } = await supabase
             .from('archive_photos')
@@ -211,7 +211,7 @@ export async function DELETE(request: NextRequest) {
             return NextResponse.json({ error: 'Photo ID required' }, { status: 400 });
         }
 
-        console.log('🗑️ [API DELETE] Deleting photo:', photoId);
+
 
         // 1. Get photo record to find the file path
         const { data: photo, error: fetchError } = await supabase
@@ -227,7 +227,7 @@ export async function DELETE(request: NextRequest) {
 
         // Extract filename from URL
         const fileName = photo.src.split('/').pop();
-        console.log('🗑️ [API DELETE] File to delete:', fileName);
+
 
         // 2. Delete from storage
         if (fileName) {
@@ -239,7 +239,7 @@ export async function DELETE(request: NextRequest) {
                 console.error('Error deleting from storage:', storageError);
                 // Continue anyway - better to delete DB record even if file delete fails
             } else {
-                console.log('✅ [API DELETE] File deleted from storage');
+
             }
         }
 
@@ -254,7 +254,7 @@ export async function DELETE(request: NextRequest) {
             return NextResponse.json({ error: dbError.message }, { status: 500 });
         }
 
-        console.log('✅ [API DELETE] Photo deleted successfully');
+
         return NextResponse.json({ success: true });
     } catch (error) {
         console.error('Unexpected error:', error);

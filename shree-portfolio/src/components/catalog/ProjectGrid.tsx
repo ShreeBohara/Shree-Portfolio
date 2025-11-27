@@ -1,13 +1,15 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { AnimatePresence } from 'framer-motion';
+import { useState, useMemo, useEffect } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { ProjectCard } from './ProjectCard';
 import { FilterBar } from './FilterBar';
 import { Button } from '@/components/ui/button';
 import { useUIStore } from '@/store/ui-store';
 import { Project, SortOption, GroupOption } from '@/data/types';
 import { projects as allProjects } from '@/data/portfolio';
+import { SkeletonGrid } from '@/components/ui/skeleton-card';
+import { FolderOpen } from 'lucide-react';
 
 export function ProjectGrid() {
   const { viewMode } = useUIStore();
@@ -15,6 +17,15 @@ export function ProjectGrid() {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('recent');
   const [groupBy, setGroupBy] = useState<GroupOption>('none');
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Simulate initial loading state
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Filter projects
   const filteredProjects = useMemo(() => {
@@ -112,21 +123,35 @@ export function ProjectGrid() {
 
       {/* Projects */}
       <div className="flex-1 overflow-y-auto p-4">
-        {Object.keys(groupedProjects).length === 0 ? (
-          <div className="flex items-center justify-center h-64">
+        {isLoading ? (
+          <SkeletonGrid count={6} variant="project" viewMode={viewMode} />
+        ) : Object.keys(groupedProjects).length === 0 ? (
+          <motion.div 
+            className="flex items-center justify-center h-64"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
             <div className="text-center">
-              <p className="text-muted-foreground mb-4">No projects match your filters</p>
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted/50 flex items-center justify-center">
+                <FolderOpen className="h-8 w-8 text-muted-foreground/50" />
+              </div>
+              <h3 className="text-lg font-medium mb-2">No projects found</h3>
+              <p className="text-muted-foreground mb-4 max-w-sm">
+                Try adjusting your filters or search query to find what you're looking for.
+              </p>
               <Button
                 variant="outline"
                 onClick={() => {
                   setSelectedCategories(['all']);
                   setSearchQuery('');
                 }}
+                className="hover:border-accent-color/50 hover:text-accent-color"
               >
                 Clear filters
               </Button>
             </div>
-          </div>
+          </motion.div>
         ) : (
           <div className="space-y-8">
             {Object.entries(groupedProjects).map(([groupName, projects]) => (

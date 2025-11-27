@@ -39,19 +39,17 @@ export async function getRAGResponse(
       limit: AI_CONFIG.retrieval.topK,
       filter: context?.enabled && context?.itemId
         ? {
-            type: context.itemType,
-            itemId: context.itemId,
-          }
+          type: context.itemType,
+          itemId: context.itemId,
+        }
         : undefined,
       boostItemId: context?.enabled ? context.itemId : undefined,
     });
 
     // Log retrieval for debugging
-    console.log(`[RAG] Query: "${query}"`);
-    console.log(`[RAG] Retrieved ${retrievedChunks.length} chunks`);
+
     if (retrievedChunks.length > 0) {
-      console.log(`[RAG] Top chunk similarity: ${retrievedChunks[0].similarity.toFixed(3)}`);
-      console.log(`[RAG] Top chunk: ${retrievedChunks[0].metadata.title}`);
+
     } else {
       console.warn(`[RAG] No chunks retrieved for query: "${query}"`);
     }
@@ -61,9 +59,8 @@ export async function getRAGResponse(
 
     // Build messages for OpenAI
     const messages = buildMessages(query, retrievedChunks, context);
-    
+
     // Log prompt for debugging (first 500 chars)
-    console.log(`[RAG] User prompt preview: ${messages[1].content.substring(0, 500)}...`);
 
     // Generate response using OpenAI
     const openai = getOpenAIClient();
@@ -102,7 +99,7 @@ export async function* streamRAGResponse(
 ): AsyncGenerator<string, void, unknown> {
   // Check if vector store is available
   const { isVectorStoreAvailable } = await import('./vector-store');
-  
+
   if (!isVectorStoreAvailable() || !isOpenAIConfigured()) {
     console.warn('Vector store or OpenAI client not available, using placeholder response');
     const response = await getAIResponse(query, context);
@@ -121,19 +118,16 @@ export async function* streamRAGResponse(
       limit: AI_CONFIG.retrieval.topK,
       filter: context?.enabled && context?.itemId
         ? {
-            type: context.itemType,
-            itemId: context.itemId,
-          }
+          type: context.itemType,
+          itemId: context.itemId,
+        }
         : undefined,
       boostItemId: context?.enabled ? context.itemId : undefined,
     });
 
     // Log retrieval for debugging
-    console.log(`[RAG Stream] Query: "${query}"`);
-    console.log(`[RAG Stream] Retrieved ${retrievedChunks.length} chunks`);
     if (retrievedChunks.length > 0) {
-      console.log(`[RAG Stream] Top chunk similarity: ${retrievedChunks[0].similarity.toFixed(3)}`);
-      console.log(`[RAG Stream] Top chunk: ${retrievedChunks[0].metadata.title}`);
+
     } else {
       console.warn(`[RAG Stream] No chunks retrieved for query: "${query}"`);
       // Try with even lower threshold as fallback
@@ -142,7 +136,7 @@ export async function* streamRAGResponse(
         minScore: 0.4, // Very low threshold
       });
       if (fallbackChunks.length > 0) {
-        console.log(`[RAG Stream] Found ${fallbackChunks.length} chunks with lower threshold`);
+
         retrievedChunks = fallbackChunks;
       }
     }

@@ -1,10 +1,11 @@
 'use client';
 
-import { ChevronLeft, ChevronRight, Briefcase, GraduationCap, Folder, Download, Github as GithubIcon, Calendar, Mail, Linkedin } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Briefcase, GraduationCap, Folder, Download, Github as GithubIcon, Calendar, Mail, Linkedin, Images } from 'lucide-react';
 import { useUIStore } from '@/store/ui-store';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useRouter, usePathname } from 'next/navigation';
+import Link from 'next/link';
 import { personalInfo } from '@/data/portfolio';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { useSwipeable } from 'react-swipeable';
@@ -106,45 +107,45 @@ export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
                 {personalInfo.name.split(' ')[0]}
               </h2>
             )}
-          {/* Toggle button - desktop only */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setSidebarOpen(!isSidebarOpen)}
+            {/* Toggle button - desktop only */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setSidebarOpen(!isSidebarOpen)}
               className={cn(
                 "hidden lg:flex h-8 w-8 shrink-0 hover:text-accent-color hover:bg-accent-color/10",
                 !isSidebarOpen && "mx-auto"
               )}
-          >
-            {isSidebarOpen ? (
+            >
+              {isSidebarOpen ? (
                 <ChevronLeft className="h-4 w-4" />
-            ) : (
+              ) : (
                 <ChevronRight className="h-4 w-4" />
-            )}
-          </Button>
+              )}
+            </Button>
           </div>
 
           {/* Section tabs */}
           <TooltipProvider delayDuration={300}>
-          <div className={cn(
-            "flex flex-col gap-1 p-4",
-            !isSidebarOpen && "lg:p-2"
-          )}>
+            <div className={cn(
+              "flex flex-col gap-1 p-4",
+              !isSidebarOpen && "lg:p-2"
+            )}>
               <Tooltip>
                 <TooltipTrigger asChild>
-            <Button
-              variant={isBrowsePage && activeSection === 'projects' ? 'secondary' : 'ghost'}
-              size={isSidebarOpen ? 'sm' : 'icon'}
-              onClick={() => handleSectionClick('projects')}
-              className={cn(
+                  <Button
+                    variant={isBrowsePage && activeSection === 'projects' ? 'secondary' : 'ghost'}
+                    size={isSidebarOpen ? 'sm' : 'icon'}
+                    onClick={() => handleSectionClick('projects')}
+                    className={cn(
                       "justify-start shrink-0",
                       !isSidebarOpen && "lg:justify-center lg:w-10",
                       !(isBrowsePage && activeSection === 'projects') && "hover:text-accent-color hover:bg-accent-color/10"
-              )}
-            >
+                    )}
+                  >
                     <Folder className="h-4 w-4 shrink-0" />
                     {isSidebarOpen && <span className="ml-2 whitespace-nowrap">Projects</span>}
-            </Button>
+                  </Button>
                 </TooltipTrigger>
                 {!isSidebarOpen && (
                   <TooltipContent side="right">
@@ -155,19 +156,19 @@ export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
 
               <Tooltip>
                 <TooltipTrigger asChild>
-            <Button
-              variant={isBrowsePage && activeSection === 'experience' ? 'secondary' : 'ghost'}
-              size={isSidebarOpen ? 'sm' : 'icon'}
-              onClick={() => handleSectionClick('experience')}
-              className={cn(
+                  <Button
+                    variant={isBrowsePage && activeSection === 'experience' ? 'secondary' : 'ghost'}
+                    size={isSidebarOpen ? 'sm' : 'icon'}
+                    onClick={() => handleSectionClick('experience')}
+                    className={cn(
                       "justify-start shrink-0",
                       !isSidebarOpen && "lg:justify-center lg:w-10",
                       !(isBrowsePage && activeSection === 'experience') && "hover:text-accent-color hover:bg-accent-color/10"
-              )}
-            >
+                    )}
+                  >
                     <Briefcase className="h-4 w-4 shrink-0" />
                     {isSidebarOpen && <span className="ml-2 whitespace-nowrap">Experience</span>}
-            </Button>
+                  </Button>
                 </TooltipTrigger>
                 {!isSidebarOpen && (
                   <TooltipContent side="right">
@@ -178,11 +179,11 @@ export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
 
               <Tooltip>
                 <TooltipTrigger asChild>
-            <Button
-              variant={isBrowsePage && activeSection === 'education' ? 'secondary' : 'ghost'}
-              size={isSidebarOpen ? 'sm' : 'icon'}
-              onClick={() => handleSectionClick('education')}
-              className={cn(
+                  <Button
+                    variant={isBrowsePage && activeSection === 'education' ? 'secondary' : 'ghost'}
+                    size={isSidebarOpen ? 'sm' : 'icon'}
+                    onClick={() => handleSectionClick('education')}
+                    className={cn(
                       "justify-start shrink-0",
                       !isSidebarOpen && "lg:justify-center lg:w-10",
                       !(isBrowsePage && activeSection === 'education') && "hover:text-accent-color hover:bg-accent-color/10"
@@ -196,7 +197,7 @@ export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
                   <TooltipContent side="right">
                     <p>Education</p>
                   </TooltipContent>
-                    )}
+                )}
               </Tooltip>
             </div>
           </TooltipProvider>
@@ -217,10 +218,10 @@ export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button variant="ghost" size="icon" className="h-9 w-9 hover:text-accent-color hover:bg-accent-color/10" asChild>
-                <a href={personalInfo.links.resume.pdf} target="_blank" rel="noopener noreferrer" aria-label="Resume">
-                  <Download className="h-4 w-4" />
-                </a>
-              </Button>
+                      <a href={personalInfo.links.resume.pdf} target="_blank" rel="noopener noreferrer" aria-label="Resume">
+                        <Download className="h-4 w-4" />
+                      </a>
+                    </Button>
                   </TooltipTrigger>
                   <TooltipContent side="right">
                     <p>Resume</p>
@@ -230,10 +231,10 @@ export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button variant="ghost" size="icon" className="h-9 w-9 hover:text-accent-color hover:bg-accent-color/10" asChild>
-                <a href={personalInfo.links.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub">
-                  <GithubIcon className="h-4 w-4" />
-                </a>
-              </Button>
+                      <a href={personalInfo.links.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+                        <GithubIcon className="h-4 w-4" />
+                      </a>
+                    </Button>
                   </TooltipTrigger>
                   <TooltipContent side="right">
                     <p>GitHub</p>
@@ -243,10 +244,10 @@ export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button variant="ghost" size="icon" className="h-9 w-9 hover:text-accent-color hover:bg-accent-color/10" asChild>
-                <a href={personalInfo.links.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
-                  <Linkedin className="h-4 w-4" />
-                </a>
-              </Button>
+                      <a href={personalInfo.links.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+                        <Linkedin className="h-4 w-4" />
+                      </a>
+                    </Button>
                   </TooltipTrigger>
                   <TooltipContent side="right">
                     <p>LinkedIn</p>
@@ -256,10 +257,10 @@ export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button variant="ghost" size="icon" className="h-9 w-9 hover:text-accent-color hover:bg-accent-color/10" asChild>
-                <a href={personalInfo.links.calendar} target="_blank" rel="noopener noreferrer" aria-label="Schedule Call">
-                  <Calendar className="h-4 w-4" />
-                </a>
-              </Button>
+                      <a href={personalInfo.links.calendar} target="_blank" rel="noopener noreferrer" aria-label="Schedule Call">
+                        <Calendar className="h-4 w-4" />
+                      </a>
+                    </Button>
                   </TooltipTrigger>
                   <TooltipContent side="right">
                     <p>Schedule Call</p>
@@ -269,10 +270,10 @@ export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button variant="ghost" size="icon" className="h-9 w-9 hover:text-accent-color hover:bg-accent-color/10" asChild>
-                <a href={`mailto:${personalInfo.links.email}`} aria-label="Email">
-                  <Mail className="h-4 w-4" />
-                </a>
-              </Button>
+                      <a href={`mailto:${personalInfo.links.email}`} aria-label="Email">
+                        <Mail className="h-4 w-4" />
+                      </a>
+                    </Button>
                   </TooltipTrigger>
                   <TooltipContent side="right">
                     <p>Email</p>

@@ -5,6 +5,20 @@ import { Send } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
+// Singleton canvas for text measurement to avoid repeated creation
+let measurementCanvas: HTMLCanvasElement | null = null;
+let measurementContext: CanvasRenderingContext2D | null = null;
+
+function getMeasurementContext(): CanvasRenderingContext2D | null {
+  if (typeof window === 'undefined') return null;
+
+  if (!measurementCanvas) {
+    measurementCanvas = document.createElement('canvas');
+    measurementContext = measurementCanvas.getContext('2d');
+  }
+  return measurementContext;
+}
+
 interface TerminalInputProps {
   value: string;
   onChange: (value: string) => void;
@@ -61,9 +75,9 @@ export const TerminalInput = forwardRef<TerminalInputRef, TerminalInputProps>(({
     if (inputRef.current) {
       const start = inputRef.current.selectionStart || 0;
       const end = inputRef.current.selectionEnd || 0;
-      
+
       setCursorPosition(start);
-      
+
       // Track selection if there's a selection (start !== end)
       if (start !== end) {
         setSelectionStart(start);
@@ -85,13 +99,13 @@ export const TerminalInput = forwardRef<TerminalInputRef, TerminalInputProps>(({
           const container = scrollContainerRef.current;
           const cursorRect = cursorElement.getBoundingClientRect();
           const containerRect = container.getBoundingClientRect();
-          
+
           // Check if cursor is outside visible area
           if (cursorRect.left < containerRect.left || cursorRect.right > containerRect.right) {
-            cursorElement.scrollIntoView({ 
-              behavior: 'smooth', 
-              block: 'nearest', 
-              inline: 'nearest' 
+            cursorElement.scrollIntoView({
+              behavior: 'smooth',
+              block: 'nearest',
+              inline: 'nearest'
             });
           }
         }
@@ -141,47 +155,46 @@ export const TerminalInput = forwardRef<TerminalInputRef, TerminalInputProps>(({
   // Calculate character position from click coordinates
   const getCharPositionFromClick = (clientX: number): number => {
     if (!textDisplayRef.current || !inputRef.current || !scrollContainerRef.current) return 0;
-    
+
     const textContainer = textDisplayRef.current;
     const scrollContainer = scrollContainerRef.current;
-    
+
     // Get the text content div (the one with flex items-center that contains the actual text)
     const textContentDiv = textContainer.querySelector('div.flex.items-center') as HTMLElement;
     if (!textContentDiv) return 0;
-    
+
     // Get bounding rect of the text content div
     const textRect = textContentDiv.getBoundingClientRect();
     const scrollLeft = scrollContainer.scrollLeft;
-    
+
     // Calculate click position relative to the text content div (accounting for scroll)
     const clickX = clientX - textRect.left + scrollLeft;
-    
+
     // Get computed styles for accurate measurement
     const style = window.getComputedStyle(textContainer);
     const fontSize = style.fontSize;
     const fontFamily = style.fontFamily;
     const font = `${fontSize} ${fontFamily}`;
-    
+
     // Use canvas to measure text width accurately
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
+    const context = getMeasurementContext();
     if (!context) return 0;
-    
+
     context.font = font;
-    
+
     const text = value || '';
     if (text.length === 0) return 0;
-    
+
     // Binary search for character position with more precision
     let left = 0;
     let right = text.length;
     let position = 0;
-    
+
     while (left <= right) {
       const mid = Math.floor((left + right) / 2);
       const textBefore = text.slice(0, mid);
       const width = context.measureText(textBefore).width;
-      
+
       if (width <= clickX) {
         position = mid;
         left = mid + 1;
@@ -189,34 +202,34 @@ export const TerminalInput = forwardRef<TerminalInputRef, TerminalInputProps>(({
         right = mid - 1;
       }
     }
-    
+
     // Fine-tune position: check if we're closer to current or next character
     if (position < text.length) {
       const currentWidth = context.measureText(text.slice(0, position)).width;
       const nextWidth = context.measureText(text.slice(0, position + 1)).width;
       const midpoint = currentWidth + (nextWidth - currentWidth) / 2;
-      
+
       if (clickX > midpoint) {
         position = Math.min(position + 1, text.length);
       }
     }
-    
+
     return Math.max(0, Math.min(position, text.length));
   };
 
   // Handle click on visible text to position cursor (only if no drag occurred)
   const handleTextClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!inputRef.current || disabled) return;
-    
+
     // Only handle click if it wasn't a drag
     if (hasMovedRef.current) {
       hasMovedRef.current = false;
       return;
     }
-    
+
     e.preventDefault();
     e.stopPropagation();
-    
+
     const position = getCharPositionFromClick(e.clientX);
     inputRef.current.focus();
     inputRef.current.setSelectionRange(position, position);
@@ -226,7 +239,7 @@ export const TerminalInput = forwardRef<TerminalInputRef, TerminalInputProps>(({
   // Handle mouse down for selection start
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!inputRef.current || disabled) return;
-    
+
     e.preventDefault();
     const position = getCharPositionFromClick(e.clientX);
     mouseDownPosRef.current = e.clientX;
@@ -241,10 +254,10 @@ export const TerminalInput = forwardRef<TerminalInputRef, TerminalInputProps>(({
   // Handle mouse move during selection - use global mouse move for better tracking
   useEffect(() => {
     if (!isSelecting) return;
-    
+
     const handleGlobalMouseMove = (e: MouseEvent) => {
       if (!inputRef.current || disabled) return;
-      
+
       // Check if mouse has moved significantly (more than 3px) to consider it a drag
       if (mouseDownPosRef.current !== null) {
         const moveDistance = Math.abs(e.clientX - mouseDownPosRef.current);
@@ -252,14 +265,14 @@ export const TerminalInput = forwardRef<TerminalInputRef, TerminalInputProps>(({
           hasMovedRef.current = true;
         }
       }
-      
+
       const position = getCharPositionFromClick(e.clientX);
       const start = selectionStartPos ?? position;
-      
+
       // Always pass smaller value as start, larger as end (setSelectionRange requirement)
       const selectionStart = Math.min(start, position);
       const selectionEnd = Math.max(start, position);
-      
+
       inputRef.current.setSelectionRange(selectionStart, selectionEnd);
       updateCursorPosition();
     };
@@ -276,7 +289,7 @@ export const TerminalInput = forwardRef<TerminalInputRef, TerminalInputProps>(({
 
     document.addEventListener('mousemove', handleGlobalMouseMove);
     document.addEventListener('mouseup', handleGlobalMouseUp);
-    
+
     return () => {
       document.removeEventListener('mousemove', handleGlobalMouseMove);
       document.removeEventListener('mouseup', handleGlobalMouseUp);
@@ -420,13 +433,13 @@ export const TerminalInput = forwardRef<TerminalInputRef, TerminalInputProps>(({
           borderColor: isFocused
             ? accentColor
             : isHovered
-            ? `${accentColor}60`
-            : 'rgb(63 63 70 / 0.5)',
+              ? `${accentColor}60`
+              : 'rgb(63 63 70 / 0.5)',
           boxShadow: isFocused
             ? `0 0 0 1px ${accentColor}, 0 0 40px ${accentColor}40, 0 25px 50px -12px rgba(0, 0, 0, 0.6)`
             : isHovered
-            ? `0 0 20px ${accentColor}20, 0 25px 50px -12px rgba(0, 0, 0, 0.5)`
-            : '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+              ? `0 0 20px ${accentColor}20, 0 25px 50px -12px rgba(0, 0, 0, 0.5)`
+              : '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
           transform: isFocused ? 'scale(1.005)' : 'scale(1)',
         }}
       >
@@ -448,8 +461,8 @@ export const TerminalInput = forwardRef<TerminalInputRef, TerminalInputProps>(({
               textShadow: isFocused
                 ? `0 0 20px ${accentColor}80, 0 0 10px ${accentColor}60`
                 : isHovered
-                ? `0 0 10px ${accentColor}40`
-                : 'none',
+                  ? `0 0 10px ${accentColor}40`
+                  : 'none',
               transform: isFocused ? 'scale(1.05)' : 'scale(1)',
             }}
           >
@@ -519,7 +532,7 @@ export const TerminalInput = forwardRef<TerminalInputRef, TerminalInputProps>(({
                           {value.slice(0, selectionStartPosCalculated)}
                         </span>
                       )}
-                      
+
                       {/* Selected text */}
                       <span
                         className="text-zinc-900 dark:text-zinc-900 whitespace-pre"
@@ -531,7 +544,7 @@ export const TerminalInput = forwardRef<TerminalInputRef, TerminalInputProps>(({
                       >
                         {value.slice(selectionStartPosCalculated, selectionEndPosCalculated)}
                       </span>
-                      
+
                       {/* Text after selection */}
                       {selectionEndPosCalculated < value.length && (
                         <span className="text-zinc-100 dark:text-zinc-200 whitespace-pre">

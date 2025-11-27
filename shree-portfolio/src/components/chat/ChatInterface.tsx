@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { AlertCircle, X, FolderKanban, Briefcase, GraduationCap, ArrowDown, RefreshCw } from 'lucide-react';
+import { AlertCircle, X, FolderKanban, Briefcase, GraduationCap, ArrowDown, RefreshCw, MapPin, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Message } from './Message';
@@ -15,6 +15,8 @@ import { Badge } from '@/components/ui/badge';
 import { personalInfo, projects, experiences, education } from '@/data/portfolio';
 import { getCurrentAccentColor } from '@/hooks/useThemeColor';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
+import Link from 'next/link';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -272,8 +274,12 @@ export function ChatInterface() {
 
   // Scroll to bottom with smooth animation
   const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior, block: 'end' });
+    if (scrollAreaRef.current) {
+      const { scrollHeight } = scrollAreaRef.current;
+      scrollAreaRef.current.scrollTo({
+        top: scrollHeight,
+        behavior
+      });
       userScrolledRef.current = false;
       setIsAtBottom(true);
       setShowScrollButton(false);
@@ -410,6 +416,7 @@ export function ChatInterface() {
       let citations: Citation[] = [];
       let accumulatedContent = '';
       let isFirstChunk = true;
+      let buffer = '';
 
       if (!reader) {
         throw new Error('No response body');
@@ -419,22 +426,19 @@ export function ChatInterface() {
         const { done, value } = await reader.read();
         if (done) break;
 
-        const chunk = decoder.decode(value);
-        const lines = chunk.split('\n').filter(line => line.trim());
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
 
         for (const line of lines) {
+          if (!line.trim()) continue;
           try {
             const data = JSON.parse(line);
 
             if (data.type === 'metadata') {
               citations = data.citations || [];
-              // Wait for minimum display time before showing response
-              if (isFirstChunk) {
-                await ensureMinimumLoadingTime();
-                isFirstChunk = false;
-              }
-              // Initialize response with citations
-              setResponse({ role: 'assistant', content: accumulatedContent, citations });
+              // Don't set response yet - wait for first chunk of text
+              // This prevents the "Thinking" state with empty content
             } else if (data.type === 'chunk') {
               // Wait for minimum display time before showing first chunk
               if (isFirstChunk) {
@@ -453,6 +457,11 @@ export function ChatInterface() {
             console.warn('Failed to parse chunk:', parseError);
           }
         }
+      }
+
+      // If we finished streaming but haven't set a response yet (e.g. only metadata), set it now
+      if (!accumulatedContent && citations.length > 0) {
+        setResponse({ role: 'assistant', content: '', citations });
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred while processing your request.');
@@ -503,6 +512,7 @@ export function ChatInterface() {
       let citations: Citation[] = [];
       let accumulatedContent = '';
       let isFirstChunk = true;
+      let buffer = '';
 
       if (!reader) {
         throw new Error('No response body');
@@ -512,22 +522,19 @@ export function ChatInterface() {
         const { done, value } = await reader.read();
         if (done) break;
 
-        const chunk = decoder.decode(value);
-        const lines = chunk.split('\n').filter(line => line.trim());
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
 
         for (const line of lines) {
+          if (!line.trim()) continue;
           try {
             const data = JSON.parse(line);
 
             if (data.type === 'metadata') {
               citations = data.citations || [];
-              // Wait for minimum display time before showing response
-              if (isFirstChunk) {
-                await ensureMinimumLoadingTime();
-                isFirstChunk = false;
-              }
-              // Initialize response with citations
-              setResponse({ role: 'assistant', content: accumulatedContent, citations });
+              // Don't set response yet - wait for first chunk of text
+              // This prevents the "Thinking" state with empty content
             } else if (data.type === 'chunk') {
               // Wait for minimum display time before showing first chunk
               if (isFirstChunk) {
@@ -546,6 +553,11 @@ export function ChatInterface() {
             console.warn('Failed to parse chunk:', parseError);
           }
         }
+      }
+
+      // If we finished streaming but haven't set a response yet (e.g. only metadata), set it now
+      if (!accumulatedContent && citations.length > 0) {
+        setResponse({ role: 'assistant', content: '', citations });
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred while processing your request.');
@@ -578,7 +590,7 @@ export function ChatInterface() {
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full min-h-0">
       {/* Chat context indicator */}
       <AnimatePresence>
         {chatContext.enabled && (
@@ -613,31 +625,10 @@ export function ChatInterface() {
       </AnimatePresence>
 
       {/* Main chat area */}
-      <div className="flex-1 overflow-y-auto flex flex-col">
+      <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
         {!currentChat && !response && !error ? (
           /* Empty state - properly centered */
           <div ref={outerContainerRef} className="flex-1 px-3 sm:px-4 relative overflow-hidden flex items-center justify-center">
-            {/* Subtle background gradient animation */}
-            <motion.div
-              className="absolute inset-0 opacity-30 pointer-events-none"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.3 }}
-              transition={{ duration: 1 }}
-            >
-              <div
-                className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl"
-                style={{
-                  background: `radial-gradient(circle, ${accentColor.replace(')', ' / 0.1)')}, transparent)`,
-                }}
-              />
-              <div
-                className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full blur-3xl"
-                style={{
-                  background: `radial-gradient(circle, ${accentColor.replace(')', ' / 0.08)')}, transparent)`,
-                }}
-              />
-            </motion.div>
-
             <div ref={containerRef} className="w-full max-w-3xl relative z-10">
               {/* Title at FINAL position - both shrink together after ALL typing completes */}
               {/* Wrapper to prevent layout shift during scale */}
@@ -694,63 +685,63 @@ export function ChatInterface() {
                       justifyContent: 'center'
                     }}
                   >
-                  {/* Text with spotlight effect */}
-                  <span
-                    ref={textWrapperRef}
-                    className="relative inline-block"
-                    style={{
-                      color: 'currentColor',
-                      position: 'relative',
-                    }}
-                    onMouseMove={(e) => {
-                      // Disable glow effect during first load animation
-                      if (textWrapperRef.current && hasLayoutAnimatedOnce) {
-                        const rect = textWrapperRef.current.getBoundingClientRect();
-                        const x = e.clientX - rect.left;
-                        const y = e.clientY - rect.top;
-                        setMousePosition({ x, y });
-                        setIsMouseOverText(true);
-                      }
-                    }}
-                    onMouseEnter={() => hasLayoutAnimatedOnce && setIsMouseOverText(true)}
-                    onMouseLeave={() => setIsMouseOverText(false)}
-                  >
-                    {/* Base text that shows without hover */}
-                    <span className={cn(
-                      "transition-opacity duration-200",
-                      hasLayoutAnimatedOnce && "group-hover:opacity-0"
-                    )}>
-                      <TypingAnimation
-                        text={`Hi, I'm ${personalInfo.name.split(' ')[0]}`}
-                        accentColor={accentColor}
-                        hideCursor={nameTypingComplete}
-                        onComplete={() => {
-                          setNameTypingComplete(true);
-                        }}
-                      />
-                    </span>
-
-                    {/* Gradient text that shows on hover - ONLY through letters (disabled during first load) */}
+                    {/* Text with spotlight effect */}
                     <span
-                      className="absolute inset-0 pointer-events-none select-none transition-opacity duration-150"
+                      ref={textWrapperRef}
+                      className="relative inline-block"
                       style={{
-                        opacity: (isMouseOverText && hasLayoutAnimatedOnce) ? 1 : 0,
-                        backgroundImage: `radial-gradient(circle 60px at ${mousePosition.x}px ${mousePosition.y}px, ${accentColor} 0%, ${accentColor.replace(')', ' / 0.65)')} 25%, currentColor 60%)`,
-                        WebkitBackgroundClip: 'text',
-                        backgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                        color: 'transparent',
-                        fontFamily: 'inherit',
-                        fontSize: 'inherit',
-                        fontWeight: 'inherit',
-                        letterSpacing: 'inherit',
-                        lineHeight: 'inherit',
+                        color: 'currentColor',
+                        position: 'relative',
                       }}
-                      aria-hidden="true"
+                      onMouseMove={(e) => {
+                        // Disable glow effect during first load animation
+                        if (textWrapperRef.current && hasLayoutAnimatedOnce) {
+                          const rect = textWrapperRef.current.getBoundingClientRect();
+                          const x = e.clientX - rect.left;
+                          const y = e.clientY - rect.top;
+                          setMousePosition({ x, y });
+                          setIsMouseOverText(true);
+                        }
+                      }}
+                      onMouseEnter={() => hasLayoutAnimatedOnce && setIsMouseOverText(true)}
+                      onMouseLeave={() => setIsMouseOverText(false)}
                     >
-                      Hi, I'm {personalInfo.name.split(' ')[0]}
+                      {/* Base text that shows without hover */}
+                      <span className={cn(
+                        "transition-opacity duration-200",
+                        hasLayoutAnimatedOnce && "group-hover:opacity-0"
+                      )}>
+                        <TypingAnimation
+                          text={`Hi, I'm ${personalInfo.name.split(' ')[0]}`}
+                          accentColor={accentColor}
+                          hideCursor={nameTypingComplete}
+                          onComplete={() => {
+                            setNameTypingComplete(true);
+                          }}
+                        />
+                      </span>
+
+                      {/* Gradient text that shows on hover - ONLY through letters (disabled during first load) */}
+                      <span
+                        className="absolute inset-0 pointer-events-none select-none transition-opacity duration-150"
+                        style={{
+                          opacity: (isMouseOverText && hasLayoutAnimatedOnce) ? 1 : 0,
+                          backgroundImage: `radial-gradient(circle 60px at ${mousePosition.x}px ${mousePosition.y}px, ${accentColor} 0%, ${accentColor.replace(')', ' / 0.65)')} 25%, currentColor 60%)`,
+                          WebkitBackgroundClip: 'text',
+                          backgroundClip: 'text',
+                          WebkitTextFillColor: 'transparent',
+                          color: 'transparent',
+                          fontFamily: 'inherit',
+                          fontSize: 'inherit',
+                          fontWeight: 'inherit',
+                          letterSpacing: 'inherit',
+                          lineHeight: 'inherit',
+                        }}
+                        aria-hidden="true"
+                      >
+                        Hi, I'm {personalInfo.name.split(' ')[0]}
+                      </span>
                     </span>
-                  </span>
                   </motion.h1>
 
                   {/* Tagline - stays big until typing completes, then BOTH shrink together (only on first load) */}
@@ -787,6 +778,74 @@ export function ChatInterface() {
                       />
                     )}
                   </motion.p>
+
+                  {/* Quick Stats - appear after typing animation */}
+                  <motion.div
+                    className="flex items-center justify-center gap-3 sm:gap-6 mt-4 flex-wrap"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{
+                      opacity: taglineTypingComplete ? 1 : 0,
+                      y: taglineTypingComplete ? 0 : 10,
+                    }}
+                    transition={{
+                      duration: 0.5,
+                      delay: 0.2,
+                      ease: [0.22, 1, 0.36, 1],
+                    }}
+                  >
+                    {/* Projects count */}
+                    <Link href="/browse?section=projects">
+                      <motion.div
+                        className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground/80 hover:text-accent-color transition-colors"
+                        whileHover={{ scale: 1.05 }}
+                      >
+                        <FolderKanban className="h-3.5 w-3.5 sm:h-4 sm:w-4" style={{ color: accentColor }} />
+                        <span className="font-medium">5+</span>
+                        <span className="hidden sm:inline">Projects</span>
+                      </motion.div>
+                    </Link>
+
+
+
+                    <span className="text-muted-foreground/30">|</span>
+
+                    {/* QuinStreet */}
+                    <Link href="/browse?section=experience">
+                      <motion.div
+                        className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground/80 hover:text-accent-color transition-colors"
+                        whileHover={{ scale: 1.05 }}
+                      >
+                        <Briefcase className="h-3.5 w-3.5 sm:h-4 sm:w-4" style={{ color: accentColor }} />
+                        <span>QuinStreet</span>
+                      </motion.div>
+                    </Link>
+
+                    <span className="text-muted-foreground/30">|</span>
+
+                    {/* Location */}
+                    <Link href="/browse?section=education">
+                      <motion.div
+                        className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground/80 hover:text-accent-color transition-colors"
+                        whileHover={{ scale: 1.05 }}
+                      >
+                        <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4" style={{ color: accentColor }} />
+                        <span>USC CS</span>
+                      </motion.div>
+                    </Link>
+
+                    {/* Availability badge */}
+                    <motion.div
+                      className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium"
+                      style={{
+                        backgroundColor: `${accentColor.replace(')', ' / 0.1)')}`,
+                        color: accentColor,
+                      }}
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      <Sparkles className="h-3 w-3" />
+                      <span>Open to Work</span>
+                    </motion.div>
+                  </motion.div>
                 </div>
               </div>
 
@@ -812,13 +871,14 @@ export function ChatInterface() {
           </div>
         ) : (
           // Chat messages with scroll container
-          <div ref={scrollAreaRef} className="flex-1 overflow-y-auto scroll-smooth relative">
+          <div ref={scrollAreaRef} className="flex-1 overflow-y-auto scroll-smooth relative min-h-0">
             <div className="space-y-0 pb-4">
-              {currentChat && <Message {...currentChat} />}
+              {currentChat && <Message {...currentChat} accentColor={accentColor} />}
               {response && (
                 <Message
                   {...response}
                   isStreaming={isLoading && response.content.length > 0}
+                  accentColor={accentColor}
                 />
               )}
               <AnimatePresence mode="wait">
@@ -894,7 +954,7 @@ export function ChatInterface() {
 
       {/* Input area - always rendered, control visibility with opacity */}
       <motion.div
-        className=" bg-background/95 backdrop-blur-xl backdrop-saturate-150 sticky bottom-0 z-20"
+        className="flex-shrink-0 bg-background/95 backdrop-blur-xl backdrop-saturate-150 z-20"
         initial={hasLayoutAnimatedOnce ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
         animate={{
           opacity: (isInitialAnimationComplete || currentChat || response) ? 1 : 0,

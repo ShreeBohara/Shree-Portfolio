@@ -1,6 +1,6 @@
 'use client';
 
-import { Menu, Download, Calendar, Mail, Github as GithubIcon, Linkedin, Moon, Sun } from 'lucide-react';
+import { Menu, Download, Calendar, Mail, Github as GithubIcon, Linkedin, Images } from 'lucide-react';
 import { useUIStore } from '@/store/ui-store';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -18,7 +18,7 @@ import { ThemeColorPicker } from '@/components/ui/theme-color-picker';
 import { getCurrentAccentColor } from '@/hooks/useThemeColor';
 
 export function Header() {
-  const { toggleSidebar, isSidebarOpen, theme, toggleTheme, triggerNewChat } = useUIStore();
+  const { toggleSidebar, isSidebarOpen, triggerNewChat } = useUIStore();
   const pathname = usePathname();
   const [accentColor, setAccentColor] = useState('oklch(0.72 0.12 185)');
 
@@ -30,12 +30,7 @@ export function Header() {
     }
   };
 
-  // Apply theme
-  useEffect(() => {
-    const root = window.document.documentElement;
-    root.classList.remove('light', 'dark');
-    root.classList.add(theme);
-  }, [theme]);
+
 
   // Update accent color when it changes
   useEffect(() => {
@@ -56,7 +51,7 @@ export function Header() {
     return () => observer.disconnect();
   }, []);
 
-  const themeIcon = theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />;
+
 
   return (
     <header className={cn(
@@ -102,15 +97,15 @@ export function Header() {
               <Link href="/browse">Browse</Link>
             </Button>
             <Button
-              variant={pathname === '/archive' ? 'default' : 'ghost'}
+              variant={pathname === '/about' ? 'default' : 'ghost'}
               size="sm"
               asChild
               className={cn(
                 "h-9 min-h-[44px] sm:h-8 sm:min-h-0 px-3 text-sm",
-                pathname !== '/archive' && "hover:text-accent-color hover:bg-accent-color/10"
+                pathname !== '/about' && "hover:text-accent-color hover:bg-accent-color/10"
               )}
             >
-              <Link href="/archive">Archive</Link>
+              <Link href="/about">About</Link>
             </Button>
           </div>
         </div>
@@ -131,8 +126,8 @@ export function Header() {
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem 
-                asChild 
+              <DropdownMenuItem
+                asChild
                 className="group transition-colors"
                 onMouseEnter={(e) => {
                   const target = e.currentTarget;
@@ -156,8 +151,8 @@ export function Header() {
                   Resume
                 </a>
               </DropdownMenuItem>
-              <DropdownMenuItem 
-                asChild 
+              <DropdownMenuItem
+                asChild
                 className="group transition-colors"
                 onMouseEnter={(e) => {
                   const target = e.currentTarget;
@@ -248,17 +243,47 @@ export function Header() {
 
           {/* Tools section */}
           <div className="flex items-center gap-0.5 sm:gap-1">
+            {/* Archive link with rainbow gradient icon */}
+            <Link
+              href="/archive"
+              className={cn(
+                "h-10 w-10 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 rounded-md flex items-center justify-center transition-all group",
+                pathname === '/archive'
+                  ? "bg-accent-color/10"
+                  : "hover:bg-white/5"
+              )}
+              aria-label="Photo Archive"
+              title="Archive"
+            >
+              {/* Rainbow gradient SVG icon */}
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-5 w-5 transition-transform group-hover:scale-110"
+              >
+                <defs>
+                  <linearGradient id="gemini-rainbow" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#4285F4" />
+                    <stop offset="25%" stopColor="#A142F4" />
+                    <stop offset="50%" stopColor="#EA4335" />
+                    <stop offset="75%" stopColor="#FBBC05" />
+                    <stop offset="100%" stopColor="#34A853" />
+                  </linearGradient>
+                </defs>
+                {/* Images icon paths */}
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="url(#gemini-rainbow)" />
+                <circle cx="9" cy="9" r="2" stroke="url(#gemini-rainbow)" />
+                <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" stroke="url(#gemini-rainbow)" />
+              </svg>
+            </Link>
+
             {/* Theme Color Picker */}
             <ThemeColorPicker />
 
-            {/* Theme toggle */}
-            <button
-              onClick={toggleTheme}
-              aria-label="Toggle theme"
-              className="h-10 w-10 min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 rounded-md flex items-center justify-center transition-colors hover:text-accent-color hover:bg-accent-color/10"
-            >
-              {themeIcon}
-            </button>
+
           </div>
         </div>
       </div>

@@ -18,7 +18,7 @@ I'm particularly interested in opportunities that involve AI, full-stack develop
     email: "bohara@usc.edu",
     github: "https://github.com/ShreeBohara",
     linkedin: "https://www.linkedin.com/in/shree-bohara/",
-    twitter: "https://twitter.com/shree",
+    // twitter: undefined, // Add your Twitter/X handle here if you have one
     calendar: "https://calendly.com/shreetbohara/connect-with-shree",
     resume: {
       pdf: "https://docs.google.com/document/d/12F3Sf9cv0hqj7q-W7gxaxhN4rhhzwJE8BUxhJyXu8GU/edit?tab=t.0",
@@ -69,7 +69,7 @@ I'm particularly interested in opportunities that involve AI, full-stack develop
       { name: "Figma", reason: "Fast from ideas → user flows → dev handoff (used heavily on Pond)." }
     ],
     goodProject: "Impact first: it should solve a real user problem and show measurable results (faster, fewer errors, higher conversion). After that, I look for: Clarity (clear goal, simple design, small milestones), Reliability & accessibility (works under stress, accessible to everyone), Maintainability (clean code, tests, logs, docs, easy to hand off), and Feedback loop (ship early, learn from users, iterate).",
-    aiThoughts: "AI is a power tool, not an autopilot. I use it to speed up setup and boring work—scaffold APIs, write tests, draft SQL, clean logs, and document changes—but I keep humans in charge of design and reviews. At QuinStreet, we used AI heavily on Pond. I owned the Manual Entry flow and helped wire 'Ollie' for FAQ/next-step help. We shipped the MVP in under 2 months. In side projects, I use AI where it clearly adds value: GlobePulse (embeddings + vector search) and EchoLens (image → audio for accessibility). Guardrails matter: prompt hygiene, tests, metrics, feature flags, A/Bs. I avoid AI on high-risk paths (payments, strict-latency code)."
+    aiThoughts: "AI is a power tool, not an autopilot. I use it to speed up setup and boring work—scaffold APIs, write tests, draft SQL, clean logs, and document changes—but I keep humans in charge of design and reviews. At QuinStreet, we used AI heavily on Pond. I owned the Manual Entry flow and helped wire 'Ollie' for FAQ/next-step help. We shipped the MVP in under 3 months. In side projects, I use AI where it clearly adds value: GlobePulse (embeddings + vector search) and EchoLens (image → audio for accessibility). Guardrails matter: prompt hygiene, tests, metrics, feature flags, A/Bs. I avoid AI on high-risk paths (payments, strict-latency code)."
   },
 
   interests: {
@@ -89,7 +89,7 @@ I'm particularly interested in opportunities that involve AI, full-stack develop
   faqs: [
     {
       question: "Tell me about yourself",
-      answer: "I'm Shree Bohara, a Computer Science graduate student at USC originally from Pune, India. I'm passionate about building accessible, reliable software with clean system design. Currently, I'm working part-time at QuinStreet on Pond, an AI-powered insurance platform where we shipped the fastest MVP in company history (2 months from empty repo to production). I specialize in full-stack development (TypeScript/React, Java/Spring Boot, Postgres), AI integration, and taking products from 0→1→100. What drives me is removing real barriers for people—like building EchoLens to help visually impaired users access web images. I'm seeking full-time opportunities starting May 2026 where I can ship end-to-end features on fast-paced product teams.",
+      answer: "I'm Shree Bohara, a CS graduate student at USC from Pune, India. I specialize in full-stack development (TypeScript/React, Java/Spring Boot, Postgres) and AI integration. Currently, I'm working part-time at QuinStreet on Pond—an AI-powered insurance platform. I'm driven by building accessible, reliable software and taking products from 0→1→100. Projects like EchoLens (image-to-audio for visually impaired users) reflect my focus on removing real barriers for people. Seeking full-time opportunities starting May 2026.",
       category: "personal"
     },
     {
@@ -129,7 +129,7 @@ I'm particularly interested in opportunities that involve AI, full-stack develop
     },
     {
       question: "Why should someone hire you?",
-      answer: "Because I take products from 0 → 1 → 100. At QuinStreet, I helped take Pond from an empty repo to MVP in under two months (fastest in company history), and I'm now scaling it with experiments, reliability, and guardrails. I start with the real user problem, sketch a clean architecture, then ship in small end-to-end slices. I own outcomes—idea → design → API/UI → tests → metrics → iteration—and I use AI where it truly helps, not as autopilot. You get a builder who moves fast, measures impact, and lifts team velocity while keeping the product accessible and reliable.",
+      answer: "I take products from 0 → 1 → 100. I start with the real user problem, sketch a clean architecture, then ship in small end-to-end slices. I own outcomes—idea → design → API/UI → tests → metrics → iteration. At QuinStreet, this approach helped us ship Pond's MVP in record time. I use AI to accelerate work, not replace thinking. You get someone who moves fast, measures impact, handles incidents calmly, and keeps products accessible and reliable.",
       category: "hiring"
     },
     {
@@ -139,12 +139,12 @@ I'm particularly interested in opportunities that involve AI, full-stack develop
     },
     {
       question: "What's your proudest achievement?",
-      answer: "The most impressive thing I've done was during my internship at QuinStreet, where I'm currently working part-time. QuinStreet hired four new interns to build a brand new project called Pond from the ground up. The mission was to create a great user experience through our mascot Ollie, who helps users find the best insurance rates for auto and home insurance. What made this impressive was that we literally started from nothing. On my first day (June 2nd, 2025), we had no Figma designs, no database schema, no architecture—nothing. Despite that, we developed and deployed the entire MVP to production by August 15th, 2025 in under 2 months, which was the fastest MVP build in company history. My core contribution was designing and implementing the entire 'Manual Flow'—one of our three onboarding flows. In this flow, we ask users 23 dynamic questions that adapt based on their answers. I fully owned the Manual Flow from start to finish. Here's why this was so impressive: QuinStreet already had a similar flow called White Label that took them years to develop. Obviously, White Label is more robust, but building our Manual Flow in such a short time really stood out to everyone in the company. Every week we had demo sessions with our CTO, and she was really impressed with my work. She praised me in front of the team, and shortly after, she organized a meeting with top-ranking officials within the company. In that meeting, she asked me to explain my entire process to everyone, and then told all the leaders to implement a similar approach in their respective teams to boost overall productivity. The project is currently live at insurance.com/pond, and everything you see there was built by me and my team in those two months.",
+      answer: "Building Pond at QuinStreet from scratch—an AI-powered insurance platform. On day one (June 2nd, 2025), we had no designs, no database, no architecture. By August 15th, we shipped the MVP to production in under 3 months—the fastest MVP build in company history. I owned the entire Manual Flow: 23 dynamic questions that adapt based on user answers. For context, QuinStreet's existing White Label flow took years to develop; we built ours in under 3 months. The CTO was so impressed she asked me to present my process to company leadership to help boost productivity across teams. The project is live at insurance.com/pond.",
       category: "personal"
     },
     {
       question: "What was your biggest technical challenge and how did you overcome it?",
-      answer: "The most challenging project I'm working on right now is Pond at QuinStreet. We're building an AI-powered insurance platform completely from scratch—no designs, no database, no architecture on day one. It's been like working at a startup but with the backing of a larger company. The specific challenge that really tested me was when our product manager wanted to run A/B testing on three different onboarding flows. The goal was to figure out which flow got users through the process fastest. But here's the catch—we needed to show different flows to different users in real-time, split them equally across all three options, and get it live in production quickly. This was tricky because all three flows were built completely differently. We couldn't just swap out small pieces—we had to load entirely different experiences based on which group the user was in. My solution was pretty straightforward: generate a random number (0, 1, or 2) on our server every time a user arrives, and use that to decide which flow they see. I added some logic to make sure the split stayed equal over time, and made sure the decision happened before the page even loaded so users wouldn't see any flickering or delays. I pitched this to the team, everyone liked it, and we had it running in production within a week. Now our product team can actually see which onboarding flow works best with real data. What made this challenging wasn't just the technical part—it was doing it fast without breaking anything that was already working. But honestly, that's what I enjoy about this project. Every couple weeks there's a new problem to solve, and we have to think quickly and ship quickly.",
+      answer: "Building Pond's 3-way A/B testing framework at QuinStreet. Our PM wanted to test three completely different onboarding flows simultaneously—each built differently, requiring entirely different experiences per user group. My solution: server-side assignment using a random number (0, 1, or 2) generated per user arrival, with logic to maintain equal distribution. The decision happens before page load, so no flickering or delays. I pitched it, got buy-in, and shipped it to production within a week. Now our product team can see which onboarding flow converts best with real data. What made it challenging wasn't just the tech—it was shipping fast without breaking existing functionality.",
       category: "technical"
     },
     {
@@ -196,12 +196,11 @@ export const projects: Project[] = [
     year: 2025,
     duration: "3 months",
     category: "AI/ML",
-    summary: "Implemented an AI-driven resume builder using React and OpenAI APIs, reducing manual edits by 80% through automated keyword optimization and skill matching.",
+    summary: "Built an AI-driven resume builder with React and OpenAI APIs. Automated keyword optimization and ATS compatibility checks boosted interview callbacks by 30%.",
     problem: "Job seekers struggle to tailor resumes for specific positions and optimize for Applicant Tracking Systems (ATS).",
     approach: "Built an intelligent system using OpenAI APIs for automated keyword optimization, skill matching, and ATS compatibility checks.",
     impact: "Achieved 30% higher interview callback rate by enhancing ATS compatibility and tailoring resumes to specific job descriptions.",
     metrics: [
-      { label: "Manual Edits", value: "80% reduction" },
       { label: "Interview Callbacks", value: "+30%" },
       { label: "Load Time", value: "40% faster" },
       { label: "ATS Score", value: "Optimized" }
@@ -211,19 +210,22 @@ export const projects: Project[] = [
     technologies: ["React", "OpenAI API", "AWS", "Node.js", "TypeScript"],
     tags: ["AI", "NLP", "Career Tech", "AWS", "Automation"],
     links: {
-      github: "https://github.com/ShreeBohara/ai-resume-builder"
+      // Note: Add GitHub link when ready to make repo public
     },
-    featured: true,
-    sortOrder: 1
+    images: {
+      thumbnail: "/images/projects/resume-builder.webp",
+    },
+    featured: false,
+    sortOrder: 8
   },
   {
     id: "project-2",
-    title: "EchoLens: Brought Images to Life for the Visually Impaired",
+    title: "EchoLens: Image-to-Audio Accessibility Tool",
     slug: "echolens",
     year: 2025,
     duration: "2 months",
     category: "Full-Stack",
-    summary: "Developed a Chrome extension delivering real-time audio descriptions of images for visually impaired users across any website.",
+    summary: "Chrome extension providing real-time audio descriptions of web images for visually impaired users. Uses Llama 3.2 Vision for image analysis and Google TTS for audio output.",
     problem: "Visually impaired users lack access to image content on websites, limiting their web browsing experience.",
     approach: "Built a Chrome extension with JavaScript frontend and Flask backend using Groq's Llama 3.2 Vision model for image analysis, Google TTS for audio, and Microsoft SQL for user preferences.",
     impact: "Enabled accessible web browsing for visually impaired users by providing instant audio descriptions of any image on the web.",
@@ -240,6 +242,9 @@ export const projects: Project[] = [
     links: {
       github: "https://github.com/ShreeBohara/echolens"
     },
+    images: {
+      thumbnail: "/images/projects/echolens.webp",
+    },
     featured: true,
     sortOrder: 2
   },
@@ -250,7 +255,7 @@ export const projects: Project[] = [
     year: 2025,
     duration: "2 months",
     category: "AI/ML",
-    summary: "Built an AI-powered platform that transforms global news into an interactive, searchable world map using GDELT data, geospatial visualization, and semantic vector search.",
+    summary: "AI-powered news visualization platform with interactive 3D globe. Ingests GDELT data via BigQuery, generates summaries with Vertex AI, and enables semantic search across global events in real-time.",
     problem: "Journalists, analysts, and decision-makers struggle to explore and understand global events in real-time due to information overload across multiple sources and regions.",
     approach: "Designed a complete data pipeline: Cloud Scheduler triggers Cloud Functions to ingest GDELT events via BigQuery, process them with Vertex AI for summarization and sentiment analysis, generate vector embeddings, and store in MongoDB Atlas with Vector Search. Built React frontend with react-globe.gl for interactive 3D visualization and natural language semantic search.",
     impact: "Enabled real-time exploration of global events with instant AI-generated summaries, semantic search capabilities, and visual clustering of similar events on an interactive globe.",
@@ -298,6 +303,9 @@ export const projects: Project[] = [
     links: {
       github: "https://github.com/ShreeBohara/GlobaLens"
     },
+    images: {
+      thumbnail: "/images/projects/globalens.webp",
+    },
     featured: true,
     sortOrder: 3
   },
@@ -308,7 +316,7 @@ export const projects: Project[] = [
     year: 2025,
     duration: "2 months",
     category: "Data Engineering",
-    summary: "Performance enhancements for PostgreSQL 17.4's B-tree index implementation, achieving up to 49.6% query speedup through linear search optimization and asynchronous leaf-page prefetching.",
+    summary: "Up to 49.6% query speedup in PostgreSQL 17.4 B-tree indexes. Implemented linear search optimization for small leaf pages and async prefetching for range scans. Improved 37% of JOB benchmark queries.",
     problem: "B-tree indexes in PostgreSQL use binary search uniformly across all leaf page sizes, creating unnecessary overhead for small pages where linear scans would be more efficient. Additionally, range scans don't prefetch subsequent pages, causing I/O stalls during sequential access patterns.",
     approach: "Implemented two core optimizations: (1) Linear search optimization that replaces binary search with linear scanning for leaf pages containing ≤4 items, reducing algorithmic overhead and improving CPU cache locality; (2) Asynchronous leaf-page prefetching that uses PostgreSQL's native PrefetchBuffer() API to overlap I/O operations with CPU processing during range scans. Both optimizations are configurable via GUC variables and backward compatible with no changes to index structures.",
     impact: "Evaluated on 113 complex analytical queries from the Join Order Benchmark (JOB), the combined optimizations improved 37.2% of queries (42/113) with an average speedup of 302.29ms. Linear search alone benefited 56.6% of queries with 80.41ms average reduction, while prefetching improved 31.0% of queries by 150.91ms on average. Best case achieved 49.6% speedup (1,066ms reduction) on query-intensive workloads.",
@@ -326,6 +334,9 @@ export const projects: Project[] = [
     links: {
       github: "https://github.com/ShreeBohara/postgresql-btree-optimizations"
     },
+    images: {
+      thumbnail: "/images/projects/postgresql-btree-v2.webp",
+    },
     featured: false,
     sortOrder: 4
   },
@@ -335,8 +346,8 @@ export const projects: Project[] = [
     slug: "knn-vertebral-column-analysis",
     year: 2025,
     duration: "1 month",
-    category: "AI/ML",
-    summary: "Comparative machine learning study implementing K-Nearest Neighbors classification on vertebral column biomechanical data, evaluating five distance metrics to predict normal vs. abnormal spinal conditions.",
+    category: "Academic",
+    summary: "KNN classifier comparing 5 distance metrics for vertebral condition diagnosis. Analyzed 6 biomechanical features from UCI dataset to predict normal vs. abnormal spinal conditions.",
     problem: "Medical diagnosis of vertebral conditions requires accurate classification based on biomechanical measurements. Traditional approaches need systematic evaluation of different distance metrics and KNN configurations to optimize classification performance for clinical decision support.",
     approach: "Conducted comprehensive KNN analysis using the UCI Vertebral Column dataset with 6 biomechanical features (pelvic incidence, tilt, lumbar lordosis angle, sacral slope, pelvic radius, spondylolisthesis grade). Implemented binary classification (normal=0, abnormal=1) comparing five distance metrics: Euclidean, Manhattan (Minkowski p=1), Minkowski (variable p), Chebyshev, and Mahalanobis. Evaluated performance using confusion matrices, sensitivity/specificity, precision, F1-scores, learning curves, and weighted voting analysis. Built complete analysis pipeline in Jupyter Notebook with pandas, NumPy, scikit-learn, matplotlib, and seaborn.",
     impact: "Identified optimal distance metric and k-value combinations for vertebral condition classification through systematic comparison. Provided insights into trade-offs between different distance metrics for medical classification tasks, demonstrating how metric choice affects sensitivity vs. specificity in clinical contexts.",
@@ -354,6 +365,9 @@ export const projects: Project[] = [
     links: {
       github: "https://github.com/ShreeBohara/KNN-Analysis-on-Vertebral-Column-Data-Set"
     },
+    images: {
+      thumbnail: "/images/projects/knn-vertebral-v2.webp",
+    },
     featured: false,
     sortOrder: 5
   },
@@ -363,8 +377,8 @@ export const projects: Project[] = [
     slug: "powerplant-regression-analysis",
     year: 2025,
     duration: "1 month",
-    category: "AI/ML",
-    summary: "Comparative machine learning study predicting net hourly electrical energy output from Combined Cycle Power Plants using multiple regression approaches, evaluating parametric vs. non-parametric models for optimal performance.",
+    category: "Academic",
+    summary: "Regression analysis comparing 4 models (linear, multiple, polynomial, KNN) for power plant energy output prediction. Identified optimal atmospheric predictors using UCI CCPP dataset.",
     problem: "Power plant operators need accurate energy output predictions based on atmospheric conditions to optimize operational efficiency and grid management. Requires systematic evaluation of different regression modeling approaches to determine which best captures the complex relationships between environmental factors and electrical generation.",
     approach: "Analyzed the UCI Combined Cycle Power Plant (CCPP) dataset using comprehensive regression methodology. Started with exploratory data analysis including descriptive statistics (means, medians, quartiles, ranges), pairwise scatter plots, and correlation analyses. Implemented and compared four modeling approaches: (1) Simple linear regression with individual predictors, (2) Multiple linear regression with all predictors simultaneously, (3) Polynomial regression with interaction terms, and (4) K-nearest neighbors regression with feature normalization and optimized k-parameter selection. Evaluated statistical significance, identified outliers, and performed comparative performance analysis to determine optimal prediction strategy.",
     impact: "Identified key atmospheric and operational predictors significantly affecting power plant electrical output through systematic model comparison. Demonstrated performance trade-offs between parametric linear approaches and non-parametric KNN regression, providing data-driven insights for power plant optimization and predictive maintenance strategies.",
@@ -382,6 +396,9 @@ export const projects: Project[] = [
     links: {
       github: "https://github.com/ShreeBohara/PowerPlant_Analysis"
     },
+    images: {
+      thumbnail: "/images/projects/powerplant-regression.webp",
+    },
     featured: false,
     sortOrder: 6
   },
@@ -391,8 +408,8 @@ export const projects: Project[] = [
     slug: "time-series-har-feature-extraction",
     year: 2025,
     duration: "3 months",
-    category: "AI/ML",
-    summary: "Time series analysis project extracting statistical features from multivariate sensor data to classify human activities, leveraging the UCI AReM dataset with 6-channel sensor fusion and bootstrap statistical validation.",
+    category: "Academic",
+    summary: "Extracted 42 statistical features from 6-channel sensor data for human activity recognition. Used bootstrap resampling for confidence intervals on UCI AReM dataset across 7 activity types.",
     problem: "Wearable sensors and IoT devices generate continuous multivariate time-series data for activity recognition, but raw sensor streams are noisy and high-dimensional. Requires systematic feature extraction to identify meaningful statistical patterns that distinguish different human activities for applications in healthcare monitoring, fitness tracking, and elderly care systems.",
     approach: "Analyzed the UCI AReM (Activity Recognition system based on Multisensor data fusion) dataset containing 7 distinct human activities (walking, standing, sitting, bending1, bending2, and others) with 6 multivariate sensor channels per activity (avg_rss12, var_rss12, avg_rss13, var_rss13, avg_rss23, var_rss23). Implemented comprehensive time-domain feature extraction computing 7 statistical features per channel: minimum, maximum, mean, median, standard deviation, first quartile (Q1), and third quartile (Q3), yielding 42 total features (7 features × 6 channels). Applied bootstrap resampling to estimate 90% confidence intervals for feature standard deviations, enabling statistical validation and feature importance ranking. Performed train/test split with bending activities using 2 test files and other activities using 3 test files. Conducted feature selection analysis to identify top 3 most discriminative features for activity classification.",
     impact: "Successfully extracted and validated 42 statistical time-domain features from multivariate sensor data with rigorous bootstrap confidence interval analysis. Identified key features that reliably distinguish human activities, providing foundation for classification models. Demonstrated systematic approach to time series feature engineering for wearable sensor applications, with extensibility to frequency-domain analysis and advanced ML classifiers (Random Forest, SVM).",
@@ -409,6 +426,9 @@ export const projects: Project[] = [
     tags: ["Time Series Analysis", "Feature Extraction", "Human Activity Recognition", "Sensor Fusion", "Statistical Analysis", "Bootstrap Methods", "Wearable Sensors", "UCI Dataset"],
     links: {
       github: "https://github.com/ShreeBohara/Time-Series-Feature-Extraction-Human-Activity-Recognition"
+    },
+    images: {
+      thumbnail: "/images/projects/time-series-har-v2.webp",
     },
     featured: false,
     sortOrder: 7

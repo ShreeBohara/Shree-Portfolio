@@ -45,7 +45,8 @@ export type ProjectCategory =
   | 'Data Engineering'
   | 'Mobile'
   | 'DevOps'
-  | 'Open Source';
+  | 'Open Source'
+  | 'Academic';
 
 export interface Experience {
   id: string;

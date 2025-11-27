@@ -87,13 +87,26 @@ I've worked with technologies like OpenAI API, TensorFlow, PyTorch, and implemen
   }
 
   if (lowerQuery.includes('education') || lowerQuery.includes('degree') || lowerQuery.includes('university')) {
-    const edu = education[0];
+    const currentYear = new Date().getFullYear();
+    const gradSchool = education[0]; // USC - current
+    const undergrad = education[1]; // MIT-WPU - completed
+    
+    // Check if still in grad school
+    const isCurrentlyStudying = gradSchool.endYear > currentYear;
+    
+    let answer = '';
+    if (isCurrentlyStudying) {
+      answer = `I'm currently pursuing my ${gradSchool.degree} in ${gradSchool.field} at ${gradSchool.institution} (expected ${gradSchool.endYear}). ${gradSchool.gpa ? `Current GPA: ${gradSchool.gpa}.` : ''}\n\nRelevant coursework: ${gradSchool.relevantCoursework.slice(0, 5).join(', ')}.\n\n${gradSchool.achievements ? `Achievements: ${gradSchool.achievements.join(', ')}.` : ''}\n\nI completed my ${undergrad.degree} in ${undergrad.field} from ${undergrad.institution} in ${undergrad.endYear}.`;
+    } else {
+      answer = `I have a ${gradSchool.degree} in ${gradSchool.field} from ${gradSchool.institution} (${gradSchool.endYear}). ${gradSchool.gpa ? `GPA: ${gradSchool.gpa}.` : ''}\n\nRelevant coursework: ${gradSchool.relevantCoursework.slice(0, 5).join(', ')}.\n\n${gradSchool.achievements ? `Achievements: ${gradSchool.achievements.join(', ')}.` : ''}`;
+    }
+    
     return {
-      answer: `I graduated from ${edu.institution} with a ${edu.degree} in ${edu.field} (${edu.endYear}). My education provided a strong foundation in computer science fundamentals including ${edu.relevantCoursework.slice(0, 5).join(', ')}, and more.\n\n${edu.achievements ? `Notable achievements: ${edu.achievements.join(', ')}` : ''}`,
+      answer,
       citations: [{
         type: 'education' as const,
-        id: edu.id,
-        title: `${edu.degree} from ${edu.institution}`
+        id: gradSchool.id,
+        title: `${gradSchool.degree} from ${gradSchool.institution}`
       }],
       confidence: 0.95
     };

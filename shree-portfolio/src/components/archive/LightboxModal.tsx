@@ -122,7 +122,7 @@ export function LightboxModal() {
                   src={currentPhoto.src}
                   alt={currentPhoto.title || ''}
                   className="w-full h-auto max-h-[80vh] object-contain"
-                  onLoad={(e) => console.log(`🔍 [Lightbox] Loaded: ${e.currentTarget.src.includes('thumb') ? '⚠️ Thumbnail' : '✅ Full Size'} (${e.currentTarget.src.split('/').pop()})`)}
+                  onLoad={(e) => { }}
                 />
 
                 {/* Photo info overlay */}

@@ -1,13 +1,21 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { ContentChunk } from './chunking';
 
-if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-  console.warn('Supabase credentials not found. Vector store operations will fail.');
-}
+// Lazy-loaded Supabase client (created on first use, after env vars are loaded)
+let supabase: SupabaseClient | null = null;
+let supabaseInitialized = false;
 
-const supabase = process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY
-  ? createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY)
-  : null;
+function getSupabaseClient(): SupabaseClient | null {
+  if (!supabaseInitialized) {
+    supabaseInitialized = true;
+    if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+    } else {
+      console.warn('Supabase credentials not found. Vector store operations will fail.');
+    }
+  }
+  return supabase;
+}
 
 export interface EmbeddingRecord {
   id: string;
@@ -23,7 +31,8 @@ export interface EmbeddingRecord {
 export async function upsertEmbeddings(
   chunks: Array<ContentChunk & { embedding: number[] }>
 ): Promise<void> {
-  if (!supabase) {
+  const client = getSupabaseClient();
+  if (!client) {
     throw new Error('Supabase client not initialized. Please set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY environment variables.');
   }
 
@@ -40,7 +49,7 @@ export async function upsertEmbeddings(
   for (let i = 0; i < records.length; i += BATCH_SIZE) {
     const batch = records.slice(i, i + BATCH_SIZE);
     
-    const { error } = await supabase
+    const { error } = await client
       .from('portfolio_embeddings')
       .upsert(batch, {
         onConflict: 'id',
@@ -68,7 +77,8 @@ export async function searchSimilar(
     };
   } = {}
 ): Promise<Array<EmbeddingRecord & { similarity: number }>> {
-  if (!supabase) {
+  const client = getSupabaseClient();
+  if (!client) {
     throw new Error('Supabase client not initialized. Please set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY environment variables.');
   }
 
@@ -94,7 +104,7 @@ export async function searchSimilar(
   }
 
   // Use RPC function for vector search, then filter in SQL
-  const { data, error } = await supabase.rpc('match_portfolio_embeddings', {
+  const { data, error } = await client.rpc('match_portfolio_embeddings', {
     query_embedding: queryEmbedding,
     match_threshold: minScore,
     match_count: limit * 2, // Get more results to account for filtering
@@ -144,11 +154,12 @@ export async function searchSimilar(
  * Deletes all embeddings (useful for re-indexing)
  */
 export async function deleteAllEmbeddings(): Promise<void> {
-  if (!supabase) {
+  const client = getSupabaseClient();
+  if (!client) {
     throw new Error('Supabase client not initialized. Please set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY environment variables.');
   }
 
-  const { error } = await supabase
+  const { error } = await client
     .from('portfolio_embeddings')
     .delete()
     .neq('id', ''); // Delete all rows
@@ -163,11 +174,12 @@ export async function deleteAllEmbeddings(): Promise<void> {
  * Gets embedding count
  */
 export async function getEmbeddingCount(): Promise<number> {
-  if (!supabase) {
+  const client = getSupabaseClient();
+  if (!client) {
     return 0;
   }
 
-  const { count, error } = await supabase
+  const { count, error } = await client
     .from('portfolio_embeddings')
     .select('*', { count: 'exact', head: true });
 
@@ -183,6 +195,6 @@ export async function getEmbeddingCount(): Promise<number> {
  * Checks if vector store is available
  */
 export function isVectorStoreAvailable(): boolean {
-  return supabase !== null;
+  return getSupabaseClient() !== null;
 }
 

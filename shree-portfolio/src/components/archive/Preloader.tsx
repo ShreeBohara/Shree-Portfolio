@@ -145,7 +145,10 @@ export function Preloader() {
               className="relative w-48 h-1 bg-white/10 rounded-full overflow-hidden"
             >
               <motion.div
-                className="absolute inset-y-0 left-0 bg-white/50 rounded-full"
+                className="absolute inset-y-0 left-0 rounded-full"
+                style={{
+                  background: 'linear-gradient(to right, #4285F4, #A142F4, #EA4335, #FBBC05, #34A853)'
+                }}
                 initial={{ width: '0%' }}
                 animate={{ width: `${preloadProgress}%` }}
                 transition={{ duration: 0.3, ease: 'easeOut' }}

@@ -8,16 +8,20 @@ import { LightboxModal } from './LightboxModal';
 import { ImageCard } from './ImageCard';
 import { calculateBurstPositions } from '@/lib/archive/scatter-algorithm';
 import { gsap } from 'gsap';
+import { useScrambleText } from '@/hooks/useScrambleText';
 
 export function ArchiveCanvas() {
   const { currentState, photos, setPhotos, setState, canvasSize, setCanvasSize, setIsBursting } = useArchiveStore();
   const canvasRef = useRef<HTMLDivElement>(null);
   const burstTimelineRef = useRef<gsap.core.Timeline | null>(null);
 
-  // Debug logger
-  const log = (message: string, data?: any) => {
-    console.log(`[ArchiveCanvas] ${message}`, data || '');
-  };
+  const { displayText } = useScrambleText({
+    text: 'ARCHIVE',
+    duration: 2000,
+    tick: 50,
+    playOnMount: true,
+    delay: 500
+  });
 
   // Reset state on mount to ensure full animation sequence
   useEffect(() => {
@@ -26,7 +30,7 @@ export function ArchiveCanvas() {
 
   // Log state transitions
   useEffect(() => {
-    log('State changed to:', currentState);
+
   }, [currentState]);
 
   // Update canvas size based on viewport
@@ -67,7 +71,7 @@ export function ArchiveCanvas() {
   useEffect(() => {
     if (currentState !== 'stack' || photos.length === 0) return;
 
-    log('Starting stack animation');
+
 
     // Wait for DOM to be ready
     setTimeout(() => {
@@ -84,7 +88,8 @@ export function ArchiveCanvas() {
             yPercent: -50,
             opacity: 0,
             scale: 0.8,
-            rotation: 0
+            rotation: 0,
+            filter: 'grayscale(100%)' // Start B/W
           });
 
           // Animate to center (stack)
@@ -109,7 +114,7 @@ export function ArchiveCanvas() {
 
       const burstTimer = setTimeout(() => {
         setState('burst');
-      }, (totalStackTime + 2) * 1000);
+      }, (totalStackTime + 1) * 1000);
 
       return () => clearTimeout(burstTimer);
     }, 100);
@@ -119,7 +124,7 @@ export function ArchiveCanvas() {
   useEffect(() => {
     if (currentState !== 'burst' || photos.length === 0) return;
 
-    log('Starting burst animation', { photoCount: photos.length, canvasSize });
+
     setIsBursting(true);
 
     // Calculate scatter positions
@@ -129,13 +134,6 @@ export function ArchiveCanvas() {
       canvasSize.height
     );
 
-    log('Scatter positions calculated', {
-      samplePositions: scatteredPhotos.slice(0, 3).map(p => ({
-        id: p.id,
-        position: p.position,
-        burstDelay: p.burstDelay
-      }))
-    });
 
     // DON'T update photos in store yet - let animation complete first
 
@@ -161,7 +159,7 @@ export function ArchiveCanvas() {
               x: gsap.getProperty(element, 'x') as number,
               y: gsap.getProperty(element, 'y') as number,
             };
-            log('First photo position before burst', { id: photo.id, currentPos });
+
           }
 
           // Force initial position to be at stack center (should already be there from stack animation)
@@ -183,20 +181,40 @@ export function ArchiveCanvas() {
             },
             photo.burstDelay || 0
           );
+
+          // Animate to Color (Wave Effect)
+          // Calculate delay based on horizontal position for left-to-right wave
+          // Map x from [-width/2, width/2] to [0, 1]
+          const normalizedX = (photo.position.x + canvasSize.width / 2) / canvasSize.width;
+          const waveDelay = normalizedX * 1.0; // 1 second wave duration across screen
+
+          tl.to(
+            element,
+            {
+              filter: 'grayscale(0%)',
+              duration: 1.5,
+              ease: 'power2.out',
+            },
+            (photo.burstDelay || 0) + waveDelay
+          );
         } else {
           console.error(`❌ Could not find element for photo ${photo.id}`);
         }
       });
 
-      // Fade out the text - REMOVED as per user request
-      // const textElement = document.querySelector('#archive-text-overlay');
-      // if (textElement) {
-      //   tl.to(textElement, {
-      //     opacity: 0,
-      //     duration: 0.5,
-      //     ease: 'power2.in',
-      //   }, 0);
-      // }
+      // Animate Text to Color
+      const textElement = document.querySelector('#archive-title-text');
+      if (textElement) {
+        tl.to(
+          textElement,
+          {
+            filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.5)) grayscale(0%)',
+            duration: 2,
+            ease: 'power2.out',
+          },
+          0.5 // Start slightly after burst begins
+        );
+      }
 
       burstTimelineRef.current = tl;
 
@@ -218,11 +236,24 @@ export function ArchiveCanvas() {
         id="archive-text-overlay"
         className="absolute inset-0 flex items-center justify-center pointer-events-none z-50"
       >
-        <div className="text-center">
-          <h1 className="text-white/90 text-5xl md:text-6xl font-light tracking-[0.2em]">
-            ARCHIVE
+        <div className="relative flex flex-col items-center">
+          {/* Cyberpunk Chrome Text */}
+          <h1
+            id="archive-title-text"
+            className="text-4xl md:text-6xl font-bold tracking-widest select-none text-transparent bg-clip-text bg-gradient-to-r from-[#4285F4] via-[#A142F4] via-[#EA4335] via-[#FBBC05] to-[#34A853]"
+            style={{
+              fontFamily: 'var(--font-orbitron), sans-serif',
+              textShadow: '0 0 30px rgba(66, 133, 244, 0.3)', // Subtle blue glow
+              filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.5)) grayscale(100%)' // Start B/W
+            }}
+          >
+            {displayText}
           </h1>
-          <p className="text-white/60 text-sm md:text-base tracking-[0.3em] mt-2">
+
+          <p
+            className="text-gray-400 text-xs md:text-sm tracking-[0.8em] mt-4 font-medium uppercase text-center"
+            style={{ fontFamily: 'var(--font-orbitron), sans-serif' }}
+          >
             US Collection
           </p>
         </div>
@@ -234,7 +265,10 @@ export function ArchiveCanvas() {
       {/* Persistent DraggableCanvas handles rendering of photos */}
       {/* It is enabled only in 'canvas' or 'lightbox' state, but always visible */}
       {(currentState === 'stack' || currentState === 'burst' || currentState === 'canvas' || currentState === 'lightbox') && (
-        <DraggableCanvas enabled={currentState === 'canvas' || currentState === 'lightbox'} />
+        <DraggableCanvas
+          enabled={currentState === 'canvas' || currentState === 'lightbox'}
+          startInvisible={currentState === 'stack'}
+        />
       )}
 
       {/* Lightbox overlay */}

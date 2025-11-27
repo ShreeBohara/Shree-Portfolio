@@ -3,6 +3,10 @@
  * Run with: npx tsx scripts/index-content.ts
  */
 
+// Load environment variables from .env.local
+import { config } from 'dotenv';
+config({ path: '.env.local' });
+
 import { chunkAllContent } from '../src/lib/ai/chunking';
 import { generateChunkEmbeddings } from '../src/lib/ai/embeddings';
 import { upsertEmbeddings, deleteAllEmbeddings, getEmbeddingCount } from '../src/lib/ai/vector-store';

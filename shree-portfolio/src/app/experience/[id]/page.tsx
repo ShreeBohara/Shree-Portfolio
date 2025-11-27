@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { experiences } from '@/data/portfolio'
 import { WorkExperienceSchema, BreadcrumbListSchema } from '@/lib/schemas'
 import { PortfolioLayout } from '@/components/layout/PortfolioLayout'
+import { formatDate } from '@/lib/utils'
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://shreebohara.com'
 
@@ -99,7 +100,7 @@ export default async function ExperiencePage({
         <div className="max-w-4xl mx-auto px-6 py-12">
           <div className="mb-8">
             <div className="text-sm text-muted-foreground mb-2">
-              {experience.startDate} - {experience.endDate || 'Present'} • {experience.location}
+              {formatDate(experience.startDate)} - {formatDate(experience.endDate)} • {experience.location}
             </div>
             <h1 className="text-4xl font-bold mb-2">{experience.role}</h1>
             <p className="text-2xl text-primary mb-4">{experience.company}</p>

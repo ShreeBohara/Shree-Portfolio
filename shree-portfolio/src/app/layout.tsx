@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Orbitron } from "next/font/google";
 import "./globals.css";
 import { ThemeColorProvider } from "@/components/providers/ThemeColorProvider";
 import { MobileDetector } from "@/components/providers/MobileDetector";
@@ -14,11 +15,13 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   userScalable: true,
-  themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#000000" },
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-  ],
+  themeColor: "#000000",
 };
+
+const orbitron = Orbitron({
+  subsets: ["latin"],
+  variable: "--font-orbitron",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
@@ -56,7 +59,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Shree Bohara - Portfolio",
     description: "USC CS Graduate Student specializing in AI/ML and Full-Stack Development. Chat with my portfolio to learn about my projects, experience, and skills.",
-    creator: "@shree",
+    creator: "@shreebohara",
     images: [`${baseUrl}/og-image.png`],
   },
 
@@ -117,7 +120,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className={`dark ${orbitron.variable}`}>
       <head>
         <PersonSchema />
         <WebSiteSchema />
