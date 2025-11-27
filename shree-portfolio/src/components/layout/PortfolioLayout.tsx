@@ -120,7 +120,7 @@ export function PortfolioLayout({ children, showCatalog = false, initialSection 
                 </div>
               </div>
             ) : (
-              <div className="h-full min-h-0 flex flex-col">
+              <div className="h-full min-h-0 flex flex-col overflow-y-auto">
                 {children}
               </div>
             )}
