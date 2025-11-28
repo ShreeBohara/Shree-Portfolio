@@ -576,6 +576,100 @@ export function chunkPersonalInfo(personalInfo: PersonalInfo): ContentChunk[] {
     });
   }
 
+  // === BEHAVIORAL CONTENT ===
+
+  // Strengths
+  if (personalInfo.strengths) {
+    chunks.push({
+      id: 'behavioral-strengths',
+      content: `Shree's Greatest Strengths:\n\nPrimary Strength - ${personalInfo.strengths.primary}:\n${personalInfo.strengths.primaryStory}\n\nSecondary Strength - ${personalInfo.strengths.secondary}:\n${personalInfo.strengths.secondaryStory}`,
+      metadata: {
+        type: 'faq',
+        itemId: 'behavioral',
+        title: "Shree's Greatest Strengths",
+        category: 'hiring',
+        tags: ['strength', 'persistence', 'helping others', 'behavioral'],
+      },
+    });
+  }
+
+  // Five Year Vision
+  if (personalInfo.fiveYearVision) {
+    chunks.push({
+      id: 'behavioral-fiveyear',
+      content: `Where Does Shree See Himself in 5 Years:\n\n${personalInfo.fiveYearVision}`,
+      metadata: {
+        type: 'faq',
+        itemId: 'behavioral',
+        title: 'Five Year Vision',
+        category: 'career',
+        tags: ['career goals', 'future', 'vision', '5 years'],
+      },
+    });
+  }
+
+  // Weakness
+  if (personalInfo.weakness) {
+    chunks.push({
+      id: 'behavioral-weakness',
+      content: `Shree's Biggest Weakness and How He's Working on It:\n\nWeakness: ${personalInfo.weakness.area}\n\n${personalInfo.weakness.story}`,
+      metadata: {
+        type: 'faq',
+        itemId: 'behavioral',
+        title: "Shree's Weakness",
+        category: 'hiring',
+        tags: ['weakness', 'growth', 'improvement', 'communication'],
+      },
+    });
+  }
+
+  // === FUN PERSONAL CONTENT ===
+
+  // Fun Facts
+  if (personalInfo.funFacts && personalInfo.funFacts.length > 0) {
+    chunks.push({
+      id: 'personal-funfacts',
+      content: `Fun Facts About Shree:\n\n${personalInfo.funFacts.map((fact, i) => `${i + 1}. ${fact}`).join('\n\n')}`,
+      metadata: {
+        type: 'interests',
+        itemId: 'personal-fun',
+        title: 'Fun Facts About Shree',
+        tags: ['fun facts', 'personal', 'interesting'],
+      },
+    });
+  }
+
+  // Chess Opening
+  if (personalInfo.chessOpening) {
+    chunks.push({
+      id: 'personal-chess',
+      content: `Shree's Favorite Chess Opening:\n\nOpening: ${personalInfo.chessOpening.name}\n\nWhy: ${personalInfo.chessOpening.why}`,
+      metadata: {
+        type: 'interests',
+        itemId: 'personal-fun',
+        title: 'Favorite Chess Opening',
+        tags: ['chess', 'hobbies', 'games', "king's gambit"],
+      },
+    });
+  }
+
+  // Dream Destinations
+  if (personalInfo.dreamDestinations && personalInfo.dreamDestinations.length > 0) {
+    const destinationsText = personalInfo.dreamDestinations
+      .map(dest => `${dest.place}: ${dest.reason}`)
+      .join('\n\n');
+    chunks.push({
+      id: 'personal-travel',
+      content: `Shree's Dream Travel Destinations:\n\n${destinationsText}`,
+      metadata: {
+        type: 'interests',
+        itemId: 'personal-fun',
+        title: 'Dream Travel Destinations',
+        tags: ['travel', 'dreams', 'norway', 'japan'],
+      },
+    });
+  }
+
   return chunks;
 }
 

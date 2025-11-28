@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useLayoutEffect, KeyboardEvent, forwardRef, useImperativeHandle } from 'react';
-import { Send } from 'lucide-react';
+import { Send, Shuffle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
@@ -28,6 +28,7 @@ interface TerminalInputProps {
   className?: string;
   accentColor?: string;
   showMobileSendButton?: boolean;
+  onRandomPrompt?: () => void;
 }
 
 export interface TerminalInputRef {
@@ -44,6 +45,7 @@ export const TerminalInput = forwardRef<TerminalInputRef, TerminalInputProps>(({
   className,
   accentColor = 'oklch(0.72 0.12 185)',
   showMobileSendButton = true,
+  onRandomPrompt,
 }, ref) => {
   const [cursorPosition, setCursorPosition] = useState(0);
   const [selectionStart, setSelectionStart] = useState<number | null>(null);
@@ -600,6 +602,24 @@ export const TerminalInput = forwardRef<TerminalInputRef, TerminalInputProps>(({
               )}
             </div>
           </div>
+
+          {/* Random prompt button - fixed position */}
+          {onRandomPrompt && (
+            <Button
+              type="button"
+              onClick={onRandomPrompt}
+              disabled={disabled}
+              size="icon"
+              className={cn(
+                'h-9 w-9 rounded-lg flex-shrink-0 flex-grow-0 transition-all duration-300',
+                'hover:scale-105 active:scale-95',
+                'bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-200'
+              )}
+              title="Surprise me with a question"
+            >
+              <Shuffle className="h-4 w-4" />
+            </Button>
+          )}
 
           {/* Send button - fixed position */}
           {showMobileSendButton && (

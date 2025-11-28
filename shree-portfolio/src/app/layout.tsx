@@ -6,6 +6,7 @@ import { MobileDetector } from "@/components/providers/MobileDetector";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
 import { PersonSchema, WebSiteSchema, FAQPageSchema } from "@/lib/schemas";
+import { CustomCursor } from "@/components/ui/custom-cursor";
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://shreebohara.com';
 
@@ -129,6 +130,7 @@ export default function RootLayout({
       <body className="font-mono antialiased bg-background text-foreground">
         <MobileDetector />
         <ThemeColorProvider>
+          <CustomCursor />
           {children}
         </ThemeColorProvider>
         <SpeedInsights />

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Message } from './Message';
 import { TerminalInput, TerminalInputRef } from '@/components/ui/terminal-input';
-import { PromptSuggestions } from './PromptSuggestions';
+import { PromptSuggestions, promptCategories } from './PromptSuggestions';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUIStore } from '@/store/ui-store';
 import { Citation } from '@/data/types';
@@ -625,7 +625,7 @@ export function ChatInterface() {
       </AnimatePresence>
 
       {/* Main chat area */}
-      <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
+      <div className="flex-1 min-h-0 overflow-hidden flex flex-col relative">
         {!currentChat && !response && !error ? (
           /* Empty state - properly centered */
           <div ref={outerContainerRef} className="flex-1 px-3 sm:px-4 relative overflow-hidden flex items-center justify-center">
@@ -871,58 +871,60 @@ export function ChatInterface() {
           </div>
         ) : (
           // Chat messages with scroll container
-          <div ref={scrollAreaRef} className="flex-1 overflow-y-auto scroll-smooth relative min-h-0">
-            <div className="space-y-0 pb-4">
-              {currentChat && <Message {...currentChat} accentColor={accentColor} />}
-              {response && (
-                <Message
-                  {...response}
-                  isStreaming={isLoading && response.content.length > 0}
-                  accentColor={accentColor}
-                />
-              )}
-              <AnimatePresence mode="wait">
-                {isLoading && !response && (
-                  <TerminalLoading key="loading" accentColor={accentColor} />
+          <>
+            <div ref={scrollAreaRef} className="flex-1 overflow-y-auto scroll-smooth relative min-h-0">
+              <div className="space-y-0 pb-4">
+                {currentChat && <Message {...currentChat} accentColor={accentColor} />}
+                {response && (
+                  <Message
+                    {...response}
+                    isStreaming={isLoading && response.content.length > 0}
+                    accentColor={accentColor}
+                  />
                 )}
-              </AnimatePresence>
-              {error && (
-                <motion.div
-                  className="w-full py-6"
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <div className="max-w-3xl mx-auto px-4 sm:px-6">
-                    <Alert variant="destructive" className="border-destructive/50 relative">
-                      <AlertCircle className="h-4 w-4" />
-                      <AlertDescription className="font-medium pr-24">{error}</AlertDescription>
-                      <div className="absolute right-4 top-1/2 -translate-y-1/2 flex gap-2">
-                        <Button
-                          onClick={handleRetry}
-                          size="sm"
-                          variant="outline"
-                          className="h-8 gap-2 border-destructive/30 hover:border-destructive/60 hover:bg-destructive/10"
-                        >
-                          <RefreshCw className="h-3 w-3" />
-                          <span className="hidden sm:inline">Retry</span>
-                        </Button>
-                        <Button
-                          onClick={handleDismissError}
-                          size="sm"
-                          variant="ghost"
-                          className="h-8 w-8 p-0 hover:bg-destructive/10"
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </Alert>
-                  </div>
-                </motion.div>
-              )}
-              {/* Scroll anchor */}
-              <div ref={messagesEndRef} className="h-4" />
+                <AnimatePresence mode="wait">
+                  {isLoading && !response && (
+                    <TerminalLoading key="loading" accentColor={accentColor} />
+                  )}
+                </AnimatePresence>
+                {error && (
+                  <motion.div
+                    className="w-full py-6"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <div className="max-w-3xl mx-auto px-4 sm:px-6">
+                      <Alert variant="destructive" className="border-destructive/50 relative">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertDescription className="font-medium pr-24">{error}</AlertDescription>
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 flex gap-2">
+                          <Button
+                            onClick={handleRetry}
+                            size="sm"
+                            variant="outline"
+                            className="h-8 gap-2 border-destructive/30 hover:border-destructive/60 hover:bg-destructive/10"
+                          >
+                            <RefreshCw className="h-3 w-3" />
+                            <span className="hidden sm:inline">Retry</span>
+                          </Button>
+                          <Button
+                            onClick={handleDismissError}
+                            size="sm"
+                            variant="ghost"
+                            className="h-8 w-8 p-0 hover:bg-destructive/10"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </Alert>
+                    </div>
+                  </motion.div>
+                )}
+                {/* Scroll anchor */}
+                <div ref={messagesEndRef} className="h-4" />
+              </div>
             </div>
 
             {/* Floating scroll to bottom button */}
@@ -948,7 +950,7 @@ export function ChatInterface() {
                 </motion.div>
               )}
             </AnimatePresence>
-          </div>
+          </>
         )}
       </div>
 
@@ -986,10 +988,27 @@ export function ChatInterface() {
             disabled={isLoading}
             accentColor={accentColor}
             showMobileSendButton={true}
+            onRandomPrompt={() => {
+              // Get all questions from FAQs
+              const faqQuestions = personalInfo.faqs?.map(faq => faq.question) || [];
+
+              // Get all prompts from categories
+              const categoryPrompts = promptCategories.flatMap(cat => cat.prompts);
+
+              // Combine all prompts
+              const allQuestions = [...faqQuestions, ...categoryPrompts];
+
+              if (allQuestions.length === 0) return;
+
+              // Pick a random one
+              const randomQuestion = allQuestions[Math.floor(Math.random() * allQuestions.length)];
+              setQuery(randomQuestion);
+              inputRef.current?.focus();
+            }}
           />
         </div>
       </motion.div>
-    </div>
+    </div >
   );
 }
 

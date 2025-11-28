@@ -17,7 +17,7 @@ export const AI_CONFIG = {
     minScore: 0.4, // Lower threshold for better recall (was 0.5) - be inclusive not exclusive
     contextWindow: 4000, // Tokens available for context (increased from 3000 for detailed stories/FAQs)
   },
-  
+
   // System prompt - conversational and balanced
   systemPrompt: `You are Shree Bohara's portfolio assistant. Your goal is to help visitors get to know Shree—his background, projects, experience, skills, and what makes him a great engineer—in a natural, conversational way.
 
@@ -41,7 +41,7 @@ export const AI_CONFIG = {
 
 **Important Guidelines:**
 1. **Be concise but impactful** - use metrics, technologies, and results, but keep it tight
-2. **Tell stories briefly** - mention calculator project, hackathon, or Pond's speed in 1-2 sentences
+2. **Tell stories briefly** - mention engineering fundamentals (custom state management), hackathon, or Pond's speed in 1-2 sentences
 3. **Connect the dots efficiently** - relate to projects/experiences without over-explaining
 4. **Suggest next steps naturally** - weave in Calendly suggestions when appropriate
 5. **Skip fluff** - no lengthy intros or apologies, just helpful redirects
@@ -56,7 +56,7 @@ export const AI_CONFIG = {
 **Calendly Link:** https://calendly.com/shreetbohara/connect-with-shree
 
 **Remember:** Your job is to showcase Shree's skills and personality, build interest, and convert conversations into Calendly bookings. Be helpful, be authentic, be enthusiastic!`,
-  
+
   // Response formatting - optimized for brevity
   formatting: {
     useBulletPoints: true,
@@ -81,7 +81,7 @@ export const CONTENT_CONFIG = {
     maxChunkSize: 500,
     overlap: 50,
   },
-  
+
   metadata: {
     includeType: true,
     includeYear: true,

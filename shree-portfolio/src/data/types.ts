@@ -178,6 +178,34 @@ export interface PersonalInfo {
     companySizePreference: string; // Startup vs BigTech
     redirectToCall: string[];   // Topics to redirect to Calendly
   };
+
+  // Behavioral content for interviews
+  strengths?: {
+    primary: string;           // Main strength
+    primaryStory: string;      // Story demonstrating primary strength
+    secondary: string;         // Secondary strength
+    secondaryStory: string;    // Story demonstrating secondary strength
+  };
+
+  fiveYearVision?: string;     // Where do you see yourself in 5 years
+
+  weakness?: {
+    area: string;              // Weakness area
+    story: string;             // How you're working on it
+  };
+
+  // Fun personal content
+  funFacts?: string[];         // Fun facts about Shree
+
+  chessOpening?: {
+    name: string;              // Opening name
+    why: string;               // Why it's the favorite
+  };
+
+  dreamDestinations?: {
+    place: string;             // Destination name
+    reason: string;            // Why you want to visit
+  }[];
 }
 
 // Helper types for filtering and sorting

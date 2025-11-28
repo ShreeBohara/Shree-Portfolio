@@ -18,7 +18,7 @@ import { ThemeColorPicker } from '@/components/ui/theme-color-picker';
 import { getCurrentAccentColor } from '@/hooks/useThemeColor';
 
 export function Header() {
-  const { toggleSidebar, isSidebarOpen, triggerNewChat } = useUIStore();
+  const { toggleSidebar, isSidebarOpen, triggerNewChat, scrollProgress } = useUIStore();
   const pathname = usePathname();
   const [accentColor, setAccentColor] = useState('oklch(0.72 0.12 185)');
 
@@ -287,6 +287,17 @@ export function Header() {
           </div>
         </div>
       </div>
-    </header>
+
+
+      {/* Scroll Progress Bar - Only on About page */}
+      {
+        pathname === '/about' && (
+          <div
+            className="absolute bottom-0 left-0 h-[2px] bg-accent-color transition-all duration-100 ease-out z-50"
+            style={{ width: `${scrollProgress}%` }}
+          />
+        )
+      }
+    </header >
   );
 }

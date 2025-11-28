@@ -36,7 +36,7 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  
+
   /* Portfolio specific colors */
   --color-ai-primary: var(--ai-primary);
   --color-ai-secondary: var(--ai-secondary);
@@ -57,11 +57,11 @@
   --color-accent-red: var(--accent-red);
   --color-accent-cyan: var(--accent-cyan);
   --color-accent-violet: var(--accent-violet);
-  
+
   /* Typography */
   --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
-  
+
   /* Font sizes - desktop first */
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
@@ -72,14 +72,14 @@
   --text-3xl: 1.875rem;
   --text-4xl: 2.25rem;
   --text-5xl: 3rem;
-  
+
   /* Line heights */
   --leading-tight: 1.25;
   --leading-snug: 1.375;
   --leading-normal: 1.5;
   --leading-relaxed: 1.625;
   --leading-loose: 2;
-  
+
   /* Spacing */
   --spacing-0: 0;
   --spacing-1: 0.25rem;
@@ -94,7 +94,7 @@
   --spacing-16: 4rem;
   --spacing-20: 5rem;
   --spacing-24: 6rem;
-  
+
   /* Border radius */
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -102,19 +102,19 @@
   --radius-xl: calc(var(--radius) + 4px);
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-full: 9999px;
-  
+
   /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
   --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
-  
+
   /* Layout widths */
   --sidebar-width: 280px;
   --sidebar-collapsed-width: 60px;
   --details-panel-width: 400px;
   --header-height: 64px;
-  
+
   /* Animations */
   --transition-fast: 150ms;
   --transition-normal: 200ms;
@@ -156,31 +156,50 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
-  
+
   /* Portfolio specific colors */
-  --ai-primary: oklch(0.6 0.118 184.704); /* Blue */
-  --ai-secondary: oklch(0.75 0.1 200); /* Light blue */
-  --chat-user: oklch(0.97 0 0); /* Light gray */
-  --chat-ai: oklch(0.6 0.118 184.704 / 0.1); /* Blue tint */
-  --citation: oklch(0.646 0.222 41.116); /* Orange */
-  --success: oklch(0.7 0.2 140); /* Green */
-  --warning: oklch(0.8 0.2 90); /* Yellow */
-  --info: oklch(0.6 0.118 184.704); /* Blue */
+  --ai-primary: oklch(0.6 0.118 184.704);
+  /* Blue */
+  --ai-secondary: oklch(0.75 0.1 200);
+  /* Light blue */
+  --chat-user: oklch(0.97 0 0);
+  /* Light gray */
+  --chat-ai: oklch(0.6 0.118 184.704 / 0.1);
+  /* Blue tint */
+  --citation: oklch(0.646 0.222 41.116);
+  /* Orange */
+  --success: oklch(0.7 0.2 140);
+  /* Green */
+  --warning: oklch(0.8 0.2 90);
+  /* Yellow */
+  --info: oklch(0.6 0.118 184.704);
+  /* Blue */
 
   /* Theme accent colors - will be dynamically updated */
-  --accent-color: oklch(0.72 0.12 185); /* Default: Teal */
-  --accent-teal: oklch(0.72 0.12 185); /* Teal */
+  --accent-color: oklch(0.72 0.12 185);
+  /* Default: Teal */
+  --accent-teal: oklch(0.72 0.12 185);
+  /* Teal */
 
   /* Additional theme color options */
-  --accent-purple: oklch(0.68 0.18 295); /* Purple */
-  --accent-blue: oklch(0.65 0.16 240); /* Blue */
-  --accent-pink: oklch(0.70 0.17 340); /* Pink */
-  --accent-orange: oklch(0.70 0.15 45); /* Orange */
-  --accent-yellow: oklch(0.75 0.15 95); /* Yellow */
-  --accent-green: oklch(0.68 0.16 150); /* Green/Emerald */
-  --accent-red: oklch(0.65 0.20 25); /* Red/Rose */
-  --accent-cyan: oklch(0.70 0.14 195); /* Cyan */
-  --accent-violet: oklch(0.65 0.20 285); /* Violet */
+  --accent-purple: oklch(0.68 0.18 295);
+  /* Purple */
+  --accent-blue: oklch(0.65 0.16 240);
+  /* Blue */
+  --accent-pink: oklch(0.70 0.17 340);
+  /* Pink */
+  --accent-orange: oklch(0.70 0.15 45);
+  /* Orange */
+  --accent-yellow: oklch(0.75 0.15 95);
+  /* Yellow */
+  --accent-green: oklch(0.68 0.16 150);
+  /* Green/Emerald */
+  --accent-red: oklch(0.65 0.20 25);
+  /* Red/Rose */
+  --accent-cyan: oklch(0.70 0.14 195);
+  /* Cyan */
+  --accent-violet: oklch(0.65 0.20 285);
+  /* Violet */
 }
 
 .dark {
@@ -215,176 +234,211 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
-  
+
   /* Portfolio specific colors - dark mode */
-  --ai-primary: oklch(0.696 0.17 200); /* Bright blue */
-  --ai-secondary: oklch(0.6 0.15 200); /* Medium blue */
-  --chat-user: oklch(0.269 0 0); /* Dark gray */
-  --chat-ai: oklch(0.696 0.17 200 / 0.1); /* Blue tint */
-  --citation: oklch(0.769 0.188 70.08); /* Warm orange */
-  --success: oklch(0.7 0.2 140); /* Green */
-  --warning: oklch(0.8 0.2 90); /* Yellow */
-  --info: oklch(0.696 0.17 200); /* Blue */
+  --ai-primary: oklch(0.696 0.17 200);
+  /* Bright blue */
+  --ai-secondary: oklch(0.6 0.15 200);
+  /* Medium blue */
+  --chat-user: oklch(0.269 0 0);
+  /* Dark gray */
+  --chat-ai: oklch(0.696 0.17 200 / 0.1);
+  /* Blue tint */
+  --citation: oklch(0.769 0.188 70.08);
+  /* Warm orange */
+  --success: oklch(0.7 0.2 140);
+  /* Green */
+  --warning: oklch(0.8 0.2 90);
+  /* Yellow */
+  --info: oklch(0.696 0.17 200);
+  /* Blue */
 
   /* Theme accent colors - dark mode (brighter) - will be dynamically updated */
-  --accent-color: oklch(0.75 0.13 185); /* Default: Teal (brighter) */
-  --accent-teal: oklch(0.75 0.13 185); /* Teal (brighter) */
+  --accent-color: oklch(0.75 0.13 185);
+  /* Default: Teal (brighter) */
+  --accent-teal: oklch(0.75 0.13 185);
+  /* Teal (brighter) */
 
   /* Additional theme color options - dark mode */
-  --accent-purple: oklch(0.73 0.20 295); /* Purple (brighter) */
-  --accent-blue: oklch(0.70 0.18 240); /* Blue (brighter) */
-  --accent-pink: oklch(0.75 0.19 340); /* Pink (brighter) */
-  --accent-orange: oklch(0.75 0.17 45); /* Orange (brighter) */
-  --accent-yellow: oklch(0.80 0.17 95); /* Yellow (brighter) */
-  --accent-green: oklch(0.73 0.18 150); /* Green/Emerald (brighter) */
-  --accent-red: oklch(0.70 0.22 25); /* Red/Rose (brighter) */
-  --accent-cyan: oklch(0.75 0.16 195); /* Cyan (brighter) */
-  --accent-violet: oklch(0.70 0.22 285); /* Violet (brighter) */
+  --accent-purple: oklch(0.73 0.20 295);
+  /* Purple (brighter) */
+  --accent-blue: oklch(0.70 0.18 240);
+  /* Blue (brighter) */
+  --accent-pink: oklch(0.75 0.19 340);
+  /* Pink (brighter) */
+  --accent-orange: oklch(0.75 0.17 45);
+  /* Orange (brighter) */
+  --accent-yellow: oklch(0.80 0.17 95);
+  /* Yellow (brighter) */
+  --accent-green: oklch(0.73 0.18 150);
+  /* Green/Emerald (brighter) */
+  --accent-red: oklch(0.70 0.22 25);
+  /* Red/Rose (brighter) */
+  --accent-cyan: oklch(0.75 0.16 195);
+  /* Cyan (brighter) */
+  --accent-violet: oklch(0.70 0.22 285);
+  /* Violet (brighter) */
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
+  }
+
+  body.custom-cursor-active {
+    cursor: none;
+  }
+
+  body.custom-cursor-active a,
+  body.custom-cursor-active button,
+  body.custom-cursor-active [role="button"],
+  body.custom-cursor-active input,
+  body.custom-cursor-active textarea,
+  body.custom-cursor-active select {
+    cursor: none;
   }
 }
 
 /* Custom utility classes */
 @layer components {
+
   /* Typography */
   .text-balance {
     text-wrap: balance;
   }
-  
+
   .heading-1 {
     @apply text-4xl lg:text-5xl font-semibold tracking-tight;
   }
-  
+
   .heading-2 {
     @apply text-2xl lg:text-3xl font-semibold tracking-tight;
   }
-  
+
   .heading-3 {
     @apply text-xl lg:text-2xl font-medium;
   }
-  
+
   .body-large {
     @apply text-lg leading-relaxed;
   }
-  
+
   .body-medium {
     @apply text-base leading-normal;
   }
-  
+
   .body-small {
     @apply text-sm leading-normal;
   }
-  
+
   .caption {
     @apply text-xs text-muted-foreground;
   }
-  
+
   /* Layout utilities */
   .container-max {
     @apply mx-auto max-w-[1440px] px-6 lg:px-8;
   }
-  
+
   .sidebar-width {
     width: var(--sidebar-width);
   }
-  
+
   .details-panel-width {
     width: var(--details-panel-width);
   }
-  
+
   .header-height {
     height: var(--header-height);
   }
-  
+
   /* Animation utilities */
   .animate-in {
     animation: fade-in var(--transition-normal) var(--easing-default);
   }
-  
+
   .animate-out {
     animation: fade-out var(--transition-normal) var(--easing-default);
   }
-  
+
   .animate-slide-in-left {
     animation: slide-in-left var(--transition-normal) var(--easing-emphasized);
   }
-  
+
   .animate-slide-in-right {
     animation: slide-in-right var(--transition-normal) var(--easing-emphasized);
   }
-  
+
   /* Glassmorphism effect */
   .glass {
     @apply backdrop-blur-lg bg-background/80 border border-border/50;
   }
-  
+
   /* Focus states */
   .focus-ring {
     @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
   }
-  
+
   /* Chat message styles */
   .message-user {
     @apply bg-chat-user rounded-2xl rounded-tr-md;
   }
-  
+
   .message-ai {
     @apply bg-chat-ai rounded-2xl rounded-tl-md;
   }
-  
+
   /* Markdown prose styles for chat messages */
   .prose {
     @apply text-foreground;
   }
-  
+
   .prose p {
     @apply text-[15px] leading-relaxed;
   }
-  
+
   .prose strong {
     @apply font-semibold text-foreground;
   }
-  
+
   .prose em {
     @apply italic;
   }
-  
-  .prose ul, .prose ol {
+
+  .prose ul,
+  .prose ol {
     @apply my-3;
   }
-  
+
   .prose li {
     @apply my-1.5;
   }
-  
+
   .prose code {
     @apply text-[13px];
   }
-  
+
   .prose a {
     @apply no-underline hover:underline;
   }
-  
+
   .prose blockquote {
     @apply border-l-4 border-muted-foreground/30 pl-4 italic my-4;
   }
-  
+
   .prose hr {
     @apply my-6 border-border;
   }
-  
+
   /* Citation chip */
   .citation-chip {
     @apply inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md bg-citation/10 text-citation hover:bg-citation/20 transition-colors;
   }
-  
+
   /* Project category badges - unified accent color */
   .category-badge {
     @apply inline-flex items-center px-3 py-1 text-sm font-medium rounded-full;
@@ -413,6 +467,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -422,6 +477,7 @@
   from {
     opacity: 1;
   }
+
   to {
     opacity: 0;
   }
@@ -431,6 +487,7 @@
   from {
     transform: translateX(-100%);
   }
+
   to {
     transform: translateX(0);
   }
@@ -440,6 +497,7 @@
   from {
     transform: translateX(100%);
   }
+
   to {
     transform: translateX(0);
   }
@@ -449,15 +507,19 @@
   0% {
     background-position: -200% 0;
   }
+
   100% {
     background-position: 200% 0;
   }
 }
 
 @keyframes gradient-shift {
-  0%, 100% {
+
+  0%,
+  100% {
     background-position: 0% 50%;
   }
+
   50% {
     background-position: 100% 50%;
   }
@@ -467,6 +529,7 @@
   0% {
     background-position: -200% center;
   }
+
   100% {
     background-position: 200% center;
   }
@@ -474,14 +537,12 @@
 
 /* Shimmer loading effect */
 .shimmer {
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.1) 20%,
-    rgba(255, 255, 255, 0.2) 50%,
-    rgba(255, 255, 255, 0.1) 80%,
-    transparent 100%
-  );
+  background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.1) 20%,
+      rgba(255, 255, 255, 0.2) 50%,
+      rgba(255, 255, 255, 0.1) 80%,
+      transparent 100%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
@@ -492,19 +553,19 @@
     width: 8px;
     height: 8px;
   }
-  
+
   ::-webkit-scrollbar-track {
     @apply bg-muted/20;
   }
-  
+
   ::-webkit-scrollbar-thumb {
     @apply bg-muted-foreground/20 rounded-full;
   }
-  
+
   ::-webkit-scrollbar-thumb:hover {
     @apply bg-muted-foreground/30;
   }
-  
+
   /* Firefox */
   * {
     scrollbar-width: thin;
@@ -517,9 +578,11 @@
   0% {
     background-position: 0% 50%;
   }
+
   50% {
     background-position: 100% 50%;
   }
+
   100% {
     background-position: 0% 50%;
   }
@@ -532,7 +595,12 @@ body {
 }
 
 /* Headings - slightly tighter for monospace */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   letter-spacing: -0.02em;
   font-weight: 600;
 }
@@ -559,12 +627,15 @@ button {
 
 /* Hide scrollbar while keeping scroll functionality */
 .scrollbar-hide {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
 }
 
 .scrollbar-hide::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
+  display: none;
+  /* Chrome, Safari, Opera */
 }
 
 /* Ensure native input caret is always hidden for terminal input */
@@ -577,6 +648,7 @@ input[type="text"].opacity-0 {
 
 /* Accessibility: Respect reduced motion preferences */
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
@@ -589,12 +661,14 @@ input[type="text"].opacity-0 {
 
 /* Mobile optimizations */
 @media (max-width: 768px) {
+
   /* Increase touch targets on mobile */
   button,
   a,
   input,
   [role="button"] {
-    min-height: 44px; /* iOS recommended minimum */
+    min-height: 44px;
+    /* iOS recommended minimum */
   }
 
   /* Prevent text size adjustment on mobile */
@@ -604,7 +678,8 @@ input[type="text"].opacity-0 {
 
   /* Optimize font sizes for mobile */
   .text-4xl {
-    font-size: 2rem; /* Smaller heading on mobile */
+    font-size: 2rem;
+    /* Smaller heading on mobile */
   }
 
   .text-3xl {
@@ -620,6 +695,7 @@ input[type="text"].opacity-0 {
 
 /* Reduced motion for performance and accessibility */
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
@@ -692,15 +768,21 @@ body {
 
 /* Subtle bounce animation for attention */
 @keyframes bounce-subtle {
-  0%, 85%, 100% {
+
+  0%,
+  85%,
+  100% {
     transform: translateY(0);
   }
+
   90% {
     transform: translateY(-4px);
   }
+
   95% {
     transform: translateY(0);
   }
+
   97% {
     transform: translateY(-2px);
   }
@@ -715,6 +797,7 @@ body {
   0% {
     filter: hue-rotate(0deg) saturate(1.3) brightness(1.1);
   }
+
   100% {
     filter: hue-rotate(360deg) saturate(1.3) brightness(1.1);
   }
@@ -730,4 +813,3 @@ body {
 .gemini-icon-gradient svg {
   filter: drop-shadow(0 0 1px currentColor);
 }
-

@@ -28,7 +28,8 @@ export function PortfolioLayout({ children, showCatalog = false, initialSection 
     isInitialAnimationComplete,
     setInitialAnimationComplete,
     hasLayoutAnimatedOnce,
-    setHasLayoutAnimatedOnce
+    setHasLayoutAnimatedOnce,
+    setScrollProgress
   } = useUIStore();
   const [activeSection, setActiveSection] = useState<'projects' | 'experience' | 'education'>(initialSection);
 
@@ -57,6 +58,22 @@ export function PortfolioLayout({ children, showCatalog = false, initialSection 
       setHasLayoutAnimatedOnce(true);
     }
   }, [isInitialAnimationComplete, hasLayoutAnimatedOnce, setHasLayoutAnimatedOnce]);
+
+  // Reset scroll progress on route change
+  useEffect(() => {
+    setScrollProgress(0);
+  }, [pathname, setScrollProgress]);
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    if (pathname === '/about') {
+      const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+      // Prevent division by zero
+      if (scrollHeight - clientHeight > 0) {
+        const progress = (scrollTop / (scrollHeight - clientHeight)) * 100;
+        setScrollProgress(progress);
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -120,7 +137,10 @@ export function PortfolioLayout({ children, showCatalog = false, initialSection 
                 </div>
               </div>
             ) : (
-              <div className="h-full min-h-0 flex flex-col overflow-y-auto">
+              <div
+                className="h-full min-h-0 flex flex-col overflow-y-auto"
+                onScroll={handleScroll}
+              >
                 {children}
               </div>
             )}

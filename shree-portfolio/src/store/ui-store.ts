@@ -49,6 +49,10 @@ interface UIState {
   isMobile: boolean;
   windowWidth: number;
   setWindowDimensions: (width: number, isMobile: boolean) => void;
+
+  // Scroll progress
+  scrollProgress: number;
+  setScrollProgress: (progress: number) => void;
 }
 
 export const useUIStore = create<UIState>()(
@@ -116,6 +120,10 @@ export const useUIStore = create<UIState>()(
       isMobile: false,
       windowWidth: typeof window !== 'undefined' ? window.innerWidth : 1920,
       setWindowDimensions: (width, isMobile) => set({ windowWidth: width, isMobile }),
+
+      // Scroll progress
+      scrollProgress: 0,
+      setScrollProgress: (progress) => set({ scrollProgress: progress }),
     }),
     {
       name: 'portfolio-ui-preferences',

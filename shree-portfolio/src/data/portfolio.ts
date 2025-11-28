@@ -49,7 +49,7 @@ I'm particularly interested in opportunities that involve AI, full-stack develop
     background: "I'm originally from Pune, India, where I completed my B.S. in Computer Science at MIT-WPU before coming to USC for my Master's degree.",
     inspiration: "It all started with curiosity. When I was 7 or 8 years old, my dad brought home a laptop for the first time—it was a Windows XP or Windows 7 machine. I was completely amazed that one device could do so many things. I remember creating my first Gmail account and successfully sending an email to my brother, who lived in a different city. That moment was incredible—with just a single click, I could communicate with him instantly. It really opened my eyes to how powerful technology is. That experience sparked my curiosity about how all of this actually works. From that day on, I kept exploring and learning more about technology, which eventually led me to enroll in a computer science program.",
     keyMoments: [
-      "My first project was building a calculator from scratch using just HTML, CSS, and JavaScript—no frameworks, no AI assistance. It took me an entire week just to get the logic right. At the time, it felt incredibly difficult, and I remember thinking, 'If a simple calculator is this hard, how am I going to survive in this field?' Especially when I kept hearing about all these advanced technologies like quantum computing and AI. But I decided to keep pushing forward and learning something new every day, gradually getting better.",
+      "My journey began by engineering a custom state-management system using vanilla JavaScript—deliberately avoiding frameworks to master the core fundamentals. I spent weeks handling complex edge cases and DOM manipulation without external libraries. This deep dive into the 'hard way' of building software taught me the importance of algorithmic thinking and clean architecture before I ever touched modern tools. It was a defining experience that grounded my engineering philosophy: understand the primitives before abstracting them away.",
       "One of my most memorable experiences was my first hackathon. I didn't have much technical knowledge back then, but my team and I stayed up late, learning from YouTube videos, and somehow managed to build a mobile app. We ended up winning Runner-Up among 30 teams at the NIT-B Hackathon for our health-tech app that streamlined hospital referrals. That experience really showed me what I could accomplish when I pushed through the challenges.",
       "At QuinStreet, I'm currently working part-time on Pond—an AI-powered insurance platform. We started from nothing on June 2nd, 2025 (no Figma designs, no database, no architecture) and shipped the auto insurance MVP to production by August 15th, 2025—the fastest MVP in company history. I owned the entire Manual Flow (23 dynamic questions), and our CTO was so impressed she asked me to present my process to company leadership to help boost productivity across teams. The project is live at insurance.com/pond."
     ],
@@ -157,16 +157,6 @@ I'm particularly interested in opportunities that involve AI, full-stack develop
       answer: "Short term: a full-time full-stack SWE role on a fast-paced product team. I want to take features end-to-end (idea → design → API/UI → tests → metrics) and help a product go 0 → 1 → 100. Focus areas: user onboarding flows, reliability and observability, thoughtful AI features with guardrails, and accessibility. Stack comfort: TypeScript/React; Java/Spring Boot or Node; Postgres/MySQL; REST/GraphQL; cloud deploys; A/B tests + metrics. Work mode: open to onsite/hybrid/remote—I care most about the team, learning speed, and shipping real value. Long term: grow into a software architect—design clean, scalable systems and lead teams to ship accessible, reliable products (using AI where it truly helps).",
       category: "career"
     },
-    {
-      question: "What's your visa status and work authorization?",
-      answer: "I am on an F-1 visa and will have up to 3 years of work authorization under OPT/STEM OPT. After that period, I will require employer sponsorship (e.g., H-1B) to continue employment.",
-      category: "hiring"
-    },
-    {
-      question: "Where are you willing to work? Any location preferences?",
-      answer: "I'm open to anywhere in the USA. I'm currently in Los Angeles for USC, but I'm willing to relocate for the right opportunity.",
-      category: "career"
-    }
   ],
 
   workStyle: {
@@ -185,7 +175,44 @@ I'm particularly interested in opportunities that involve AI, full-stack develop
     locationPreference: "Open to anywhere in the USA. Currently in Los Angeles for USC, willing to relocate.",
     companySizePreference: "No preference—comfortable with startups, growth companies, or larger tech companies. Care most about team culture, learning opportunities, and shipping velocity.",
     redirectToCall: ["salary expectations", "specific start date", "interview availability", "compensation", "detailed availability"]
-  }
+  },
+
+  // Behavioral & Personal Content for AI Chat
+  strengths: {
+    primary: "Persistence",
+    primaryStory: "My colleagues would say I never give up, even when things get tough. When I came to the U.S. last fall for my master's, I immediately started searching for summer internships. It was a rollercoaster—I got really close to an offer early on, but it fell through due to CPT timing issues. Instead of giving up, I kept applying and interviewing. By end of May, most friends told me it was too late—summer internships were filled. But I kept pushing, and on May 28th, I finally got an offer from QuinStreet. That persistence paid off—we ended up building the fastest MVP in company history in just 2 months.",
+    secondary: "Helping Others",
+    secondaryStory: "My colleagues would also say I'm always willing to help—whether it's debugging someone's code, helping them prep for interviews, or just being there when they need support. I see this as a strength because it pushes me to keep learning so I can be more useful to my team."
+  },
+
+  fiveYearVision: "In the next five years, I see myself in a fast-paced engineering environment where I'm constantly learning and shipping things that actually reach users. My goal is to build a really strong foundation by working across different parts of the stack and different problem spaces—from user-facing features and backend systems to understanding how AI can be used thoughtfully in real products. I want to be the kind of engineer who not only writes code, but also understands how the technical decisions connect to the business and user experience. In five years, I'd like to be a solid full-stack developer with deep enough experience in AI-driven systems that I can own end-to-end projects and mentor newer engineers. Longer term, I'm excited about turning some of my own ideas into products.",
+
+  weakness: {
+    area: "Communication",
+    story: "When I first came to the U.S. last year, communication was definitely my biggest weakness. English isn't my first language, and adjusting to different accents and communication styles was challenging. I knew I had to improve, so I joined social clubs specifically to practice talking with people in different settings. I've also been recording myself for 5 minutes every day, playing it back, and identifying what I can improve. I've made real progress since last year—my teammates at QuinStreet can communicate with me smoothly now, and I've had no issues during standups or technical discussions. It's still a learning curve, and I'm not perfect yet, but I'm actively working on it every single day."
+  },
+
+  funFacts: [
+    "My first ever flight was a 22-hour journey from India to the USA. It was super long, a bit scary, but also really exciting because it felt like the start of a whole new chapter.",
+    "I can cook really well… but only when I'm in the mood. On other days, Maggi (Indian noodles) is my hero and basically keeps me alive.",
+    "I love taking pictures of sunsets. If you check my Archive (top colorful icon), you'll see so many sunset photos. They all look kind of similar, but I still can't stop clicking them."
+  ],
+
+  chessOpening: {
+    name: "King's Gambit",
+    why: "I love it because it turns the game into chaos in like 5 moves, and suddenly both players are pretending they know what's going on. The positions get sharp and wild really fast, so I actually have to think at the board instead of just following theory. It's a bit like saying, 'Here, have a pawn… and also my sanity,' but that's what makes it so fun."
+  },
+
+  dreamDestinations: [
+    {
+      place: "Norway",
+      reason: "I'm obsessed with the idea of dramatic fjords, northern lights, quiet little towns, and those super cozy, peaceful vibes. I love the thought of just sitting by the water with a hot drink, watching the sky change colors and feeling like I'm inside a postcard."
+    },
+    {
+      place: "Japan",
+      reason: "It feels like a perfect mix of anime-level chaos and calm temples, high-tech cities and beautiful nature. I really like how you can go from neon streets and trains to quiet shrines, forests, and little traditional streets in just one day."
+    }
+  ]
 };
 
 export const projects: Project[] = [
@@ -225,10 +252,10 @@ export const projects: Project[] = [
     year: 2025,
     duration: "2 months",
     category: "Full-Stack",
-    summary: "Chrome extension providing real-time audio descriptions of web images for visually impaired users. Uses Llama 3.2 Vision for image analysis and Google TTS for audio output.",
-    problem: "Visually impaired users lack access to image content on websites, limiting their web browsing experience.",
-    approach: "Built a Chrome extension with JavaScript frontend and Flask backend using Groq's Llama 3.2 Vision model for image analysis, Google TTS for audio, and Microsoft SQL for user preferences.",
-    impact: "Enabled accessible web browsing for visually impaired users by providing instant audio descriptions of any image on the web.",
+    summary: "A Chrome extension designed to make the web more accessible for visually impaired users by providing real-time, AI-generated audio descriptions of images. Powered by Llama 3.2 Vision for analysis and Google TTS for natural voice output.",
+    problem: "Visually impaired users often face significant barriers when navigating the web, as many images lack proper alt text or descriptions, leaving a large portion of digital content inaccessible.",
+    approach: "Developed a seamless Chrome extension that integrates a JavaScript frontend with a Flask backend. The system leverages Groq's Llama 3.2 Vision model to analyze images in real-time and converts the descriptions into speech using Google TTS. User preferences are securely managed via a Microsoft SQL database.",
+    impact: "Significantly improved web accessibility by enabling visually impaired users to 'hear' images, providing instant, detailed audio descriptions for any visual content on the web, thereby bridging the digital divide.",
     metrics: [
       { label: "Platform", value: "Chrome Extension" },
       { label: "AI Model", value: "Llama 3.2 Vision" },
@@ -532,10 +559,7 @@ export const education: Education[] = [
       "Information Retrieval",
       "Artificial Intelligence"
     ],
-    achievements: [
-      "Dean's List 2024",
-      "Graduate Merit Scholarship"
-    ]
+
   },
   {
     id: "edu-2",
@@ -546,6 +570,7 @@ export const education: Education[] = [
     location: "Pune, India",
     startYear: 2020,
     endYear: 2024,
+    gpa: "3.9/4.0",
     relevantCoursework: [
       "Data Structures & Algorithms",
       "Object-Oriented Programming",
