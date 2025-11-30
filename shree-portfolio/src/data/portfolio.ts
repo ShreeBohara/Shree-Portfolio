@@ -51,7 +51,7 @@ I'm particularly interested in opportunities that involve AI, full-stack develop
     keyMoments: [
       "My journey began by engineering a custom state-management system using vanilla JavaScript—deliberately avoiding frameworks to master the core fundamentals. I spent weeks handling complex edge cases and DOM manipulation without external libraries. This deep dive into the 'hard way' of building software taught me the importance of algorithmic thinking and clean architecture before I ever touched modern tools. It was a defining experience that grounded my engineering philosophy: understand the primitives before abstracting them away.",
       "One of my most memorable experiences was my first hackathon. I didn't have much technical knowledge back then, but my team and I stayed up late, learning from YouTube videos, and somehow managed to build a mobile app. We ended up winning Runner-Up among 30 teams at the NIT-B Hackathon for our health-tech app that streamlined hospital referrals. That experience really showed me what I could accomplish when I pushed through the challenges.",
-      "At QuinStreet, I'm currently working part-time on Pond—an AI-powered insurance platform. We started from nothing on June 2nd, 2025 (no Figma designs, no database, no architecture) and shipped the auto insurance MVP to production by August 15th, 2025—the fastest MVP in company history. I owned the entire Manual Flow (23 dynamic questions), and our CTO was so impressed she asked me to present my process to company leadership to help boost productivity across teams. The project is live at insurance.com/pond."
+      "At QuinStreet, I'm currently working part-time on Pond—an AI-powered insurance platform. We started from nothing on June 2nd, 2025 (no Figma designs, no database, no architecture) and shipped the auto insurance MVP to production by August 15th, 2025—the fastest MVP in company history. I owned the entire Manual Flow (23 dynamic questions), and our SVP was so impressed she asked me to present my process to company leadership to help boost productivity across teams. The project is live at insurance.com/pond."
     ],
     whyUSC: "I chose USC primarily for two reasons. First, USC has one of the strongest alumni networks in the country, especially in the tech industry. Coming to the USA, I knew that making connections would be one of the most important parts of building a successful career here. Considering that USC has such an extensive and supportive alumni network, I knew it was the right choice for me. This network has been invaluable for career opportunities and guidance. Second, USC's computer science program is highly ranked and well-respected. The quality of education and the reputation of the program were important factors for me, as I wanted to learn from top faculty and be challenged academically. So far, courses like Database Systems and Information Retrieval, plus hands-on projects and alumni coffee chats, have validated my choice—I've already applied class ideas to real features and met mentors who opened doors.",
     whatDrivesYou: "I'm driven by building software that removes real barriers for people. Volunteering at a school for the blind showed me how small gaps—like missing image descriptions—can lock someone out, which is why I built accessibility tools like EchoLens and focus on shipping reliable, user-centric products like Pond. I love fast feedback loops, measurable impact (faster onboarding, fewer handoffs), and taking ownership when things break. Knowing something I built makes someone's day easier is what keeps me going."
@@ -157,6 +157,11 @@ I'm particularly interested in opportunities that involve AI, full-stack develop
       answer: "Short term: a full-time full-stack SWE role on a fast-paced product team. I want to take features end-to-end (idea → design → API/UI → tests → metrics) and help a product go 0 → 1 → 100. Focus areas: user onboarding flows, reliability and observability, thoughtful AI features with guardrails, and accessibility. Stack comfort: TypeScript/React; Java/Spring Boot or Node; Postgres/MySQL; REST/GraphQL; cloud deploys; A/B tests + metrics. Work mode: open to onsite/hybrid/remote—I care most about the team, learning speed, and shipping real value. Long term: grow into a software architect—design clean, scalable systems and lead teams to ship accessible, reliable products (using AI where it truly helps).",
       category: "career"
     },
+    {
+      question: "How do you learn new tech?",
+      answer: "First, I try to understand the history behind the tech—like why it was built and what problems it solves. Then, I focus on practical applications by building small projects. I start with foundational concepts to ensure I have a solid grasp before diving deeper. I also like to sketch out designs to visualize the architecture before coding. My approach usually involves building tiny apps, exploring documentation, and using AI tools to brainstorm edge cases. This method helps me move from theory to practice quickly.",
+      category: "technical"
+    }
   ],
 
   workStyle: {
@@ -216,6 +221,37 @@ I'm particularly interested in opportunities that involve AI, full-stack develop
 };
 
 export const projects: Project[] = [
+  {
+    id: "project-portfolio",
+    title: "Interactive Portfolio & AI Chat",
+    slug: "interactive-portfolio",
+    year: 2025,
+    duration: "Ongoing",
+    category: "Full-Stack",
+    summary: "A modern, interactive portfolio website featuring an AI-powered chat interface, dynamic animations, and a responsive design. Built with Next.js, TypeScript, and Tailwind CSS.",
+    problem: "Traditional portfolios are often static and fail to effectively showcase a developer's personality, technical depth, and ability to build modern, interactive web applications.",
+    approach: "Designed and built a comprehensive portfolio platform that combines a traditional showcase with an AI-powered chat interface. Leveraged Next.js for performance and SEO, Framer Motion for fluid animations, and the Vercel AI SDK to create a responsive, intelligent chat assistant that answers questions about my background and skills.",
+    impact: "Created a unique, engaging user experience that differentiates my profile. The AI chat provides instant answers to recruiters and peers, while the high-performance architecture ensures a smooth experience across all devices.",
+    metrics: [
+      { label: "Lighthouse Score", value: "100/100" },
+      { label: "Tech Stack", value: "Next.js 14" },
+      { label: "AI Latency", value: "< 1s" },
+      { label: "Design", value: "Custom UI/UX" }
+    ],
+    myRole: "Sole Developer & Designer - Conceptualized, designed, and built the entire application from scratch, including the AI chat integration and custom UI components.",
+    teamSize: 1,
+    technologies: ["Next.js", "TypeScript", "Tailwind CSS", "Framer Motion", "Vercel AI SDK", "OpenAI API", "Lucide React", "Radix UI"],
+    tags: ["Portfolio", "AI Chat", "Next.js", "Interactive Design", "Vercel"],
+    links: {
+      github: "https://github.com/ShreeBohara/Shree-Portfolio",
+      live: "https://shreebohara.com"
+    },
+    images: {
+      thumbnail: "/images/projects/portfolio-v2.webp",
+    },
+    featured: true,
+    sortOrder: 1
+  },
   {
     id: "project-1",
     title: "AI-Powered Resume Builder",
@@ -480,20 +516,20 @@ export const experiences: Experience[] = [
         metric: "Reduced integration rework and sped up releases"
       },
       {
-        text: "Redesigned 23-step React onboarding flow with summaries and inline edits",
-        metric: "30% reduction in time-to-complete"
+        text: "Designed 23-step React onboarding flow with summaries and inline edits",
+
       },
       {
         text: "Launched 'Ollie', an AI chat with FAQ, co-pilot, and next-step modes using Voiceflow, Java proxy, and React UI",
-        metric: "Improved self-serve completion and reduced support handoffs"
+
       },
       {
         text: "Owned 3-way onboarding A/B framework with secure assignment, campaign overrides, session flags, route guards, and Heap tracking",
-        metric: "Enabled clean conversion and time-to-quote comparisons"
+
       },
       {
         text: "Maintained Spring Boot services and SQL pipelines with analytics and error logging",
-        metric: "Hardened quote submissions and audit trails"
+
       }
     ],
     technologies: ["React", "TypeScript", "Spring Boot", "Java", "SQL", "Voiceflow", "Figma", "Heap Analytics"],
