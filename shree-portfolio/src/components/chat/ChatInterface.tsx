@@ -628,8 +628,8 @@ export function ChatInterface() {
       <div className="flex-1 min-h-0 overflow-hidden flex flex-col relative">
         {!currentChat && !response && !error ? (
           /* Empty state - properly centered */
-          <div ref={outerContainerRef} className="flex-1 px-3 sm:px-4 relative overflow-hidden flex items-center justify-center">
-            <div ref={containerRef} className="w-full max-w-3xl relative z-10">
+          <div ref={outerContainerRef} className="flex-1 px-3 sm:px-4 relative overflow-y-auto flex flex-col">
+            <div ref={containerRef} className="w-full max-w-3xl relative z-10 m-auto py-8">
               {/* Title at FINAL position - both shrink together after ALL typing completes */}
               {/* Wrapper to prevent layout shift during scale */}
               <div className="text-center mb-4 sm:mb-6 relative">
