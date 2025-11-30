@@ -1,15 +1,19 @@
 # Shree-Portfolio
 
+![Portfolio Preview](docs/images/portfolio-preview.png)
+
 A modern, AI-powered portfolio website featuring a chat-first interface where visitors can ask natural language questions about projects, experience, and skills. Built with Next.js 16, React 19, TypeScript, and OpenAI's GPT-4o-mini with RAG (Retrieval-Augmented Generation).
 
 ## 🚀 Features
 
-- **Chat-First Interface** - Natural language Q&A about portfolio content
-- **AI-Powered Responses** - GPT-4o-mini with RAG for accurate, contextual answers
-- **Browse Mode** - Traditional portfolio view with filtering, sorting, and comparison
-- **Context-Aware Chat** - Focus conversations on specific projects or experiences
-- **Dark/Light Mode** - 8 accent colors with smooth theme transitions
-- **Responsive Design** - Mobile-first, accessible, and performant
+- **Chat-First Interface** - Natural language Q&A about portfolio content with streaming responses.
+- **Archive Mode** - An immersive, draggable photo gallery with a rainbow gradient icon and lightbox view.
+- **Browse Mode** - Traditional portfolio view with filtering, sorting, and comparison.
+- **Smart UI** - Custom cursor, scroll progress line (on About page), dark/light mode, and theme color picker.
+- **Context-Aware Chat** - Focus conversations on specific projects or experiences.
+- **Interactive Elements** - Random prompt button, dropdown suggestions, and smooth animations.
+- **Admin Dashboard** - Internal tools for content management.
+- **Responsive Design** - Mobile-first, accessible, and performant.
 
 ## 📚 Documentation
 
@@ -63,15 +67,15 @@ npm run dev
 ### Chat-First Interface
 The primary interaction is conversational. Users ask questions, and the AI assistant provides contextual answers with citations linking to source material.
 
+### Archive Mode
+A unique, visual way to explore the portfolio through a draggable canvas of photos. Accessible via the rainbow gradient icon in the header.
+
 ### RAG (Retrieval-Augmented Generation)
 1. User query → generate embedding
 2. Search vector store for relevant content
 3. Build prompt with retrieved context
 4. Stream GPT-4o-mini response
 5. Display with citations
-
-### Context-Aware Chat
-Users can focus chat on specific items (projects, experiences, education). The system filters retrieval and adapts suggestions accordingly.
 
 ## 🎨 Features in Detail
 
@@ -81,6 +85,12 @@ Users can focus chat on specific items (projects, experiences, education). The s
 - Citation system linking to source material
 - Keyboard shortcuts (Cmd+K, Escape)
 - Rate limiting (20 requests/hour)
+
+### Archive Mode
+- Draggable infinite canvas
+- Lightbox view for photos
+- Smooth transitions and animations
+- Hidden sidebar for immersive experience
 
 ### Browse Mode
 - Filterable project grid (by category, year)
@@ -109,7 +119,6 @@ Edit `src/app/globals.css` for CSS variables. See [Styling docs](./docs/09-STYLI
 
 ## 🔒 Security
 
-- API keys server-side only (never exposed to client)
 - Rate limiting (20 requests/hour per IP)
 - Input validation and sanitization
 - Parameterized database queries
