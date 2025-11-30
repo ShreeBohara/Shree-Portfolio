@@ -1,7 +1,8 @@
 # Shree-Portfolio
 
 
-<video src="docs/videos/main.mov" controls width="100%" autoplay loop muted></video>
+![Portfolio Preview](docs/videos/main.gif)
+
 
 
 A modern, AI-powered portfolio website featuring a chat-first interface where visitors can ask natural language questions about projects, experience, and skills. Built with Next.js 16, React 19, TypeScript, and OpenAI's GPT-4o-mini with RAG (Retrieval-Augmented Generation).
@@ -69,13 +70,15 @@ npm run dev
 ### Chat-First Interface
 The primary interaction is conversational. Users ask questions, and the AI assistant provides contextual answers with citations linking to source material.
 
-<video src="docs/videos/chat-interaction.mov" controls width="100%"></video>
+![Chat Interaction](docs/videos/chat-interaction.gif)
+
 
 
 ### Archive Mode
 A unique, visual way to explore the portfolio through a draggable canvas of photos. Accessible via the rainbow gradient icon in the header.
 
-<video src="docs/videos/archive.mov" controls width="100%"></video>
+![Archive Mode](docs/videos/archive.gif)
+
 
 
 ### RAG (Retrieval-Augmented Generation)
