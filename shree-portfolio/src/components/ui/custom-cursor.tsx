@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { motion, useMotionValue, useSpring } from "framer-motion";
 
@@ -15,10 +15,22 @@ export function CustomCursor() {
     const cursorXSpring = useSpring(cursorX, springConfig);
     const cursorYSpring = useSpring(cursorY, springConfig);
 
+    // Trail implementation
+    const pathRef = useRef<SVGPathElement>(null);
+    const pointsRef = useRef<{ x: number; y: number; timestamp: number }[]>([]);
+    const rafRef = useRef<number | null>(null);
+
     useEffect(() => {
         const moveCursor = (e: MouseEvent) => {
             cursorX.set(e.clientX);
             cursorY.set(e.clientY);
+
+            // Add point to history
+            pointsRef.current.push({
+                x: e.clientX,
+                y: e.clientY,
+                timestamp: Date.now()
+            });
 
             // Check if hovering over interactive elements
             const target = e.target as HTMLElement;
@@ -41,10 +53,42 @@ export function CustomCursor() {
         document.addEventListener("mouseenter", handleMouseEnter);
         document.addEventListener("mouseleave", handleMouseLeave);
 
+        // Animation loop for trail
+        const animate = () => {
+            if (pathRef.current) {
+                const now = Date.now();
+                // Remove points older than 0.5s
+                pointsRef.current = pointsRef.current.filter((p: { timestamp: number }) => now - p.timestamp < 150);
+
+                // Limit max points for performance
+                if (pointsRef.current.length > 50) {
+                    pointsRef.current = pointsRef.current.slice(-50);
+                }
+
+                if (pointsRef.current.length > 1) {
+                    // Generate smooth path
+                    let d = `M ${pointsRef.current[0].x} ${pointsRef.current[0].y}`;
+
+                    for (let i = 1; i < pointsRef.current.length; i++) {
+                        const p = pointsRef.current[i];
+                        // Simple line to for now, could be quadratic bezier for more smoothness
+                        d += ` L ${p.x} ${p.y}`;
+                    }
+
+                    pathRef.current.setAttribute("d", d);
+                } else {
+                    pathRef.current.setAttribute("d", "");
+                }
+            }
+            rafRef.current = requestAnimationFrame(animate);
+        };
+        rafRef.current = requestAnimationFrame(animate);
+
         return () => {
             window.removeEventListener("mousemove", moveCursor);
             document.removeEventListener("mouseenter", handleMouseEnter);
             document.removeEventListener("mouseleave", handleMouseLeave);
+            if (rafRef.current) cancelAnimationFrame(rafRef.current);
         };
     }, [cursorX, cursorY]);
 
@@ -71,6 +115,22 @@ export function CustomCursor() {
 
     return (
         <div className="pointer-events-none fixed inset-0 z-[9999] overflow-hidden">
+            {/* Trail */}
+            <svg className="absolute inset-0 h-full w-full">
+                <path
+                    ref={pathRef}
+                    className="stroke-[var(--accent-color)] opacity-50"
+                    strokeWidth="2"
+                    fill="none"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    style={{
+                        opacity: isVisible ? 0.6 : 0,
+                        transition: "opacity 0.2s ease"
+                    }}
+                />
+            </svg>
+
             {/* Main Dot */}
             <motion.div
                 className="absolute h-2.5 w-2.5 rounded-full bg-primary mix-blend-difference"
