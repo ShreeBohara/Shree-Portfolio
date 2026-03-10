@@ -1,7 +1,6 @@
 import { NextRequest } from 'next/server';
-import { streamRAGResponse, getRAGResponse } from '@/lib/ai/rag';
+import { streamRAGResponse, getRAGResponse, resolveRetrievedChunks } from '@/lib/ai/rag';
 import { extractCitations } from '@/lib/ai/retrieval';
-import { retrieveRelevantContent } from '@/lib/ai/retrieval';
 import { checkRateLimit, getRemainingRequests, getResetTime } from '@/lib/ai/rate-limit';
 
 export const runtime = 'nodejs'; // Changed from 'edge' to 'nodejs' for Supabase compatibility
@@ -55,16 +54,7 @@ export async function POST(request: NextRequest) {
     // If streaming is requested
     if (shouldStream) {
       // Retrieve citations first (needed for final response)
-      const retrievedChunks = await retrieveRelevantContent(query, {
-        limit: 7,
-        filter: context?.enabled && context?.itemId
-          ? {
-              type: context.itemType,
-              itemId: context.itemId,
-            }
-          : undefined,
-        boostItemId: context?.enabled ? context.itemId : undefined,
-      });
+      const retrievedChunks = await resolveRetrievedChunks(query, context);
       const citations = extractCitations(retrievedChunks);
 
       // Create a readable stream

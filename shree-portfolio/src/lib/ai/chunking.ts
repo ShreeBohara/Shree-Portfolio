@@ -23,7 +23,7 @@ export function chunkProject(project: Project): ContentChunk[] {
   // Chunk 1: Title and Summary
   chunks.push({
     id: `${baseId}-summary`,
-    content: `Project: ${project.title}\n\nSummary: ${project.summary}`,
+    content: `Project: ${project.title}\n\nCategory: ${project.category}\n\nDuration: ${project.duration}${project.featured ? `\n\nFeatured Project: Yes` : ''}\n\nSummary: ${project.summary}${project.tags.length > 0 ? `\n\nTags: ${project.tags.join(', ')}` : ''}`,
     metadata: {
       type: 'project',
       itemId: project.id,
@@ -706,4 +706,3 @@ export function chunkAllContent(
 
   return chunks;
 }
-

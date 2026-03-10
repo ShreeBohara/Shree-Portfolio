@@ -38,7 +38,7 @@ export function buildUserPrompt(
     prompt += `\n---\n\n`;
   } else {
     // No chunks found - be helpful anyway
-    prompt += `[No specific portfolio content was retrieved for this query, but you can still provide a helpful response based on what you know about Shree from the system prompt. If it's a general question, answer it briefly and connect to Shree's work. If it's about something specific that's not in the portfolio, suggest booking a call.]\n\n`;
+    prompt += `[No specific portfolio content was retrieved for this query. If the visitor is asking about Shree's portfolio items (projects, experience, education, skills, achievements), do NOT invent names, metrics, companies, or technical details. Instead, give a cautious high-level answer or ask about a specific project/experience. Only answer freely from general knowledge for non-portfolio questions.]\n\n`;
   }
 
   // Add the user's question
@@ -75,4 +75,3 @@ export function buildMessages(
     },
   ];
 }
-

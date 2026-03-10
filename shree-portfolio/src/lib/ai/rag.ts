@@ -1,9 +1,11 @@
-import { retrieveRelevantContent, extractCitations } from './retrieval';
+import { retrieveRelevantContent, extractCitations, RetrievedChunk } from './retrieval';
 import { buildMessages } from './prompts';
 import { getOpenAIClient, isOpenAIConfigured } from './client';
 import { AI_CONFIG } from './config';
 import { Citation } from '@/data/types';
 import { getAIResponse } from './rag-placeholder'; // Fallback
+import { projects } from '@/data/portfolio';
+import { chunkProject } from './chunking';
 
 export interface ChatContext {
   enabled?: boolean;
@@ -15,6 +17,116 @@ export interface RAGResponse {
   answer: string;
   citations: Citation[];
   confidence: number;
+}
+
+function isProjectOverviewQuery(query: string): boolean {
+  const normalized = query.toLowerCase();
+  return (
+    /\bprojects?\b/.test(normalized) &&
+    (
+      /\btop\b/.test(normalized) ||
+      /\bbest\b/.test(normalized) ||
+      /\bfeatured\b/.test(normalized) ||
+      /\bfavorite\b/.test(normalized) ||
+      /\bhighlight(s)?\b/.test(normalized) ||
+      /\bportfolio\b/.test(normalized) ||
+      /\bwhat are\b/.test(normalized)
+    )
+  );
+}
+
+function getProjectCategoryMatcher(query: string): ((category: string) => boolean) | null {
+  const normalized = query.toLowerCase();
+
+  if (normalized.includes('ai/ml') || normalized.includes('machine learning') || /\bai\b/.test(normalized) || /\bml\b/.test(normalized)) {
+    return (category) => category === 'AI/ML';
+  }
+  if (normalized.includes('full-stack') || normalized.includes('full stack')) {
+    return (category) => category === 'Full-Stack';
+  }
+  if (normalized.includes('open source')) {
+    return (category) => category === 'Open Source';
+  }
+  if (normalized.includes('academic')) {
+    return (category) => category === 'Academic';
+  }
+  if (normalized.includes('data')) {
+    return (category) => category === 'Data Engineering';
+  }
+
+  return null;
+}
+
+function buildDeterministicProjectOverviewChunks(query: string): RetrievedChunk[] {
+  const categoryMatcher = getProjectCategoryMatcher(query);
+  const matchingProjects = categoryMatcher
+    ? projects.filter((project) => categoryMatcher(project.category))
+    : projects;
+
+  const rankedProjects = [...matchingProjects].sort((a, b) => {
+    if (a.featured !== b.featured) {
+      return Number(b.featured) - Number(a.featured);
+    }
+    if (a.year !== b.year) {
+      return b.year - a.year;
+    }
+    return a.sortOrder - b.sortOrder;
+  });
+
+  return rankedProjects.slice(0, 3).flatMap((project, projectIndex) => {
+    const projectChunks = chunkProject(project);
+    const selectedChunks = [projectChunks[0], projectChunks[2] || projectChunks[1]].filter(Boolean);
+
+    return selectedChunks.map((chunk, chunkIndex) => ({
+      ...chunk,
+      similarity: Math.max(0.95 - projectIndex * 0.05 - chunkIndex * 0.01, 0.8),
+    }));
+  });
+}
+
+function countUniqueProjects(chunks: RetrievedChunk[]): number {
+  return new Set(
+    chunks
+      .filter((chunk) => chunk.metadata.type === 'project')
+      .map((chunk) => chunk.metadata.itemId)
+  ).size;
+}
+
+export async function resolveRetrievedChunks(
+  query: string,
+  context?: ChatContext
+): Promise<RetrievedChunk[]> {
+  const retrievedChunks = await retrieveRelevantContent(query, {
+    limit: AI_CONFIG.retrieval.topK,
+    filter: context?.enabled && context?.itemId
+      ? {
+        type: context.itemType,
+        itemId: context.itemId,
+      }
+      : undefined,
+    boostItemId: context?.enabled ? context.itemId : undefined,
+  });
+
+  if (context?.enabled && context?.itemId) {
+    return retrievedChunks;
+  }
+
+  if (isProjectOverviewQuery(query)) {
+    const deterministicProjectChunks = buildDeterministicProjectOverviewChunks(query);
+    const projectOnlyChunks = retrievedChunks.filter((chunk) => chunk.metadata.type === 'project');
+    const shouldUseDeterministicFallback =
+      retrievedChunks.length === 0 ||
+      projectOnlyChunks.length === 0 ||
+      countUniqueProjects(projectOnlyChunks) < 3;
+
+    if (shouldUseDeterministicFallback) {
+      return deterministicProjectChunks;
+    }
+
+    return projectOnlyChunks;
+  }
+
+  return retrievedChunks;
 }
 
 /**
@@ -35,16 +147,7 @@ export async function getRAGResponse(
 
   try {
     // Retrieve relevant content
-    const retrievedChunks = await retrieveRelevantContent(query, {
-      limit: AI_CONFIG.retrieval.topK,
-      filter: context?.enabled && context?.itemId
-        ? {
-          type: context.itemType,
-          itemId: context.itemId,
-        }
-        : undefined,
-      boostItemId: context?.enabled ? context.itemId : undefined,
-    });
+    const retrievedChunks = await resolveRetrievedChunks(query, context);
 
     // Log retrieval for debugging
 
@@ -114,16 +217,7 @@ export async function* streamRAGResponse(
 
   try {
     // Retrieve relevant content
-    let retrievedChunks = await retrieveRelevantContent(query, {
-      limit: AI_CONFIG.retrieval.topK,
-      filter: context?.enabled && context?.itemId
-        ? {
-          type: context.itemType,
-          itemId: context.itemId,
-        }
-        : undefined,
-      boostItemId: context?.enabled ? context.itemId : undefined,
-    });
+    let retrievedChunks = await resolveRetrievedChunks(query, context);
 
     // Log retrieval for debugging
     if (retrievedChunks.length > 0) {
@@ -171,4 +265,3 @@ export async function* streamRAGResponse(
     }
   }
 }
-

@@ -117,7 +117,7 @@ export function AboutContent() {
                 </Link>
                 <Link href="/browse?section=projects" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-accent-color transition-colors cursor-pointer">
                   <Code2 className="h-4 w-4 text-accent-color" />
-                  <span>5+ Projects</span>
+                  <span>{projects.length} Projects</span>
                 </Link>
 
               </motion.div>
@@ -469,4 +469,3 @@ export function AboutContent() {
     </div >
   );
 }
-

@@ -27,6 +27,36 @@ export function ProjectGrid() {
     return () => clearTimeout(timer);
   }, []);
 
+  const categoryOptions = useMemo(() => {
+    const counts = new Map<string, number>();
+    allProjects.forEach((project) => {
+      counts.set(project.category, (counts.get(project.category) || 0) + 1);
+    });
+
+    const orderedCategories = [
+      'AI/ML',
+      'Full-Stack',
+      'Data Engineering',
+      'Open Source',
+      'Mobile',
+      'DevOps',
+      'Academic',
+    ];
+
+    const categories = orderedCategories
+      .filter((category) => counts.has(category))
+      .map((category) => ({
+        id: category.toLowerCase().replace(/[/\s]/g, '-'),
+        label: category,
+        count: counts.get(category) || 0,
+      }));
+
+    return [
+      { id: 'all', label: 'All', count: allProjects.length },
+      ...categories,
+    ];
+  }, []);
+
   // Filter projects
   const filteredProjects = useMemo(() => {
     let filtered = allProjects;
@@ -111,6 +141,7 @@ export function ProjectGrid() {
     <div className="h-full flex flex-col">
       {/* Filter bar */}
       <FilterBar
+        categories={categoryOptions}
         selectedCategories={selectedCategories}
         onCategoryChange={setSelectedCategories}
         searchQuery={searchQuery}

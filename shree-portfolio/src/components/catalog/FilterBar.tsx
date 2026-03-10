@@ -15,7 +15,14 @@ import {
 import { useUIStore } from '@/store/ui-store';
 import { SortOption, GroupOption } from '@/data/types';
 
+interface CategoryOption {
+  id: string;
+  label: string;
+  count: number;
+}
+
 interface FilterBarProps {
+  categories: CategoryOption[];
   selectedCategories: string[];
   onCategoryChange: (categories: string[]) => void;
   searchQuery: string;
@@ -26,14 +33,8 @@ interface FilterBarProps {
   onGroupChange: (group: GroupOption) => void;
 }
 
-const categories = [
-  { id: 'all', label: 'All', count: 7 },
-  { id: 'ai-ml', label: 'AI/ML', count: 5 },
-  { id: 'full-stack', label: 'Full-Stack', count: 1 },
-  { id: 'data-engineering', label: 'Data Engineering', count: 1 },
-];
-
 export function FilterBar({
+  categories,
   selectedCategories,
   onCategoryChange,
   searchQuery,

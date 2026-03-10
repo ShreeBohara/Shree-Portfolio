@@ -24,9 +24,9 @@ export const promptCategories: PromptCategory[] = [
     icon: Zap,
     title: 'Projects',
     prompts: [
-      "What are your top 3 AI/ML projects?",
+      "What are your top 3 projects?",
+      "Tell me about CodebaseQA",
       "Tell me about EchoLens",
-      "Tell me about GlobaLens",
       "Biggest technical challenge?",
       "Tell me about Pond"
     ]

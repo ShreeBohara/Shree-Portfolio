@@ -253,6 +253,71 @@ export const projects: Project[] = [
     sortOrder: 1
   },
   {
+    id: "project-codebaseqa",
+    title: "CodebaseQA",
+    slug: "codebaseqa",
+    year: 2026,
+    duration: "Dec 2025 - Feb 2026",
+    category: "Open Source",
+    summary: "Open-source AI platform for codebase onboarding that indexes GitHub repositories, answers natural-language questions with source-cited responses, generates persona-based learning tracks, and visualizes full-workspace dependency graphs.",
+    problem: "Understanding an unfamiliar repository is still a slow, fragmented workflow. Developers bounce between READMEs, grep, docs, architecture guesses, and tribal knowledge just to answer basic questions about system flow, ownership boundaries, and where to start contributing.",
+    approach: "Built CodebaseQA as a pnpm/Turbo monorepo with a Next.js 16 frontend and FastAPI backend. The platform clones and indexes repositories, parses code with Tree-sitter across 9 languages, stores embeddings in Chroma, and serves SSE-based chat with hybrid retrieval, reranking, and source citations. On top of Q&A, I shipped a persona-based learning engine with AI-generated lessons, quizzes, challenges, and a deterministic dependency graph explorer powered by React Flow with ELK primary layout and Dagre fallback. The system is productionized with Docker, GitHub Actions CI, Vercel frontend hosting, Render backend deployment, and Redis-backed caching/rate-limit fallbacks.",
+    impact: "Turned codebase onboarding into an interactive product instead of a documentation hunt. CodebaseQA combines chat, search, guided learning, graph exploration, gamification, and CLI workflows so developers can move from 'What does this repo do?' to hands-on understanding much faster on large, multi-language repositories.",
+    metrics: [
+      { label: "Monorepo Size", value: "34K+ LOC" },
+      { label: "Languages Parsed", value: "9 via Tree-sitter" },
+      { label: "Interfaces", value: "Web + CLI + API" },
+      { label: "Deployment", value: "Vercel + Render" },
+      { label: "Quality Gates", value: "CI + Coverage" }
+    ],
+    myRole: "Sole developer and architect - designed the full monorepo, built the repository indexing and RAG pipeline, implemented the learning/gamification systems, shipped the dependency graph explorer, wired Docker and CI/CD, and deployed the frontend/backend split to production.",
+    teamSize: 1,
+    technologies: [
+      "Next.js 16",
+      "React 19",
+      "TypeScript",
+      "FastAPI",
+      "Python 3.11",
+      "ChromaDB",
+      "SQLite",
+      "Redis",
+      "Tree-sitter",
+      "OpenAI",
+      "React Flow",
+      "ELK",
+      "Dagre",
+      "Docker",
+      "GitHub Actions",
+      "Vercel",
+      "Render",
+      "pnpm",
+      "Turborepo"
+    ],
+    tags: [
+      "Open Source",
+      "AI",
+      "RAG",
+      "Developer Tools",
+      "Codebase Understanding",
+      "Dependency Graph",
+      "Learning Engine",
+      "SSE Streaming",
+      "CLI",
+      "Monorepo"
+    ],
+    links: {
+      live: "https://www.codebaseqa.com",
+      github: "https://github.com/ShreeBohara/codebaseqa",
+      caseStudy: "https://medium.com/@shreetbohara/how-i-built-codebaseqa-to-cut-codebase-onboarding-time-9521bbc2642e",
+      video: "https://www.youtube.com/watch?v=nM8-2t4xr9A"
+    },
+    images: {
+      thumbnail: "/images/projects/codebaseqa.png",
+    },
+    featured: true,
+    sortOrder: 1
+  },
+  {
     id: "project-1",
     title: "AI-Powered Resume Builder",
     slug: "ai-resume-builder",

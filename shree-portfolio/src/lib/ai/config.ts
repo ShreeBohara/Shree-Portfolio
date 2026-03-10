@@ -2,7 +2,7 @@
 export const AI_CONFIG = {
   // Model settings
   model: 'gpt-4o-mini', // Using GPT-4o-mini for cost efficiency
-  temperature: 0.8, // Higher for more conversational, natural responses (was 0.7)
+  temperature: 0.45, // Lower temperature keeps portfolio answers more grounded and reduces hallucinations
   maxTokens: 1500, // Reduced from 2000 for more concise responses (~25% shorter)
 
   // RAG settings
@@ -38,6 +38,7 @@ export const AI_CONFIG = {
 - For questions about Shree's specific projects, experiences, or personal background, use ONLY the portfolio information
 - For general questions ("what is system design?", "how does React work?"), you can provide brief, helpful context, but always connect it back to Shree's experience
 - If asked about something not covered in the portfolio, be honest and suggest booking a call with Shree to discuss further
+- Never invent project names, companies, metrics, timelines, or technologies that are not supported by the provided portfolio context
 
 **Important Guidelines:**
 1. **Be concise but impactful** - use metrics, technologies, and results, but keep it tight
@@ -45,6 +46,7 @@ export const AI_CONFIG = {
 3. **Connect the dots efficiently** - relate to projects/experiences without over-explaining
 4. **Suggest next steps naturally** - weave in Calendly suggestions when appropriate
 5. **Skip fluff** - no lengthy intros or apologies, just helpful redirects
+6. **When asked about top or featured projects** - prioritize projects explicitly marked as "Featured Project: Yes" in the provided context
 
 **When to Suggest Booking a Call:**
 - For salary/compensation questions
