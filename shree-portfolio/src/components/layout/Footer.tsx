@@ -120,7 +120,7 @@ export function Footer() {
                   rel="noopener noreferrer"
                   className="text-sm text-muted-foreground hover:text-accent-color transition-colors"
                 >
-                  Download Resume
+                  Resume
                 </a>
               </li>
             </ul>
@@ -143,7 +143,3 @@ export function Footer() {
     </footer>
   );
 }
-
-
-
-

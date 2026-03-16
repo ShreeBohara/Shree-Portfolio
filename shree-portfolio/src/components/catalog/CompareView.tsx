@@ -1,13 +1,12 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, Users, ExternalLink, Github, FileText } from 'lucide-react';
+import { X, Users, ExternalLink, Github, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { projects } from '@/data/portfolio';
 import { Project } from '@/data/types';
-import { cn } from '@/lib/utils';
 import { useUIStore } from '@/store/ui-store';
 
 interface CompareViewProps {
@@ -88,18 +87,16 @@ export function CompareView({ projectIds, onClose }: CompareViewProps) {
                 <Card>
                   <CardHeader className="pb-3">
                     <CardTitle className="text-lg">{project1.title}</CardTitle>
-                    <div className="flex items-center gap-2 mt-2">
+                    <div className="mt-2">
                       <Badge variant="outline">{project1.category}</Badge>
-                      <span className="text-sm text-muted-foreground">{project1.year}</span>
                     </div>
                   </CardHeader>
                 </Card>
                 <Card>
                   <CardHeader className="pb-3">
                     <CardTitle className="text-lg">{project2.title}</CardTitle>
-                    <div className="flex items-center gap-2 mt-2">
+                    <div className="mt-2">
                       <Badge variant="outline">{project2.category}</Badge>
-                      <span className="text-sm text-muted-foreground">{project2.year}</span>
                     </div>
                   </CardHeader>
                 </Card>
@@ -117,10 +114,6 @@ export function CompareView({ projectIds, onClose }: CompareViewProps) {
                 title="Key Details"
                 content1={
                   <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-3 w-3" />
-                      <span>{project1.duration}</span>
-                    </div>
                     {project1.teamSize && (
                       <div className="flex items-center gap-2">
                         <Users className="h-3 w-3" />
@@ -134,10 +127,6 @@ export function CompareView({ projectIds, onClose }: CompareViewProps) {
                 }
                 content2={
                   <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-3 w-3" />
-                      <span>{project2.duration}</span>
-                    </div>
                     {project2.teamSize && (
                       <div className="flex items-center gap-2">
                         <Users className="h-3 w-3" />

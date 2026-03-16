@@ -104,7 +104,7 @@ export function DetailsPanel() {
         <>
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b">
-            <div className="flex items-center gap-2">
+            <div>
               <Badge variant="outline" className={cn(
                 project.category === 'AI/ML' && 'category-ai',
                 project.category === 'Full-Stack' && 'category-fullstack',
@@ -115,7 +115,6 @@ export function DetailsPanel() {
               )}>
                 {project.category}
               </Badge>
-              <span className="text-sm text-muted-foreground">{project.year}</span>
             </div>
             <Button
               variant="ghost"

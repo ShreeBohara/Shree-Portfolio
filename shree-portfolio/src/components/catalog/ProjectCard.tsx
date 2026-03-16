@@ -1,7 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Users, ArrowRight, FolderCode, Sparkles } from 'lucide-react';
+import { Users, ArrowRight, FolderCode, Sparkles } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Project } from '@/data/types';
@@ -30,6 +31,7 @@ export function ProjectCard({
   viewMode
 }: ProjectCardProps) {
   const { setSelectedItem } = useUIStore();
+  const [hasImageError, setHasImageError] = useState(false);
 
   const handleClick = () => {
     setSelectedItem(project.id, 'project');
@@ -48,6 +50,7 @@ export function ProjectCard({
   };
 
   const thumbnailUrl = project.images?.thumbnail;
+  const showThumbnail = Boolean(thumbnailUrl) && !hasImageError;
   const gradientClass = categoryGradients[project.category] || categoryGradients['Full-Stack'];
 
   if (viewMode === 'list') {
@@ -67,14 +70,16 @@ export function ProjectCard({
           <div className="flex items-center p-4">
             {/* Thumbnail */}
             <div className="hidden sm:block w-20 h-20 rounded-lg overflow-hidden mr-4 shrink-0">
-              {thumbnailUrl ? (
+              {showThumbnail ? (
                 <div className="relative w-full h-full group-hover:scale-105 transition-transform duration-300">
                   <Image
-                    src={thumbnailUrl}
+                    src={thumbnailUrl!}
                     alt={project.title}
                     fill
                     className="object-cover"
                     sizes="80px"
+                    unoptimized
+                    onError={() => setHasImageError(true)}
                   />
                 </div>
               ) : (
@@ -102,19 +107,14 @@ export function ProjectCard({
                 )}
               </div>
               <p className="text-sm text-muted-foreground line-clamp-2">{project.summary}</p>
-              <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <Calendar className="h-3 w-3" />
-                  {project.year}
-                </span>
-                <span>{project.duration}</span>
-                {project.teamSize && (
+              {project.teamSize && (
+                <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <Users className="h-3 w-3" />
                     Team of {project.teamSize}
                   </span>
-                )}
-              </div>
+                </div>
+              )}
             </div>
 
             {/* Metrics preview */}
@@ -151,14 +151,16 @@ export function ProjectCard({
       >
         {/* Thumbnail Section */}
         <div className="relative h-40 w-full overflow-hidden">
-          {thumbnailUrl ? (
+          {showThumbnail ? (
             <>
               <Image
-                src={thumbnailUrl}
+                src={thumbnailUrl!}
                 alt={project.title}
                 fill
                 className="object-cover group-hover:scale-110 transition-transform duration-500"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                unoptimized
+                onError={() => setHasImageError(true)}
               />
               {/* Gradient overlay for better text readability */}
               <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent opacity-60" />
@@ -227,23 +229,16 @@ export function ProjectCard({
           </div>
         </CardContent>
 
-        <CardFooter className="text-xs text-muted-foreground pt-0">
-          <div className="flex items-center justify-between w-full">
-            <div className="flex items-center gap-3">
-              <span className="flex items-center gap-1">
-                <Calendar className="h-3 w-3" />
-                {project.year}
-              </span>
-              <span>{project.duration}</span>
-            </div>
-            {project.teamSize && (
+        {project.teamSize && (
+          <CardFooter className="text-xs text-muted-foreground pt-0">
+            <div className="flex items-center w-full">
               <span className="flex items-center gap-1">
                 <Users className="h-3 w-3" />
-                {project.teamSize}
+                Team of {project.teamSize}
               </span>
-            )}
-          </div>
-        </CardFooter>
+            </div>
+          </CardFooter>
+        )}
       </Card>
     </motion.div>
   );

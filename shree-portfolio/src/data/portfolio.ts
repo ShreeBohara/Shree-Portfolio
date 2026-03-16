@@ -21,8 +21,7 @@ I'm particularly interested in opportunities that involve AI, full-stack develop
     // twitter: undefined, // Add your Twitter/X handle here if you have one
     calendar: "https://calendly.com/shreetbohara/connect-with-shree",
     resume: {
-      pdf: "https://docs.google.com/document/d/12F3Sf9cv0hqj7q-W7gxaxhN4rhhzwJE8BUxhJyXu8GU/edit?tab=t.0",
-      docx: "https://docs.google.com/document/d/12F3Sf9cv0hqj7q-W7gxaxhN4rhhzwJE8BUxhJyXu8GU/export?format=docx"
+      pdf: "https://drive.google.com/file/d/1gK_46AQrf_QQkYgHjWQeldyjE746X8s8/view?usp=drive_link"
     }
   },
   skills: [
