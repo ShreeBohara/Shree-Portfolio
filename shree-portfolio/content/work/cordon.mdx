@@ -1,0 +1,133 @@
+---
+title: CORDON
+subtitle: A containment layer for AI agent swarms
+tier: case-study
+status: live
+summary: >-
+  A security control plane that contains prompt-injection outbreaks across a
+  multi-agent swarm instead of trying to detect them, holding attack success to
+  0% on a 17-case evaluation where a keyword-detector baseline let 60% through.
+dates:
+  start: 2026-06
+  end: 2026-06
+links:
+  live: https://dashboard-jade-ten-93.vercel.app
+  repo: https://github.com/ShreeBohara/cordon-agi-house
+  video: https://youtu.be/wDH33k4yc7Q
+stack:
+  - Python 3.12
+  - FastAPI
+  - Pydantic v2
+  - networkx
+  - Ed25519
+  - Server-Sent Events
+  - OpenAI Agents SDK
+  - 1Password SDK
+  - Daytona SDK
+  - Next.js 16
+  - React 19
+  - React Flow
+  - Tailwind v4
+tags: [ai-trust, agents, security]
+metrics:
+  - id: attack-success
+    label: Attack success against CORDON
+    value: 0%
+    provenance: measured
+    source: "facts.md: CORDON › Attack success vs CORDON"
+    note: 10 injection variants — direct, social, obfuscated and multi-hop — across a 17-case evaluation.
+  - id: attack-success-baseline
+    label: Attack success against the baseline
+    value: 60%
+    provenance: measured
+    source: "facts.md: CORDON › Attack success vs baseline"
+    note: The baseline is a naive 12-substring keyword detector, the shape of defence CORDON argues against.
+  - id: utility
+    label: Benign tasks preserved
+    value: 85.7% vs 42.9%
+    provenance: measured
+    source: "facts.md: CORDON › Benign utility preserved"
+    note: CORDON against the same baseline. Containment is only useful if the uninfected agents keep working.
+  - id: false-positive
+    label: False positive rate
+    value: 14.3%
+    provenance: measured
+    negative: true
+    source: "facts.md: CORDON › False positive rate"
+    note: One of seven benign cases — a legitimate deploy that follows untrusted input — is denied. Disclosed rather than tuned away.
+  - id: cascade-1k
+    label: Trace and quarantine, 1,000 agents
+    value: 14.4 ms
+    provenance: measured
+    source: "facts.md: CORDON › Cascade at 1,000 agents"
+  - id: secrets-leaked
+    label: Secrets reaching a tainted agent
+    value: "0"
+    provenance: measured
+    source: "facts.md: CORDON › Secrets leaked, all runs"
+    note: Across every run and test. The broker denies before it resolves, so the value never enters the model's context.
+  - id: eval-size
+    label: Evaluation size
+    value: 17 cases
+    provenance: measured
+    source: "facts.md: CORDON › Eval set size"
+    note: Demo scale, stated as such. AgentDojo, for comparison, has 629.
+awards:
+  - name: AGI House — Agent Identity Build Day
+    placement: 1st place
+    fieldSize: 37 teams
+    date: 2026-06-27
+    source: "facts.md: CORDON › Hackathon placement"
+builtWith:
+  duration: About two days, solo — roughly six hours of preparation and a twelve-hour build day.
+  tools: [Claude Code]
+  handWritten: >-
+    The threat model, the decision to contain rather than detect, the 14-type
+    event contract frozen as the first commit, the phase gates and their exit
+    tests, and the choice to disclose the false positive instead of tuning it out.
+  notBroken: 22 automated tests; 20 run offline in 0.34s, two need live credentials.
+askSuggestions:
+  - How does containment differ from detecting prompt injection?
+  - What happens to agents that were never exposed?
+  - Why disclose the false positive instead of tuning it away?
+related: [delta-sentinel]
+order: 1
+featured: true
+sourceDossier: corpus/projects/cordon.md
+updated: 2026-09-01
+---
+
+## The attack is not at the door
+
+Prompt injection is a confused-deputy problem. The agent's credentials stay
+valid, so identity never fires: the system sees an authorised agent making an
+authorised request, because that is exactly what it is. In a swarm the poison
+then travels along delegation, from whichever agent read the hostile input to
+whoever it hands work to.
+
+## Assume the injection lands
+
+CORDON inverts the usual bet. Instead of trying to catch the injection, it
+assumes one will land and asks what the compromised agent can still touch. An
+agent that reads from a channel marked untrusted is tainted. Credential requests
+go through a broker that denies a tainted agent a sensitive secret
+<Fact id="secrets-leaked" /> — the deny happens before the resolver runs, so the
+secret is never fetched and never enters the model's context.
+
+## Tracing the outbreak
+
+When a tainted agent reaches for a sensitive outbound action, CORDON walks the
+delegation graph back to patient zero, computes the exposed set, and revokes
+credentials and freezes sandboxes across it in infection order, leaving
+unaffected agents running <Fact id="cascade-1k" />. Every decision is appended
+to an Ed25519-signed, SHA-256 hash-chained audit log.
+
+## What the evaluation shows
+
+<Fact id="attack-success" /> against <Fact id="attack-success-baseline" /> for
+the keyword baseline, while preserving <Fact id="utility" /> of benign work. The
+number worth stating plainly is the other one: <Fact id="false-positive" />.
+
+The evaluation is <Fact id="eval-size" />, which is a demo, not a benchmark.
+CORDON covers a dimension the published defences do not — containment *after* a
+successful injection — and that is the claim it can support.

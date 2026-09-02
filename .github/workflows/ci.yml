@@ -28,6 +28,17 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Content lint (forbidden strings)
+        run: npm run lint:content
+
+      - name: Verify facts against the corpus
+        # The corpus lives in a separate private repository. When it is not
+        # available the script exits cleanly, so this gate is advisory in CI and
+        # binding locally, where the corpus is always present.
+        run: npm run verify:facts
+        env:
+          CORPUS_PATH: ${{ github.workspace }}/corpus
+
       - name: Build
         run: npm run build
         env:
