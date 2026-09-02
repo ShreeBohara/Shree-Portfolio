@@ -6,3 +6,11 @@
 Idea/
 
 Gallery_idea/
+
+# OS / editor junk
+.DS_Store
+*.tsbuildinfo
+
+# Finder/iCloud conflict copies
+* 2.*
+* 3.*

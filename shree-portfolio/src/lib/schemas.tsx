@@ -16,27 +16,27 @@ export function PersonSchema() {
     email: personalInfo.links.email,
     alumniOf: [
       {
-        '@type': 'Organization',
+        '@type': 'CollegeOrUniversity',
         name: 'University of Southern California',
         sameAs: 'https://www.usc.edu',
       },
-      {
-        '@type': 'Organization',
-        name: 'MIT-WPU',
-        sameAs: 'https://mitwpu.edu.in',
-      },
     ],
+    worksFor: {
+      '@type': 'Organization',
+      name: 'QuinStreet',
+      sameAs: 'https://quinstreet.com',
+    },
     address: {
       '@type': 'PostalAddress',
-      addressLocality: 'Los Angeles',
+      addressLocality: 'San Francisco',
       addressRegion: 'CA',
       addressCountry: 'US',
     },
+    // Filtered: an undefined twitter handle used to serialize as a literal null.
     sameAs: [
       personalInfo.links.github,
       personalInfo.links.linkedin,
-      personalInfo.links.twitter,
-    ],
+    ].filter(Boolean),
     knowsAbout: [
       ...personalInfo.skills.flatMap(category => category.items),
     ],
@@ -63,7 +63,7 @@ export function WebSiteSchema() {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: 'Shree Bohara Portfolio',
-    description: 'USC CS Graduate Student specializing in AI/ML and Full-Stack Development',
+    description: 'Shree Bohara — Software Engineer at QuinStreet in San Francisco.',
     url: baseUrl,
     author: {
       '@type': 'Person',
@@ -221,8 +221,7 @@ export function WorkExperienceSchema({ experience }: { experience: Experience })
           addressLocality: experience.location,
         },
       },
-      estimatedSalary: null,
-      description: experience.highlights.map(h => h.text).join(' '),
+            description: experience.highlights.map(h => h.text).join(' '),
       skills: experience.technologies.join(', '),
     },
     worksFor: {

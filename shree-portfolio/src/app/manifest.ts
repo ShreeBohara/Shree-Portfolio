@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Shree Bohara - Portfolio',
     short_name: 'Shree Bohara',
-    description: 'USC CS Graduate Student specializing in AI/ML and Full-Stack Development. Interactive portfolio with AI-powered chat.',
+    description: 'Shree Bohara — Software Engineer at QuinStreet in San Francisco. Projects, experience, and an assistant that answers from them.',
     start_url: '/',
     display: 'standalone',
     background_color: '#000000',
