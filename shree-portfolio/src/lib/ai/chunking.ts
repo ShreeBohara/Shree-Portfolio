@@ -283,10 +283,14 @@ export function chunkPersonalInfo(personalInfo: PersonalInfo): ContentChunk[] {
 
     // Key moments (each as separate chunk for better retrieval)
     personalInfo.careerStory.keyMoments.forEach((moment, index) => {
+      // These labels are what a citation chip shows, so they have to match the
+      // moment they title. The previous set named a calculator project, an
+      // NIT-B placement and a "fastest MVP" superlative, none of which the
+      // corpus supports.
       const momentTitles = [
-        'First Project - Calculator',
-        'First Hackathon - NIT-B Runner-Up',
-        'QuinStreet Pond - Fastest MVP'
+        'Learning the primitives first',
+        'Hackathons: HackMIT24 and AGI House',
+        'Pond: zero to production'
       ];
       chunks.push({
         id: `story-moment-${index}`,

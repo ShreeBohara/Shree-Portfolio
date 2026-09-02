@@ -74,26 +74,23 @@ export async function retrieveRelevantContent(
  */
 export function extractCitations(chunks: RetrievedChunk[]): Citation[] {
   const citations: Citation[] = [];
-  const seenIds = new Set<string>();
+  const seen = new Set<string>();
 
-  // Only include types that have detail panel views
-  const clickableTypes: RetrievedChunk['metadata']['type'][] = ['project', 'experience', 'education'];
-
+  // Every chunk type can cite. Project/experience/education citations open the
+  // detail panel; the rest are labels that show which part of the site an answer
+  // came from. Previously only the three clickable types could cite, so answers
+  // built from bio/FAQ/story chunks — about half the index — shipped with an
+  // empty citation list and no way to tell sourced text from unsourced text.
   chunks.forEach((chunk) => {
-    // Filter out non-clickable types (skills, FAQs, stories, etc.)
-    if (!clickableTypes.includes(chunk.metadata.type)) {
-      return;
-    }
+    const key = `${chunk.metadata.type}:${chunk.metadata.itemId}`;
+    if (seen.has(key)) return;
+    seen.add(key);
 
-    if (!seenIds.has(chunk.metadata.itemId)) {
-      seenIds.add(chunk.metadata.itemId);
-
-      citations.push({
-        type: chunk.metadata.type,
-        id: chunk.metadata.itemId,
-        title: chunk.metadata.title,
-      });
-    }
+    citations.push({
+      type: chunk.metadata.type,
+      id: chunk.metadata.itemId,
+      title: chunk.metadata.title,
+    });
   });
 
   return citations;

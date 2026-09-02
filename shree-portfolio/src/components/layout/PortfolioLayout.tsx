@@ -79,12 +79,8 @@ export function PortfolioLayout({ children, showCatalog = false, initialSection 
     <div className="min-h-screen bg-background">
       {/* Sidebar - Always rendered, control visibility with opacity */}
       <motion.div
-        initial={hasLayoutAnimatedOnce ? { opacity: 1 } : { opacity: 0 }}
-        animate={{ opacity: isInitialAnimationComplete ? 1 : 0 }}
-        transition={{
-          duration: 0.6,
-          ease: [0.22, 1, 0.36, 1]
-        }}
+        initial={{ opacity: 1 }}
+        animate={{ opacity: 1 }}
       >
         <Sidebar
           activeSection={showCatalog ? activeSection : undefined}
@@ -100,13 +96,8 @@ export function PortfolioLayout({ children, showCatalog = false, initialSection 
       )}>
         {/* Header - Always rendered, control visibility with opacity */}
         <motion.div
-          initial={hasLayoutAnimatedOnce ? { opacity: 1 } : { opacity: 0 }}
-          animate={{ opacity: isInitialAnimationComplete ? 1 : 0 }}
-          transition={{
-            duration: 0.6,
-            delay: 0.15,
-            ease: [0.22, 1, 0.36, 1]
-          }}
+          initial={{ opacity: 1 }}
+          animate={{ opacity: 1 }}
         >
           <Header />
         </motion.div>

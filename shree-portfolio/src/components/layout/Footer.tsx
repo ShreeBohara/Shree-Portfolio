@@ -15,7 +15,7 @@ export function Footer() {
           <div className="lg:col-span-2">
             <h3 className="text-lg font-semibold mb-3">{personalInfo.name}</h3>
             <p className="text-sm text-muted-foreground mb-4 max-w-md">
-              {personalInfo.tagline}. USC CS Graduate Student seeking full-time opportunities starting May 2026.
+              {personalInfo.availability.message}
             </p>
             <div className="flex items-center gap-3">
               <a

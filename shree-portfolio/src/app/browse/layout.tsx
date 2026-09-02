@@ -6,7 +6,7 @@ const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://shreebohara.com'
 
 export const metadata: Metadata = {
   title: 'Browse Portfolio',
-  description: 'Explore Shree Bohara\'s projects, work experience, and education. View AI/ML projects, full-stack applications, and professional experience at QuinStreet and DeepTek.',
+  description: 'Explore Shree Bohara\'s projects, work experience, and education. AI infrastructure, production systems, and the work behind them at QuinStreet and DeepTek.',
   keywords: ['projects', 'portfolio', 'experience', 'education', 'AI projects', 'full-stack developer', 'Shree Bohara work'],
 
   openGraph: {
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     siteName: 'Shree Bohara Portfolio',
     images: [
       {
-        url: `${baseUrl}/og-image.png`,
+        url: `${baseUrl}/api/og?title=${encodeURIComponent('Browse Portfolio')}`,
         width: 1200,
         height: 630,
         alt: 'Shree Bohara - Portfolio Browse',
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Browse Portfolio - Shree Bohara',
     description: 'Explore Shree Bohara\'s projects, work experience, and education. View AI/ML projects, full-stack applications, and professional experience.',
-    images: [`${baseUrl}/og-image.png`],
+    images: [`${baseUrl}/api/og?title=${encodeURIComponent('Browse Portfolio')}`],
   },
 
   alternates: {

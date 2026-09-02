@@ -24,51 +24,38 @@ interface ChatMessage {
   citations?: Citation[];
 }
 
-// Typing animation component for welcome text
+// Hero text. This used to type character by character at 80ms, which meant the
+// h1 shipped as an empty span at opacity 0 and the whole shell (nav, input,
+// suggestions) stayed hidden until the chain finished ~5s after hydration — in a
+// backgrounded tab the timers never ran and the page stayed blank. The text now
+// renders server-side; only the caret animates.
 function TypingAnimation({ text, accentColor, showBlinkingCursor = true, hideCursor = false, onComplete }: { text: string; accentColor: string; showBlinkingCursor?: boolean; hideCursor?: boolean; onComplete?: () => void }) {
-  const [displayedText, setDisplayedText] = useState('');
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [cursorVisible, setCursorVisible] = useState(true);
-  const [typingComplete, setTypingComplete] = useState(false);
+  const completedRef = useRef(false);
 
   useEffect(() => {
-    if (currentIndex < text.length) {
-      const timeout = setTimeout(() => {
-        setDisplayedText(prev => prev + text[currentIndex]);
-        setCurrentIndex(prev => prev + 1);
-      }, 80); // Typing speed
-      return () => clearTimeout(timeout);
-    } else {
-      // Mark typing as complete
-      if (!typingComplete) {
-        setTypingComplete(true);
-        // Call onComplete when typing finishes
-        if (onComplete) {
-          setTimeout(() => onComplete(), 200);
-        }
-      }
-
-      if (showBlinkingCursor && !hideCursor) {
-        // Blinking cursor after typing is complete
-        const cursorInterval = setInterval(() => {
-          setCursorVisible(prev => !prev);
-        }, 530);
-        return () => clearInterval(cursorInterval);
-      }
+    if (!completedRef.current) {
+      completedRef.current = true;
+      onComplete?.();
     }
-  }, [currentIndex, text, showBlinkingCursor, hideCursor, onComplete, typingComplete]);
+  }, [onComplete]);
+
+  useEffect(() => {
+    if (!showBlinkingCursor || hideCursor) return;
+    const interval = setInterval(() => setCursorVisible((v) => !v), 530);
+    return () => clearInterval(interval);
+  }, [showBlinkingCursor, hideCursor]);
 
   return (
     <span className="inline-flex items-center">
-      <span>{displayedText}</span>
+      <span>{text}</span>
       {showBlinkingCursor && !hideCursor && (
         <span
-          className="inline-block ml-1"
+          className="inline-block ml-1 motion-reduce:opacity-100"
           style={{
             backgroundColor: accentColor,
             width: '6px',
             height: '1.2em',
-            boxShadow: `0 0 10px ${accentColor.replace(')', ' / 0.6)')}`,
             opacity: cursorVisible ? 1 : 0,
             transition: 'opacity 0.1s ease',
           }}
@@ -643,14 +630,14 @@ export function ChatInterface() {
                     )}
                     data-cursor-expand={hasLayoutAnimatedOnce ? true : undefined}
                     initial={{
-                      opacity: 0,
-                      scale: hasLayoutAnimatedOnce ? 1 : 1.5,
-                      marginBottom: hasLayoutAnimatedOnce ? 12 : 32
+                      opacity: 1,
+                      scale: 1,
+                      marginBottom: 12
                     }}
                     animate={{
                       opacity: 1,
-                      scale: hasLayoutAnimatedOnce ? 1 : (taglineTypingComplete ? 1 : 1.5),  // Only scale on first load
-                      marginBottom: hasLayoutAnimatedOnce ? 12 : (taglineTypingComplete ? 12 : 32)  // Smooth margin transition
+                      scale: 1,
+                      marginBottom: 12
                     }}
                     transition={{
                       opacity: { duration: 0.4, delay: 0.2 },
@@ -747,11 +734,8 @@ export function ChatInterface() {
                   {/* Tagline - stays big until typing completes, then BOTH shrink together (only on first load) */}
                   <motion.p
                     className="text-sm sm:text-lg text-muted-foreground"
-                    initial={{ opacity: 0, scale: hasLayoutAnimatedOnce ? 1 : 1.4 }}
-                    animate={{
-                      opacity: nameTypingComplete ? 1 : 0,
-                      scale: hasLayoutAnimatedOnce ? 1 : (taglineTypingComplete ? 1 : 1.4)  // Only scale on first load
-                    }}
+                    initial={{ opacity: 1, scale: 1 }}
+                    animate={{ opacity: 1, scale: 1 }}
                     transition={{
                       opacity: { duration: 0.3 },
                       scale: { duration: 0.8, ease: [0.22, 1, 0.36, 1] }
@@ -764,7 +748,7 @@ export function ChatInterface() {
                       justifyContent: 'center'
                     }}
                   >
-                    {nameTypingComplete && (
+                    {(
                       <TypingAnimation
                         text={personalInfo.tagline}
                         accentColor={accentColor}
@@ -782,11 +766,8 @@ export function ChatInterface() {
                   {/* Quick Stats - appear after typing animation */}
                   <motion.div
                     className="flex items-center justify-center gap-3 sm:gap-6 mt-4 flex-wrap"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{
-                      opacity: taglineTypingComplete ? 1 : 0,
-                      y: taglineTypingComplete ? 0 : 10,
-                    }}
+                    initial={{ opacity: 1, y: 0 }}
+                    animate={{ opacity: 1, y: 0 }}
                     transition={{
                       duration: 0.5,
                       delay: 0.2,
@@ -800,7 +781,6 @@ export function ChatInterface() {
                         whileHover={{ scale: 1.05 }}
                       >
                         <FolderKanban className="h-3.5 w-3.5 sm:h-4 sm:w-4" style={{ color: accentColor }} />
-                        <span className="font-medium">5+</span>
                         <span className="hidden sm:inline">Projects</span>
                       </motion.div>
                     </Link>
@@ -829,7 +809,7 @@ export function ChatInterface() {
                         whileHover={{ scale: 1.05 }}
                       >
                         <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4" style={{ color: accentColor }} />
-                        <span>USC CS</span>
+                        <span>San Francisco</span>
                       </motion.div>
                     </Link>
 
@@ -843,7 +823,7 @@ export function ChatInterface() {
                       whileHover={{ scale: 1.05 }}
                     >
                       <Sparkles className="h-3 w-3" />
-                      <span>Open to Work</span>
+                      <span>Open to conversations</span>
                     </motion.div>
                   </motion.div>
                 </div>
@@ -851,10 +831,8 @@ export function ChatInterface() {
 
               {/* Suggestions - always rendered, control visibility with opacity */}
               <motion.div
-                initial={hasLayoutAnimatedOnce ? { opacity: 1 } : { opacity: 0 }}
-                animate={{
-                  opacity: (showSuggestions && isInitialAnimationComplete) ? 1 : 0
-                }}
+                initial={{ opacity: 1 }}
+                animate={{ opacity: showSuggestions ? 1 : 0 }}
                 transition={{
                   duration: 0.7,
                   delay: 0.3,
@@ -957,9 +935,9 @@ export function ChatInterface() {
       {/* Input area - always rendered, control visibility with opacity */}
       <motion.div
         className="flex-shrink-0 bg-background/95 backdrop-blur-xl backdrop-saturate-150 z-20"
-        initial={hasLayoutAnimatedOnce ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+        initial={{ opacity: 1, y: 0 }}
         animate={{
-          opacity: (isInitialAnimationComplete || currentChat || response) ? 1 : 0,
+          opacity: 1,
           y: 0
         }}
         transition={{

@@ -3,7 +3,6 @@ import { buildMessages } from './prompts';
 import { getOpenAIClient, isOpenAIConfigured } from './client';
 import { AI_CONFIG } from './config';
 import { Citation } from '@/data/types';
-import { getAIResponse } from './rag-placeholder'; // Fallback
 import { projects } from '@/data/portfolio';
 import { chunkProject } from './chunking';
 
@@ -17,6 +16,16 @@ export interface RAGResponse {
   answer: string;
   citations: Citation[];
   confidence: number;
+}
+
+// When retrieval or the model is unavailable we say so. The previous fallback
+// answered from a canned script that claimed skills (TensorFlow, PyTorch) which
+// appear nowhere in the portfolio data — an outage produced confident fiction.
+const UNAVAILABLE_MESSAGE =
+  "The assistant is unavailable right now, so I can't look anything up. The projects and experience pages have the same material, and Shree is reachable at shreetbohara@gmail.com.";
+
+function unavailableResponse(): RAGResponse {
+  return { answer: UNAVAILABLE_MESSAGE, citations: [], confidence: 0 };
 }
 
 function isProjectOverviewQuery(query: string): boolean {
@@ -141,8 +150,8 @@ export async function getRAGResponse(
   const { isVectorStoreAvailable } = await import('./vector-store');
 
   if (!isVectorStoreAvailable() || !isOpenAIConfigured()) {
-    console.warn('Vector store or OpenAI client not available, using placeholder response');
-    return getAIResponse(query, context);
+    console.warn('Vector store or OpenAI client not available');
+    return unavailableResponse();
   }
 
   try {
@@ -188,8 +197,7 @@ export async function getRAGResponse(
     };
   } catch (error) {
     console.error('RAG error:', error);
-    // Fallback to placeholder
-    return getAIResponse(query, context);
+    return unavailableResponse();
   }
 }
 
@@ -198,26 +206,24 @@ export async function getRAGResponse(
  */
 export async function* streamRAGResponse(
   query: string,
-  context?: ChatContext
+  context?: ChatContext,
+  // Chunks already resolved by the caller. The route retrieves once to build the
+  // citation list and passes the same set here, so the sources shown to the user
+  // are the sources the model actually saw.
+  preResolvedChunks?: RetrievedChunk[]
 ): AsyncGenerator<string, void, unknown> {
   // Check if vector store is available
   const { isVectorStoreAvailable } = await import('./vector-store');
 
   if (!isVectorStoreAvailable() || !isOpenAIConfigured()) {
-    console.warn('Vector store or OpenAI client not available, using placeholder response');
-    const response = await getAIResponse(query, context);
-    // Stream the response word by word as fallback
-    const words = response.answer.split(' ');
-    for (const word of words) {
-      yield word + ' ';
-      await new Promise(resolve => setTimeout(resolve, 20));
-    }
+    console.warn('Vector store or OpenAI client not available');
+    yield UNAVAILABLE_MESSAGE;
     return;
   }
 
   try {
-    // Retrieve relevant content
-    let retrievedChunks = await resolveRetrievedChunks(query, context);
+    // Retrieve relevant content (reusing the caller's set when provided)
+    let retrievedChunks = preResolvedChunks ?? await resolveRetrievedChunks(query, context);
 
     // Log retrieval for debugging
     if (retrievedChunks.length > 0) {
@@ -227,7 +233,7 @@ export async function* streamRAGResponse(
       // Try with even lower threshold as fallback
       const fallbackChunks = await retrieveRelevantContent(query, {
         limit: 5,
-        minScore: 0.4, // Very low threshold
+        minScore: 0.25, // Genuinely lower than AI_CONFIG.retrieval.minScore (0.4)
       });
       if (fallbackChunks.length > 0) {
 
@@ -256,12 +262,6 @@ export async function* streamRAGResponse(
     }
   } catch (error) {
     console.error('RAG streaming error:', error);
-    // Fallback to placeholder
-    const response = await getAIResponse(query, context);
-    const words = response.answer.split(' ');
-    for (const word of words) {
-      yield word + ' ';
-      await new Promise(resolve => setTimeout(resolve, 20));
-    }
+    yield UNAVAILABLE_MESSAGE;
   }
 }

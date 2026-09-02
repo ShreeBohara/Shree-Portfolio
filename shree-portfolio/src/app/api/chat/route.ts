@@ -1,7 +1,8 @@
 import { NextRequest } from 'next/server';
 import { streamRAGResponse, getRAGResponse, resolveRetrievedChunks } from '@/lib/ai/rag';
 import { extractCitations } from '@/lib/ai/retrieval';
-import { checkRateLimit, getRemainingRequests, getResetTime } from '@/lib/ai/rate-limit';
+import { checkRateLimit, getRemainingRequests, getResetTime, getRateLimitMax } from '@/lib/ai/rate-limit';
+import { checkDenyList } from '@/lib/ai/deny';
 
 export const runtime = 'nodejs'; // Changed from 'edge' to 'nodejs' for Supabase compatibility
 
@@ -17,7 +18,7 @@ export async function POST(request: NextRequest) {
   try {
     // Rate limiting
     const clientId = getClientIdentifier(request);
-    if (!checkRateLimit(clientId)) {
+    if (!(await checkRateLimit(clientId))) {
       const remaining = getRemainingRequests(clientId);
       const resetTime = getResetTime(clientId);
       return new Response(
@@ -31,7 +32,7 @@ export async function POST(request: NextRequest) {
           headers: {
             'Content-Type': 'application/json',
             'Retry-After': Math.ceil((resetTime - Date.now()) / 1000).toString(),
-            'X-RateLimit-Limit': '20',
+            'X-RateLimit-Limit': String(getRateLimitMax()),
             'X-RateLimit-Remaining': remaining.toString(),
             'X-RateLimit-Reset': resetTime.toString(),
           },
@@ -51,6 +52,38 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (query.length > 500) {
+      return new Response(
+        JSON.stringify({ error: 'Query too long', message: 'Please keep questions under 500 characters.' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Topics we refuse before any model call (work authorisation, compensation,
+    // interview logistics). Answered deterministically, streamed in the same
+    // shape as a normal answer so the client needs no special case.
+    const denied = checkDenyList(query);
+    if (denied) {
+      if (shouldStream) {
+        const encoder = new TextEncoder();
+        const stream = new ReadableStream({
+          start(controller) {
+            controller.enqueue(encoder.encode(JSON.stringify({ type: 'metadata', citations: [] }) + '\n'));
+            controller.enqueue(encoder.encode(JSON.stringify({ type: 'chunk', content: denied }) + '\n'));
+            controller.enqueue(encoder.encode(JSON.stringify({ type: 'done' }) + '\n'));
+            controller.close();
+          },
+        });
+        return new Response(stream, {
+          headers: { 'Content-Type': 'application/x-ndjson', 'Cache-Control': 'no-cache' },
+        });
+      }
+      return new Response(
+        JSON.stringify({ answer: denied, citations: [], confidence: 1 }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+
     // If streaming is requested
     if (shouldStream) {
       // Retrieve citations first (needed for final response)
@@ -67,7 +100,7 @@ export async function POST(request: NextRequest) {
             controller.enqueue(encoder.encode(metadata));
 
             // Stream the response
-            for await (const chunk of streamRAGResponse(query, context)) {
+            for await (const chunk of streamRAGResponse(query, context, retrievedChunks)) {
               const data = JSON.stringify({ type: 'chunk', content: chunk }) + '\n';
               controller.enqueue(encoder.encode(data));
             }
@@ -90,9 +123,9 @@ export async function POST(request: NextRequest) {
 
       return new Response(stream, {
         headers: {
-          'Content-Type': 'text/event-stream',
+          // Newline-delimited JSON, not SSE — the client parses lines.
+          'Content-Type': 'application/x-ndjson',
           'Cache-Control': 'no-cache',
-          'Connection': 'keep-alive',
         },
       });
     } else {

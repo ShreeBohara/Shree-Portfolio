@@ -3,72 +3,82 @@ import { PersonalInfo, Project, Experience, Education } from './types';
 export const personalInfo: PersonalInfo = {
   name: "Shree Bohara",
   title: "Software Engineer",
-  tagline: "Building AI-powered solutions that scale",
-  bio: `I'm a Computer Science graduate student at USC with a passion for building impactful software. I specialize in full-stack development, AI integration, and creating seamless user experiences.
+  tagline: "I build production AI systems, and the infrastructure for not trusting them",
+  bio: `I'm a Software Engineer at QuinStreet in San Francisco, working on Pond (insurance.com/pond). I joined as an intern in June 2025, helped take Pond from an empty repository to production in under two months, and converted to full-time in June 2026.
 
-My journey includes internships at QuinStreet and DeepTek, where I've shipped production features, built AI chat experiences, and developed healthcare interoperability solutions. I love working on challenging problems that combine modern web technologies with AI/ML capabilities.
+Most of my work is applied AI in production — a conversational insurance advisor built end to end, an incident pipeline that reads live production error streams and explains them — plus the layer underneath that refuses to trust a model: containment for AI agent swarms, an auditor for reported benchmark gains, and fail-closed gates in a trading system that has deliberately never placed an order.
 
-I'm particularly interested in opportunities that involve AI, full-stack development, and building products that make a real difference.`,
-  location: "Los Angeles, CA",
+When it helps, I go a level deeper than most application engineers: an LLM inference engine written from scratch in C++17, and a cache-blocked Bloom filter inside DuckDB's hash join.`,
+  location: "San Francisco, CA",
   availability: {
     status: 'Open to opportunities',
-    message: "USC CS Graduate Student, seeking full-time opportunities starting May 2026"
+    message: "Software Engineer at QuinStreet, working on Pond. Not on the market, but always open to a conversation about AI infrastructure, agent systems, or production reliability."
   },
   links: {
-    email: "bohara@usc.edu",
+    email: "shreetbohara@gmail.com",
     github: "https://github.com/ShreeBohara",
     linkedin: "https://www.linkedin.com/in/shree-bohara/",
-    // twitter: undefined, // Add your Twitter/X handle here if you have one
     calendar: "https://calendly.com/shreetbohara/connect-with-shree",
     resume: {
-      pdf: "https://drive.google.com/file/d/1gK_46AQrf_QQkYgHjWQeldyjE746X8s8/view?usp=drive_link"
+      pdf: "/Shree_Bohara_Resume.pdf"
     }
   },
   skills: [
     {
-      category: "Programming Languages",
-      items: ["JavaScript", "Java", "TypeScript", "C++", "Python"]
+      category: "Languages",
+      items: ["Python", "Java", "C++", "TypeScript", "JavaScript", "SQL", "Bash", "HTML/CSS"]
     },
     {
-      category: "Full Stack",
-      items: ["React", "Next.js", "Vue", "Node.js", "REST APIs", "MySQL", "Spring Boot", "PostgreSQL", "GraphQL"]
+      category: "AI & LLM",
+      items: ["Anthropic Claude API", "OpenAI API", "RAG", "Vector Search", "Tool Calling", "Structured Outputs", "Prompt Engineering", "LLM Evaluation", "Tree-sitter", "Sentence-Transformers", "scikit-learn"]
     },
     {
-      category: "Tools & Methods",
-      items: ["Git", "GitHub", "VS Code", "GCP", "Agile/Scrum", "OOP", "Jira", "MVC", "Postman", "Vercel", "Cursor", "Figma"]
+      category: "Backend",
+      items: ["Spring Boot", "Spring WebFlux", "FastAPI", "Flask", "Node.js", "Express", "REST", "SSE", "WebSockets", "WebRTC"]
     },
     {
-      category: "AI/ML",
-      items: ["OpenAI API", "Vertex AI", "Groq API", "Llama Vision", "Vector Search", "BigQuery"]
+      category: "Frontend",
+      items: ["React", "Next.js", "Vue 3", "Tailwind CSS", "Zustand", "React Flow", "Three.js", "react-three-fiber"]
+    },
+    {
+      category: "Data",
+      items: ["PostgreSQL", "MySQL", "MariaDB", "MongoDB", "Redis", "Elasticsearch", "ChromaDB", "SQLite", "DuckDB", "BigQuery"]
+    },
+    {
+      category: "Cloud, DevOps & Observability",
+      items: ["AWS", "GCP", "Docker", "Ansible", "CI/CD", "Vercel", "Render", "ELK Stack", "Kibana", "Structured Logging", "Distributed Tracing"]
+    },
+    {
+      category: "Testing",
+      items: ["PyTest", "JUnit", "Vitest", "Playwright", "Mutation Testing"]
     }
   ],
 
   // Extended personal content for richer AI chat responses
   careerStory: {
-    background: "I'm originally from Pune, India, where I completed my B.S. in Computer Science at MIT-WPU before coming to USC for my Master's degree.",
-    inspiration: "It all started with curiosity. When I was 7 or 8 years old, my dad brought home a laptop for the first time—it was a Windows XP or Windows 7 machine. I was completely amazed that one device could do so many things. I remember creating my first Gmail account and successfully sending an email to my brother, who lived in a different city. That moment was incredible—with just a single click, I could communicate with him instantly. It really opened my eyes to how powerful technology is. That experience sparked my curiosity about how all of this actually works. From that day on, I kept exploring and learning more about technology, which eventually led me to enroll in a computer science program.",
+    background: "I'm originally from Pune, India, where I finished my bachelor's in computer science before coming to USC for my M.S. in Computer Science, which I completed in May 2026.",
+    inspiration: "It started with curiosity. When I was seven or eight my dad brought home a laptop for the first time, and I was amazed that one device could do so many things. I remember creating my first email account and sending a message to my brother in another city — one click, and he had it. That opened my eyes to how powerful software is, and I kept pulling on that thread until it turned into a computer science degree.",
     keyMoments: [
-      "My journey began by engineering a custom state-management system using vanilla JavaScript—deliberately avoiding frameworks to master the core fundamentals. I spent weeks handling complex edge cases and DOM manipulation without external libraries. This deep dive into the 'hard way' of building software taught me the importance of algorithmic thinking and clean architecture before I ever touched modern tools. It was a defining experience that grounded my engineering philosophy: understand the primitives before abstracting them away.",
-      "One of my most memorable experiences was my first hackathon. I didn't have much technical knowledge back then, but my team and I stayed up late, learning from YouTube videos, and somehow managed to build a mobile app. We ended up winning Runner-Up among 30 teams at the NIT-B Hackathon for our health-tech app that streamlined hospital referrals. That experience really showed me what I could accomplish when I pushed through the challenges.",
-      "At QuinStreet, I'm currently working part-time on Pond—an AI-powered insurance platform. We started from nothing on June 2nd, 2025 (no Figma designs, no database, no architecture) and shipped the auto insurance MVP to production by August 15th, 2025—the fastest MVP in company history. I owned the entire Manual Flow (23 dynamic questions), and our SVP was so impressed she asked me to present my process to company leadership to help boost productivity across teams. The project is live at insurance.com/pond."
+      "Early on I built a state-management system in vanilla JavaScript on purpose, avoiding frameworks so I would have to handle the edge cases and DOM work myself. Understanding the primitives before reaching for abstractions is still how I approach a new system.",
+      "At HackMIT24 I led a team to 3rd place out of more than 90 teams, building a modular IoT gateway on Web of Things. Later, at AGI House, CORDON took 1st place out of 37 teams and Delta Sentinel placed 3rd at a separate build session.",
+      "At QuinStreet we started Pond from an empty repository and had it in production in under two months. I co-architected it, built the onboarding flow that most accounts are created through, and later built the rating engine that turned it into a product you can actually get quoted on."
     ],
-    whyUSC: "I chose USC primarily for two reasons. First, USC has one of the strongest alumni networks in the country, especially in the tech industry. Coming to the USA, I knew that making connections would be one of the most important parts of building a successful career here. Considering that USC has such an extensive and supportive alumni network, I knew it was the right choice for me. This network has been invaluable for career opportunities and guidance. Second, USC's computer science program is highly ranked and well-respected. The quality of education and the reputation of the program were important factors for me, as I wanted to learn from top faculty and be challenged academically. So far, courses like Database Systems and Information Retrieval, plus hands-on projects and alumni coffee chats, have validated my choice—I've already applied class ideas to real features and met mentors who opened doors.",
-    whatDrivesYou: "I'm driven by building software that removes real barriers for people. Volunteering at a school for the blind showed me how small gaps—like missing image descriptions—can lock someone out, which is why I built accessibility tools like EchoLens and focus on shipping reliable, user-centric products like Pond. I love fast feedback loops, measurable impact (faster onboarding, fewer handoffs), and taking ownership when things break. Knowing something I built makes someone's day easier is what keeps me going."
+    whyUSC: "I chose USC for its computer science program and its alumni network, and both paid off: coursework in databases and information retrieval fed directly into work I shipped, and the network turned into real conversations with engineers.",
+    whatDrivesYou: "I like building software that removes a real barrier for someone, and I like being able to prove it worked. That shows up in accessibility work like EchoLens, in production reliability work at QuinStreet, and in the way I use AI: aggressively, but trusting it nowhere — every generated answer gets a check that a machine, not a person's optimism, has to pass."
   },
 
   technicalPhilosophy: {
-    approach: "I start with the user problem and clear success criteria. Then I sketch lightweight UML/architecture (context + sequence + ER/ERD) to nail FE/BE/DB boundaries and align on API contracts and data models. I break the work into small, end-to-end vertical slices and build iteratively—keeping the big-picture diagram in mind. Critical paths get tests first; accessibility and performance budgets are non-negotiable. I add observability (logs/metrics), ship behind feature flags with a rollback plan, monitor real usage, and iterate—documenting decisions and doing quick postmortems when things break.",
-    whatExcitesYou: "System design. I love taking a messy problem and shaping a clean, loosely-coupled architecture—thinking through edge cases, failure modes, data contracts, and how each component talks to the others. I'll sketch component/sequence/ER diagrams, define FE/BE boundaries, and stress the seams before I write code. I did this on Pond's Manual Flow at QuinStreet—spent a focused week gathering requirements, mapping edge cases, and designing the flow; once the design was solid, coding was the easy part. That blend of big-picture thinking + pragmatic tradeoffs (latency vs. simplicity, safety vs. speed) is what makes me want to become a software architect.",
+    approach: "I start with the user problem and a clear definition of done. Then I sketch the architecture — components, sequence, data model — so the boundaries and contracts are settled before code. I build in small end-to-end slices, put the critical paths behind tests, add observability, ship behind a flag with a rollback path, and write down the decisions and their trade-offs as I go.",
+    whatExcitesYou: "System design, and specifically the moment a messy requirement turns into a clean set of boundaries. My favourite version of that is choosing what not to make probabilistic: in CodebaseQA the first dependency graph was generated by an LLM, and replacing it with a deterministic import resolver made it faster, reproducible, and free of invented edges.",
     favoriteTools: [
-      { name: "Cursor", reason: "VS Code with AI. Helps me set up, refactor, and write tests faster. I still review every change." },
-      { name: "ChatGPT", reason: "My planning/debugging buddy. I think through designs and edge cases, then verify locally." },
-      { name: "React", reason: "My go-to for clean, accessible UIs with components and hooks." },
-      { name: "Spring Boot", reason: "Sturdy, production-ready APIs with clear structure." },
-      { name: "PostgreSQL/MySQL", reason: "Reliable relational stores with strong tooling." },
-      { name: "Figma", reason: "Fast from ideas → user flows → dev handoff (used heavily on Pond)." }
+      { name: "Claude Code", reason: "My main implementation partner. I freeze the interface, decompose the work into independently verifiable units, and let an executable definition of 'not broken' decide when a phase is done." },
+      { name: "Codex", reason: "The other agent I direct, usually on separate lanes with disjoint file ownership so the work stays reviewable." },
+      { name: "React and Next.js", reason: "What I reach for when a product needs to be fast, accessible and shipped." },
+      { name: "Spring Boot", reason: "Sturdy production APIs with clear structure; most of my backend work at QuinStreet lives here." },
+      { name: "PostgreSQL", reason: "Reliable, and it usually solves the problem people reach for a broker or a cache to solve." }
     ],
-    goodProject: "Impact first: it should solve a real user problem and show measurable results (faster, fewer errors, higher conversion). After that, I look for: Clarity (clear goal, simple design, small milestones), Reliability & accessibility (works under stress, accessible to everyone), Maintainability (clean code, tests, logs, docs, easy to hand off), and Feedback loop (ship early, learn from users, iterate).",
-    aiThoughts: "AI is a power tool, not an autopilot. I use it to speed up setup and boring work—scaffold APIs, write tests, draft SQL, clean logs, and document changes—but I keep humans in charge of design and reviews. At QuinStreet, we used AI heavily on Pond. I owned the Manual Entry flow and helped wire 'Ollie' for FAQ/next-step help. We shipped the MVP in under 3 months. In side projects, I use AI where it clearly adds value: GlobePulse (embeddings + vector search) and EchoLens (image → audio for accessibility). Guardrails matter: prompt hygiene, tests, metrics, feature flags, A/Bs. I avoid AI on high-risk paths (payments, strict-latency code)."
+    goodProject: "Impact first: a real problem, and a result you can show. After that I look for clarity (a small design and small milestones), reliability and accessibility, maintainability (tests, logs, docs, easy handoff), and a short feedback loop.",
+    aiThoughts: "Use AI aggressively, trust it nowhere. I use coding agents for most of the implementation on my own projects and disclose it on every page; what I keep is the thesis, the interface contracts, the decomposition, and the tests that decide whether the result is correct. In products, the same rule applies: ground answers in real data, cite them, and let the system say 'I don't know' rather than guess."
   },
 
   interests: {
@@ -76,145 +86,83 @@ I'm particularly interested in opportunities that involve AI, full-stack develop
       "Chess (strategic thinking and problem-solving)",
       "Badminton (played for my school and coached students back in India)",
       "Reading (currently working through Atomic Habits)",
-      "Hackathons (love the fast-paced team collaboration)",
-      "Exploring LA (there's a trail near Griffith Observatory that passes a bird sanctuary; if you hike a bit more you can see downtown LA, the observatory, and Santa Monica)"
+      "Hackathons (fast, collaborative, and a good forcing function)",
+      "Photography, mostly sunsets"
     ],
     books: ["Atomic Habits by James Clear — I like its focus on identity-based habits: build systems and small daily actions ('I'm a runner,' not 'I'll run a marathon'). It's practical and easy to apply."],
-    podcasts: ["Lex Fridman Podcast — Long-form conversations (often 3+ hours) where world-class experts think out loud without interruptions. You get raw exploration instead of polished soundbites, which helps me form deeper views on tech and beyond."],
-    youtube: ["Fireship — Short, funny rundowns of the latest tools and frameworks. Great for staying current fast, cutting hype, and deciding what's worth trying next."],
-    freeTime: "Short walks with calm/lo-fi music to reset and de-stress. It clears my head, lowers stress, and helps me come back refreshed and focused."
+    podcasts: ["Lex Fridman Podcast — long-form conversations where experts think out loud without interruption; you get raw exploration instead of polished soundbites."],
+    youtube: ["Fireship — short, funny rundowns of new tools; good for staying current fast and deciding what is worth trying."],
+    freeTime: "Short walks with calm music to reset. It clears my head and I come back sharper."
   },
 
   faqs: [
     {
       question: "Tell me about yourself",
-      answer: "I'm Shree Bohara, a CS graduate student at USC from Pune, India. I specialize in full-stack development (TypeScript/React, Java/Spring Boot, Postgres) and AI integration. Currently, I'm working part-time at QuinStreet on Pond—an AI-powered insurance platform. I'm driven by building accessible, reliable software and taking products from 0→1→100. Projects like EchoLens (image-to-audio for visually impaired users) reflect my focus on removing real barriers for people. Seeking full-time opportunities starting May 2026.",
+      answer: "I'm a Software Engineer at QuinStreet in San Francisco, working on Pond, an AI-native consumer insurance platform. I joined as an intern in June 2025, helped take the product from an empty repository to production in under two months, and converted to full-time in June 2026. Outside work I build AI-trust infrastructure — CORDON contains prompt-injection outbreaks across agent swarms, Delta Sentinel audits whether a reported benchmark gain is real — and I have an M.S. in Computer Science from USC.",
       category: "personal"
-    },
-    {
-      question: "What are you looking for in your next role?",
-      answer: "A fast-paced team where I can learn quickly and ship real features end-to-end. I want exposure to user-facing product work, backend systems, and thoughtful AI features—so I understand how everything connects. I'm happy with small, product-driven teams inside a startup or a high-velocity group at a larger company.",
-      category: "career"
-    },
-    {
-      question: "What's your ideal company/team culture?",
-      answer: "Kind, curious, and direct. Ship fast with guardrails (tests, metrics, rollbacks). Low ego, high ownership. Clear goals, frequent feedback, and space to think about design before coding.",
-      category: "career"
     },
     {
       question: "What kind of problems do you want to solve?",
-      answer: "Real user problems with measurable impact—faster onboarding, fewer errors, better accessibility. I love system design: taking something messy and turning it into a clean, loosely-coupled architecture.",
+      answer: "Production AI systems and the infrastructure that keeps them honest: grounding and citations, containment when an agent is compromised, evaluation you can trust, and observability that tells you what actually broke.",
       category: "technical"
     },
     {
-      question: "Are you open to remote/hybrid/onsite work?",
-      answer: "Open to all three. I care more about the team, the learning, and the pace than the format.",
+      question: "What's your ideal team culture?",
+      answer: "Kind, curious and direct. Ship fast with guardrails — tests, metrics, rollbacks. Low ego, high ownership, clear goals, and room to think about the design before writing code.",
       category: "career"
-    },
-    {
-      question: "What are you currently learning or exploring?",
-      answer: "Deeper system design, better observability/A-B frameworks, and where AI makes sense in real products (not hype). I'm also refining accessibility patterns from my EchoLens work.",
-      category: "technical"
     },
     {
       question: "What's your preferred tech stack?",
-      answer: "TypeScript + React on the front end; Java/Spring Boot or Node/Express on the back end; Postgres/MySQL; REST/GraphQL; cloud deploys (Vercel/GCP/AWS). Tools I like: Cursor for speed, ChatGPT for design/edge-case brainstorming, Heap/metrics for feedback.",
+      answer: "TypeScript and React or Next.js on the front end; Java with Spring Boot, or Python with FastAPI, on the back end; PostgreSQL or MySQL; REST and SSE; AWS or GCP; Docker and CI/CD. For AI work: the Anthropic and OpenAI APIs, retrieval-augmented generation over pgvector or Chroma, and evaluations I can run in CI.",
       category: "technical"
-    },
-    {
-      question: "What makes you different from other candidates?",
-      answer: "I combine speed with care. I design first (diagrams, data contracts, failure modes), then build in small, testable slices. I've shipped production features quickly (e.g., Pond's 23-step Manual Entry flow) and handled live incidents calmly with clear RCAs and fixes.",
-      category: "hiring"
-    },
-    {
-      question: "Why should someone hire you?",
-      answer: "I take products from 0 → 1 → 100. I start with the real user problem, sketch a clean architecture, then ship in small end-to-end slices. I own outcomes—idea → design → API/UI → tests → metrics → iteration. At QuinStreet, this approach helped us ship Pond's MVP in record time. I use AI to accelerate work, not replace thinking. You get someone who moves fast, measures impact, handles incidents calmly, and keeps products accessible and reliable.",
-      category: "hiring"
-    },
-    {
-      question: "What are you passionate about in tech?",
-      answer: "Building accessible, reliable products and clean architectures—and using AI thoughtfully to remove friction for users, not add it.",
-      category: "personal"
-    },
-    {
-      question: "What's your proudest achievement?",
-      answer: "Building Pond at QuinStreet from scratch—an AI-powered insurance platform. On day one (June 2nd, 2025), we had no designs, no database, no architecture. By August 15th, we shipped the MVP to production in under 3 months—the fastest MVP build in company history. I owned the entire Manual Flow: 23 dynamic questions that adapt based on user answers. For context, QuinStreet's existing White Label flow took years to develop; we built ours in under 3 months. The CTO was so impressed she asked me to present my process to company leadership to help boost productivity across teams. The project is live at insurance.com/pond.",
-      category: "personal"
-    },
-    {
-      question: "What was your biggest technical challenge and how did you overcome it?",
-      answer: "Building Pond's 3-way A/B testing framework at QuinStreet. Our PM wanted to test three completely different onboarding flows simultaneously—each built differently, requiring entirely different experiences per user group. My solution: server-side assignment using a random number (0, 1, or 2) generated per user arrival, with logic to maintain equal distribution. The decision happens before page load, so no flickering or delays. I pitched it, got buy-in, and shipped it to production within a week. Now our product team can see which onboarding flow converts best with real data. What made it challenging wasn't just the tech—it was shipping fast without breaking existing functionality.",
-      category: "technical"
-    },
-    {
-      question: "What advice would you give to someone starting in CS?",
-      answer: "Start small, ship often: build tiny apps (calculator, to-do, one REST API) and put them on GitHub. Learn the basics well: data structures/algos, HTTP, SQL, and how the web actually works. Design before code: sketch simple diagrams (components, sequence, ERD), list edge cases, then build. Pick a simple stack: TypeScript + React, Node/Express, Postgres/MySQL. Deploy on Vercel/Render. Use AI as a tool, not autopilot: speed up boilerplate and tests, but verify everything. Join hackathons & teams: you'll learn faster from real problems and feedback. Measure impact: add logs/metrics, think about accessibility, and iterate. Build habits, not just goals: small daily progress beats big once-a-month bursts.",
-      category: "personal"
-    },
-    {
-      question: "What's next for you after USC?",
-      answer: "Short term: a full-time full-stack SWE role on a fast-paced product team. I want to take features end-to-end (idea → design → API/UI → tests → metrics) and help a product go 0 → 1 → 100. Focus areas: user onboarding flows, reliability and observability, thoughtful AI features with guardrails, and accessibility. Stack comfort: TypeScript/React; Java/Spring Boot or Node; Postgres/MySQL; REST/GraphQL; cloud deploys; A/B tests + metrics. Work mode: open to onsite/hybrid/remote—I care most about the team, learning speed, and shipping real value. Long term: grow into a software architect—design clean, scalable systems and lead teams to ship accessible, reliable products (using AI where it truly helps).",
-      category: "career"
     },
     {
       question: "How do you learn new tech?",
-      answer: "First, I try to understand the history behind the tech—like why it was built and what problems it solves. Then, I focus on practical applications by building small projects. I start with foundational concepts to ensure I have a solid grasp before diving deeper. I also like to sketch out designs to visualize the architecture before coding. My approach usually involves building tiny apps, exploring documentation, and using AI tools to brainstorm edge cases. This method helps me move from theory to practice quickly.",
+      answer: "I start with why it exists and what it replaced, then build something small with it, then read the parts of the source I depended on. Recently that has also meant contributing fixes upstream — small merged patches to projects like Nitro, Drizzle ORM, h3, VueUse and Pinia.",
       category: "technical"
+    },
+    {
+      question: "What are you passionate about in tech?",
+      answer: "Building accessible, reliable products, and using AI in a way that adds evidence rather than confidence: cite the source, show the disagreement, fail closed when it matters.",
+      category: "personal"
+    },
+    {
+      question: "What advice would you give someone starting in CS?",
+      answer: "Start small and ship often. Learn the fundamentals well — data structures, HTTP, SQL, how the web actually works. Design before you code, even if it is a sketch. Use AI to move faster, but verify everything, and keep a habit of writing down what you decided and why.",
+      category: "personal"
     }
   ],
 
   workStyle: {
-    preferences: "I like fast-paced teams that still make time for good design upfront. I'm comfortable working independently on end-to-end slices, and I collaborate on interfaces, reviews, and experiments. My flow: align on the user problem → sketch simple diagrams/contracts → build small vertical slices behind flags → ship → measure → iterate. I communicate early, write short docs, and use data (logs/metrics/A/Bs) to guide decisions.",
+    preferences: "I like fast-paced teams that still make time for design up front. I'm comfortable owning an end-to-end slice, and I collaborate on interfaces, reviews and experiments. My loop: agree on the problem, sketch the contracts, build small vertical slices behind flags, ship, measure, iterate.",
     values: [
-      "Ownership & impact: solve real user problems and measure results",
-      "Kindness + candor: low-ego teamwork, direct feedback, and respect",
-      "Speed with guardrails: tests, metrics, rollbacks, and accessibility are non-negotiable",
-      "Learning culture: clear goals, code reviews, and space to think before coding"
+      "Ownership and impact: solve real user problems and show the result",
+      "Kindness with candor: low-ego teamwork and direct feedback",
+      "Speed with guardrails: tests, metrics, rollbacks and accessibility are not optional",
+      "Evidence over confidence: a claim should come with a way to check it"
     ],
-    handlingChallenges: "Stay calm and get the facts (logs, metrics, repro). Contain first (feature flag/rollback), then deliver the smallest safe fix. Communicate what's happening, ship, then do a quick RCA and add guardrails/tests so it doesn't repeat. Example: at QuinStreet, a third-party edge case took prod down; I traced it, hot-fixed the schema to restore service in ~3 hours, then added a product fallback the next day."
-  },
-
-  jobSearch: {
-    visa: "F-1 visa with up to 3 years of OPT/STEM OPT work authorization. Will require H-1B sponsorship after that period.",
-    locationPreference: "Open to anywhere in the USA. Currently in Los Angeles for USC, willing to relocate.",
-    companySizePreference: "No preference—comfortable with startups, growth companies, or larger tech companies. Care most about team culture, learning opportunities, and shipping velocity.",
-    redirectToCall: ["salary expectations", "specific start date", "interview availability", "compensation", "detailed availability"]
-  },
-
-  // Behavioral & Personal Content for AI Chat
-  strengths: {
-    primary: "Persistence",
-    primaryStory: "My colleagues would say I never give up, even when things get tough. When I came to the U.S. last fall for my master's, I immediately started searching for summer internships. It was a rollercoaster—I got really close to an offer early on, but it fell through due to CPT timing issues. Instead of giving up, I kept applying and interviewing. By end of May, most friends told me it was too late—summer internships were filled. But I kept pushing, and on May 28th, I finally got an offer from QuinStreet. That persistence paid off—we ended up building the fastest MVP in company history in just 2 months.",
-    secondary: "Helping Others",
-    secondaryStory: "My colleagues would also say I'm always willing to help—whether it's debugging someone's code, helping them prep for interviews, or just being there when they need support. I see this as a strength because it pushes me to keep learning so I can be more useful to my team."
-  },
-
-  fiveYearVision: "In the next five years, I see myself in a fast-paced engineering environment where I'm constantly learning and shipping things that actually reach users. My goal is to build a really strong foundation by working across different parts of the stack and different problem spaces—from user-facing features and backend systems to understanding how AI can be used thoughtfully in real products. I want to be the kind of engineer who not only writes code, but also understands how the technical decisions connect to the business and user experience. In five years, I'd like to be a solid full-stack developer with deep enough experience in AI-driven systems that I can own end-to-end projects and mentor newer engineers. Longer term, I'm excited about turning some of my own ideas into products.",
-
-  weakness: {
-    area: "Communication",
-    story: "When I first came to the U.S. last year, communication was definitely my biggest weakness. English isn't my first language, and adjusting to different accents and communication styles was challenging. I knew I had to improve, so I joined social clubs specifically to practice talking with people in different settings. I've also been recording myself for 5 minutes every day, playing it back, and identifying what I can improve. I've made real progress since last year—my teammates at QuinStreet can communicate with me smoothly now, and I've had no issues during standups or technical discussions. It's still a learning curve, and I'm not perfect yet, but I'm actively working on it every single day."
+    handlingChallenges: "Get the facts first — logs, metrics, a reproduction — and contain before fixing. Then take the smallest safe fix, communicate what is happening, and follow it with a write-up and a guardrail so it cannot recur silently. The habit I care most about is proving what is not the cause: a good control measurement rules out half the system in one move."
   },
 
   funFacts: [
-    "My first ever flight was a 22-hour journey from India to the USA. It was super long, a bit scary, but also really exciting because it felt like the start of a whole new chapter.",
-    "I can cook really well… but only when I'm in the mood. On other days, Maggi (Indian noodles) is my hero and basically keeps me alive.",
-    "I love taking pictures of sunsets. If you check my Archive (top colorful icon), you'll see so many sunset photos. They all look kind of similar, but I still can't stop clicking them."
+    "My first ever flight was a 22-hour journey from India to the USA. Long, a little scary, and the start of a whole new chapter.",
+    "I can cook well when I'm in the mood. On other days, Maggi keeps me alive.",
+    "I take far too many photos of sunsets. They all look similar and I keep taking them."
   ],
 
   chessOpening: {
     name: "King's Gambit",
-    why: "I love it because it turns the game into chaos in like 5 moves, and suddenly both players are pretending they know what's going on. The positions get sharp and wild really fast, so I actually have to think at the board instead of just following theory. It's a bit like saying, 'Here, have a pawn… and also my sanity,' but that's what makes it so fun."
+    why: "It turns the game into chaos in about five moves, and suddenly both players are pretending they know what's going on. The positions get sharp fast, so I have to think at the board instead of following theory."
   },
 
   dreamDestinations: [
     {
       place: "Norway",
-      reason: "I'm obsessed with the idea of dramatic fjords, northern lights, quiet little towns, and those super cozy, peaceful vibes. I love the thought of just sitting by the water with a hot drink, watching the sky change colors and feeling like I'm inside a postcard."
+      reason: "Fjords, northern lights, quiet towns. I like the idea of sitting by the water with a hot drink and watching the sky change."
     },
     {
       place: "Japan",
-      reason: "It feels like a perfect mix of anime-level chaos and calm temples, high-tech cities and beautiful nature. I really like how you can go from neon streets and trains to quiet shrines, forests, and little traditional streets in just one day."
+      reason: "A mix of neon streets and quiet shrines, high-tech cities and forests, all reachable in one day."
     }
   ]
 };
@@ -229,17 +177,16 @@ export const projects: Project[] = [
     category: "Full-Stack",
     summary: "A modern, interactive portfolio website featuring an AI-powered chat interface, dynamic animations, and a responsive design. Built with Next.js, TypeScript, and Tailwind CSS.",
     problem: "Traditional portfolios are often static and fail to effectively showcase a developer's personality, technical depth, and ability to build modern, interactive web applications.",
-    approach: "Designed and built a comprehensive portfolio platform that combines a traditional showcase with an AI-powered chat interface. Leveraged Next.js for performance and SEO, Framer Motion for fluid animations, and the Vercel AI SDK to create a responsive, intelligent chat assistant that answers questions about my background and skills.",
+    approach: "Designed and built a comprehensive portfolio platform that combines a traditional showcase with an AI-powered chat interface. Next.js for the pages, Supabase pgvector for retrieval, and a streaming chat endpoint that answers from a curated content set and cites what it used.",
     impact: "Created a unique, engaging user experience that differentiates my profile. The AI chat provides instant answers to recruiters and peers, while the high-performance architecture ensures a smooth experience across all devices.",
     metrics: [
-      { label: "Lighthouse Score", value: "100/100" },
-      { label: "Tech Stack", value: "Next.js 14" },
-      { label: "AI Latency", value: "< 1s" },
-      { label: "Design", value: "Custom UI/UX" }
+      { label: "Stack", value: "Next.js 16, React 19" },
+      { label: "Retrieval", value: "Supabase pgvector" },
+      { label: "Answers", value: "Streamed with citations" }
     ],
     myRole: "Sole Developer & Designer - Conceptualized, designed, and built the entire application from scratch, including the AI chat integration and custom UI components.",
     teamSize: 1,
-    technologies: ["Next.js", "TypeScript", "Tailwind CSS", "Framer Motion", "Vercel AI SDK", "OpenAI API", "Lucide React", "Radix UI"],
+    technologies: ["Next.js 16", "React 19", "TypeScript", "Tailwind CSS 4", "Supabase pgvector", "OpenAI API", "Radix UI", "Zustand"],
     tags: ["Portfolio", "AI Chat", "Next.js", "Interactive Design", "Vercel"],
     links: {
       github: "https://github.com/ShreeBohara/Shree-Portfolio",
@@ -256,17 +203,17 @@ export const projects: Project[] = [
     title: "CodebaseQA",
     slug: "codebaseqa",
     year: 2026,
-    duration: "Dec 2025 - Feb 2026",
+    duration: "Jan 2026 - Present",
     category: "Open Source",
     summary: "Open-source AI platform for codebase onboarding that indexes GitHub repositories, answers natural-language questions with source-cited responses, generates persona-based learning tracks, and visualizes full-workspace dependency graphs.",
     problem: "Understanding an unfamiliar repository is still a slow, fragmented workflow. Developers bounce between READMEs, grep, docs, architecture guesses, and tribal knowledge just to answer basic questions about system flow, ownership boundaries, and where to start contributing.",
     approach: "Built CodebaseQA as a pnpm/Turbo monorepo with a Next.js 16 frontend and FastAPI backend. The platform clones and indexes repositories, parses code with Tree-sitter across 9 languages, stores embeddings in Chroma, and serves SSE-based chat with hybrid retrieval, reranking, and source citations. On top of Q&A, I shipped a persona-based learning engine with AI-generated lessons, quizzes, challenges, and a deterministic dependency graph explorer powered by React Flow with ELK primary layout and Dagre fallback. The system is productionized with Docker, GitHub Actions CI, Vercel frontend hosting, Render backend deployment, and Redis-backed caching/rate-limit fallbacks.",
     impact: "Turned codebase onboarding into an interactive product instead of a documentation hunt. CodebaseQA combines chat, search, guided learning, graph exploration, gamification, and CLI workflows so developers can move from 'What does this repo do?' to hands-on understanding much faster on large, multi-language repositories.",
     metrics: [
-      { label: "Monorepo Size", value: "34K+ LOC" },
+      { label: "First release", value: "~24,400 lines in 19 days" },
       { label: "Languages Parsed", value: "9 via Tree-sitter" },
       { label: "Interfaces", value: "Web + CLI + API" },
-      { label: "Deployment", value: "Vercel + Render" },
+      { label: "Dependency graph", value: "0 LLM calls on the default path" },
       { label: "Quality Gates", value: "CI + Coverage" }
     ],
     myRole: "Sole developer and architect - designed the full monorepo, built the repository indexing and RAG pipeline, implemented the learning/gamification systems, shipped the dependency graph explorer, wired Docker and CI/CD, and deployed the frontend/backend split to production.",
@@ -317,54 +264,25 @@ export const projects: Project[] = [
     sortOrder: 1
   },
   {
-    id: "project-1",
-    title: "AI-Powered Resume Builder",
-    slug: "ai-resume-builder",
-    year: 2025,
-    duration: "3 months",
-    category: "AI/ML",
-    summary: "Built an AI-driven resume builder with React and OpenAI APIs. Automated keyword optimization and ATS compatibility checks boosted interview callbacks by 30%.",
-    problem: "Job seekers struggle to tailor resumes for specific positions and optimize for Applicant Tracking Systems (ATS).",
-    approach: "Built an intelligent system using OpenAI APIs for automated keyword optimization, skill matching, and ATS compatibility checks.",
-    impact: "Achieved 30% higher interview callback rate by enhancing ATS compatibility and tailoring resumes to specific job descriptions.",
-    metrics: [
-      { label: "Interview Callbacks", value: "+30%" },
-      { label: "Load Time", value: "40% faster" },
-      { label: "ATS Score", value: "Optimized" }
-    ],
-    myRole: "Full-stack developer, designed and implemented the entire application including AI integration and AWS deployment.",
-    teamSize: 1,
-    technologies: ["React", "OpenAI API", "AWS", "Node.js", "TypeScript"],
-    tags: ["AI", "NLP", "Career Tech", "AWS", "Automation"],
-    links: {
-      // Note: Add GitHub link when ready to make repo public
-    },
-    images: {
-      thumbnail: "/images/projects/resume-builder.webp",
-    },
-    featured: false,
-    sortOrder: 8
-  },
-  {
     id: "project-2",
     title: "EchoLens: Image-to-Audio Accessibility Tool",
     slug: "echolens",
-    year: 2025,
-    duration: "2 months",
+    year: 2024,
+    duration: "24-hour hackathon build",
     category: "Full-Stack",
     summary: "A Chrome extension designed to make the web more accessible for visually impaired users by providing real-time, AI-generated audio descriptions of images. Powered by Llama 3.2 Vision for analysis and Google TTS for natural voice output.",
     problem: "Visually impaired users often face significant barriers when navigating the web, as many images lack proper alt text or descriptions, leaving a large portion of digital content inaccessible.",
-    approach: "Developed a seamless Chrome extension that integrates a JavaScript frontend with a Flask backend. The system leverages Groq's Llama 3.2 Vision model to analyze images in real-time and converts the descriptions into speech using Google TTS. User preferences are securely managed via a Microsoft SQL database.",
+    approach: "Developed a seamless Chrome extension that integrates a JavaScript frontend with a Flask backend. The extension sends the selected image to a Flask backend, which describes it with a vision model and returns speech audio.",
     impact: "Significantly improved web accessibility by enabling visually impaired users to 'hear' images, providing instant, detailed audio descriptions for any visual content on the web, thereby bridging the digital divide.",
     metrics: [
       { label: "Platform", value: "Chrome Extension" },
       { label: "AI Model", value: "Llama 3.2 Vision" },
       { label: "Audio", value: "Google TTS" },
-      { label: "Storage", value: "Microsoft SQL" }
+      { label: "Team", value: "3 people, 24 hours" }
     ],
-    myRole: "Initiated and developed the entire solution, from Chrome extension to backend API and database integration.",
-    teamSize: 1,
-    technologies: ["JavaScript", "Flask", "Python", "Groq API", "Llama 3.2 Vision", "Google TTS", "Microsoft SQL", "REST API"],
+    myRole: "Built the Chrome extension and the Flask backend with two teammates during a 24-hour hackathon.",
+    teamSize: 3,
+    technologies: ["JavaScript", "Chrome Extension", "Flask", "Python", "Vision model", "Text-to-speech", "REST API"],
     tags: ["Accessibility", "AI Vision", "Chrome Extension", "Social Impact"],
     links: {
       github: "https://github.com/ShreeBohara/echolens"
@@ -564,78 +482,126 @@ export const projects: Project[] = [
 
 export const experiences: Experience[] = [
   {
-    id: "exp-1",
+    id: "exp-quinstreet-ft",
     company: "QuinStreet",
     logo: "/QS_LOGO.png",
-    role: "Software Engineer - Intern",
-    type: "Internship",
-    location: "Foster City, CA",
-    startDate: "2025-06",
+    role: "Software Engineer",
+    type: "Full-time",
+    location: "San Francisco, CA",
+    startDate: "2026-06",
     endDate: null,
     current: true,
-    summary: "Shipping production features for insurance quote platform, building AI chat experiences, and optimizing onboarding flows. Currently working on Pond, an AI-powered insurance platform.",
+    summary: "Converted to full-time after a twelve-month internship. I work on Pond, an AI-native consumer insurance platform, and own the systems that keep it observable, consented and correct.",
     highlights: [
       {
-        text: "Shipped Pond from Figma to production in under 3 months (live at insurance.com/pond); componentized UI and added reviewable flows",
-        metric: "Reduced integration rework and sped up releases"
+        text: "Built and operate an AI incident pipeline — alerting rules over Elasticsearch, a FastAPI service that fingerprints and batches errors into incidents, Claude analysis grounded in the actual source files, and cards delivered to the team channel. It runs on dev and stage and watches production error streams; several hundred raw events collapse into a few dozen incident reports a day, each arriving with the log link and the analysis already done",
+        metric: "Root cause correct on 48 of the last 50 reports I scored by hand"
       },
       {
-        text: "Designed 23-step React onboarding flow with summaries and inline edits",
-
+        text: "Cut the pipeline's projected LLM spend with a per-fingerprint analysis cache, selective prompt caching, delivery-gated spend and quota-aware backoff, while raising the context budget rather than lowering it",
+        metric: "Projected 70–85% reduction"
       },
       {
-        text: "Launched 'Ollie', an AI chat with FAQ, co-pilot, and next-step modes using Voiceflow, Java proxy, and React UI",
-
+        text: "Designed and shipped the consent re-capture flow for a consumer rebrand: a consent state machine instead of a boolean, every capture path funnelling into one idempotent endpoint with a single-winner atomic transition, the audit row written in the same transaction, and exactly-once propagation downstream. Live in production since July 2026",
       },
       {
-        text: "Owned 3-way onboarding A/B framework with secure assignment, campaign overrides, session flags, route guards, and Heap tracking",
-
+        text: "Migrated notification preferences between two storage models behind a live dual-write, verifying every stored value against its source instead of counting rows",
+        metric: "Zero value mismatches across 324,500 records, verified on dev and staging"
       },
       {
-        text: "Maintained Spring Boot services and SQL pipelines with analytics and error logging",
-
+        text: "Cancelled a migration I had already agreed to after tracing the target write path and finding it treats the posted body as the complete desired state — a thinner projection would have deleted data on save, for exactly the users the migration targeted — then designed a smaller server-side alternative with no frontend change",
+      },
+      {
+        text: "Shipped hostname-based routing for a marketing launch four hours and eleven minutes after the ask, verified across eighteen runs in three environments; when an unrelated backend deploy failed later that evening, ruled my change out of the causal graph first and root-caused the real failure to configuration dropped by a merge from a stale branch",
       }
     ],
-    technologies: ["React", "TypeScript", "Spring Boot", "Java", "SQL", "Voiceflow", "Figma", "Heap Analytics"],
+    technologies: ["Python", "FastAPI", "Anthropic Claude API", "Elasticsearch", "ELK", "Java", "Spring Boot", "React", "TypeScript", "PostgreSQL", "MariaDB", "AWS", "Docker"],
     companyInfo: {
       website: "https://quinstreet.com",
-      industry: "InsurTech/Digital Marketing",
+      industry: "InsurTech / Digital Marketing",
       size: "Public company"
     },
     links: {
       company: "https://quinstreet.com",
-      project: "https://insurance.com/pond"
+      project: "https://www.insurance.com/pond"
+    }
+  },
+  {
+    id: "exp-quinstreet-intern",
+    company: "QuinStreet",
+    logo: "/QS_LOGO.png",
+    role: "Software Engineer Intern",
+    type: "Internship",
+    location: "San Francisco, CA",
+    startDate: "2025-06",
+    endDate: "2026-06",
+    current: false,
+    summary: "Twelve-month internship spent building Pond from an empty repository to a product in production.",
+    highlights: [
+      {
+        text: "Co-architected Pond on AWS and helped take it from nothing to production in under two months, then built the multi-step onboarding most accounts are created through: address autocomplete and normalisation, cascading make/model/trim selection behind staged cache lifetimes, and policy import that parses an existing policy instead of making people retype it",
+      },
+      {
+        text: "Built the rating engine in Java and Spring Boot over carrier rate APIs — the piece that turned Pond from a place to organise your insurance into a place to get quoted",
+      },
+      {
+        text: "Built Ollie, Pond's conversational insurance advisor, end to end: nine routed conversation contexts, a Spring WebFlux backend streaming over SSE, a React client that renders partial markdown correctly mid-stream, and in-chat coverage changes instead of a hand-off to a multi-screen form",
+        metric: "A short-TTL dedup cache cut redundant inference calls by roughly 40%"
+      },
+      {
+        text: "Built the integration layer fronting eight third-party services, with trace correlation threaded across services, field-level encryption of regulated data at the persistence boundary, and a broker-free batch queue on PostgreSQL using FOR UPDATE SKIP LOCKED",
+      },
+      {
+        text: "Cut the frontend bundle 35% with chunk splitting and lazy routes, built the four-variant experimentation surface, and eliminated the most-reported mobile defect: the on-screen keyboard resizing the viewport and pushing form fields off-screen mid-entry",
+      },
+      {
+        text: "Retrofitted observability: 38 API endpoints instrumented with structured logging into ELK, request/user/product identifiers threaded through MDC across eight services, and React errors bridged into the same pipeline behind rate-limited beacons so one looping browser cannot flood ingest",
+      }
+    ],
+    technologies: ["React", "TypeScript", "Java", "Spring Boot", "Spring WebFlux", "SSE", "PostgreSQL", "AWS", "ELK", "Kibana", "Docker", "Ansible", "Heap Analytics"],
+    companyInfo: {
+      website: "https://quinstreet.com",
+      industry: "InsurTech / Digital Marketing",
+      size: "Public company"
+    },
+    links: {
+      company: "https://quinstreet.com",
+      project: "https://www.insurance.com/pond"
     }
   },
   {
     id: "exp-2",
-    company: "DeepTek Medical Imaging Pvt Ltd",
+    company: "DeepTek Medical Imaging",
     logo: "/deeptek_logo.png",
-    role: "Software Engineer - Intern",
+    role: "Software Engineer Intern",
     type: "Internship",
-    location: "Pune, India",
-    startDate: "2023-07",
+    location: "Mumbai, India",
+    startDate: "2023-06",
     endDate: "2024-01",
     current: false,
-    summary: "Built healthcare interoperability solutions under India's ABDM framework, enabling secure health data exchange across hospitals.",
+    summary: "Built healthcare interoperability under ABDM, India's national digital health programme, so hospitals could exchange patient records in one standard.",
     highlights: [
       {
-        text: "Built Digital Health Identifier service using Spring Boot, React, and MySQL under ABDM using FHIR standards",
-        metric: "Shipped with 5-person team"
+        text: "Built the FHIR-compliant Health Identifier platform in Node.js, React and MySQL that moved patient records between hospitals in a single standard shape",
+        metric: "500+ hospitals, 100K+ monthly users, 50K+ record exchanges a day"
       },
       {
-        text: "Designed microservices and cloud-deployed FHIR APIs",
-        metric: "Adopted by 500+ hospitals with 100K users/month"
+        text: "Shipped OAuth 2.0 authentication, role-based access control and PostgreSQL audit logging; the platform passed the ABDM compliance review on first submission",
       },
       {
-        text: "Implemented JWT authentication and comprehensive audit logging",
-        metric: "Ensured secure, interoperable health record exchange"
+        text: "Cut API response time 3× with Redis caching on the hot paths and held 99.9% uptime across the hospital integrations, with distributed tracing and structured logging across six services",
+      },
+      {
+        text: "Built classical NLP pipelines that classified 15K+ clinical documents a day into 12 document types, and cut duplicate patient records by about 30% by combining edit distance with phonetic matching — Indian names are transliterated differently by different hospital systems, so two spellings of one name never match on edit distance alone",
+      },
+      {
+        text: "Made the provider dashboard 45% faster to first load with lazy-loaded FHIR views, and built a JSON-Schema-driven form builder the team shipped later features with",
       }
     ],
-    technologies: ["Spring Boot", "React", "MySQL", "FHIR", "JWT", "Cloud Deployment", "Microservices"],
+    technologies: ["Node.js", "React", "MySQL", "PostgreSQL", "FHIR", "OAuth 2.0", "RBAC", "Redis", "AWS", "Microservices"],
     companyInfo: {
       website: "https://deeptek.ai",
-      industry: "HealthTech/Medical Imaging",
+      industry: "HealthTech / Medical Imaging",
       size: "Growing startup"
     }
   }
@@ -651,31 +617,17 @@ export const education: Education[] = [
     location: "Los Angeles, CA",
     startYear: 2024,
     endYear: 2026,
-    gpa: "3.7/4.0",
     relevantCoursework: [
-      "Analysis of Algorithms",
+      "Machine Learning",
       "Database Systems",
-      "Web Technologies",
       "Information Retrieval",
-      "Artificial Intelligence"
+      "Analysis of Algorithms",
+      "Web Technologies"
     ],
-
-  },
-  {
-    id: "edu-2",
-    institution: "MIT World Peace University",
-    logo: "/MIT_LOGO.png",
-    degree: "Bachelor of Technology",
-    field: "Computer Science",
-    location: "Pune, India",
-    startYear: 2020,
-    endYear: 2024,
-    gpa: "3.9/4.0",
-    relevantCoursework: [
-      "Data Structures & Algorithms",
-      "Object-Oriented Programming",
-      "Cloud Computing",
-      "Distributed Systems"
+    achievements: [
+      "3rd place of 90+ teams at HackMIT24, leading a team building a modular IoT gateway",
+      "1st place of 37 teams at AGI House's Agent Identity Build Day for CORDON",
+      "3rd place at AGI House's AutoResearch Summit for Delta Sentinel"
     ]
   }
 ];
