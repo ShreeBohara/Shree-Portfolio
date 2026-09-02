@@ -13,8 +13,8 @@ import { Citation } from '@/data/types';
 import { Badge } from '@/components/ui/badge';
 // Removed placeholder import - using streaming API instead
 import { personalInfo, projects, experiences, education } from '@/data/portfolio';
-import { getCurrentAccentColor } from '@/hooks/useThemeColor';
 import { cn } from '@/lib/utils';
+import { ACCENT, accentAlpha } from '@/lib/accent';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -111,7 +111,7 @@ function TerminalLoading({ accentColor }: { accentColor: string }) {
               className="text-xl"
               style={{
                 color: accentColor,
-                textShadow: `0 0 10px ${accentColor.replace(')', ' / 0.4)')}`,
+                textShadow: `0 0 10px ${accentAlpha(25)}`,
               }}
             >
               {spinnerFrames[frame]}
@@ -153,7 +153,9 @@ export function ChatInterface() {
   const [error, setError] = useState<string | null>(null);
   const [showSuggestions, setShowSuggestions] = useState(true);
   const [lastQuery, setLastQuery] = useState<string>('');
-  const [accentColor, setAccentColor] = useState('oklch(0.72 0.12 185)');
+  // One accent, defined in CSS. Previously this was per-visitor state applied
+  // after hydration, which flashed a different colour on every load.
+  const accentColor = ACCENT;
   const [nameTypingComplete, setNameTypingComplete] = useState(false);
   const [taglineTypingComplete, setTaglineTypingComplete] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
@@ -196,24 +198,6 @@ export function ChatInterface() {
 
   const contextItemTitle = getContextItemTitle();
 
-  // Update accent color when it changes
-  useEffect(() => {
-    const updateAccentColor = () => {
-      const color = getCurrentAccentColor();
-      if (color) setAccentColor(color);
-    };
-
-    updateAccentColor();
-
-    // Watch for changes to the CSS variable
-    const observer = new MutationObserver(updateAccentColor);
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['style', 'class'],
-    });
-
-    return () => observer.disconnect();
-  }, []);
 
   // Track state changes for animation coordination
   useEffect(() => {
@@ -713,7 +697,7 @@ export function ChatInterface() {
                         className="absolute inset-0 pointer-events-none select-none transition-opacity duration-150"
                         style={{
                           opacity: (isMouseOverText && hasLayoutAnimatedOnce) ? 1 : 0,
-                          backgroundImage: `radial-gradient(circle 60px at ${mousePosition.x}px ${mousePosition.y}px, ${accentColor} 0%, ${accentColor.replace(')', ' / 0.65)')} 25%, currentColor 60%)`,
+                          backgroundImage: `radial-gradient(circle 60px at ${mousePosition.x}px ${mousePosition.y}px, ${accentColor} 0%, ${accentAlpha(65)} 25%, currentColor 60%)`,
                           WebkitBackgroundClip: 'text',
                           backgroundClip: 'text',
                           WebkitTextFillColor: 'transparent',
@@ -726,7 +710,7 @@ export function ChatInterface() {
                         }}
                         aria-hidden="true"
                       >
-                        Hi, I'm {personalInfo.name.split(' ')[0]}
+                        Hi, I&apos;m {personalInfo.name.split(' ')[0]}
                       </span>
                     </span>
                   </motion.h1>
@@ -817,7 +801,7 @@ export function ChatInterface() {
                     <motion.div
                       className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium"
                       style={{
-                        backgroundColor: `${accentColor.replace(')', ' / 0.1)')}`,
+                        backgroundColor: accentAlpha(10),
                         color: accentColor,
                       }}
                       whileHover={{ scale: 1.05 }}
@@ -920,7 +904,7 @@ export function ChatInterface() {
                     size="sm"
                     className="rounded-full shadow-lg bg-accent-color hover:bg-accent-color/90 active:bg-accent-color/80 text-white border-0 h-10 w-10 sm:h-12 sm:w-12 p-0 touch-manipulation"
                     style={{
-                      boxShadow: `0 4px 12px ${accentColor.replace(')', ' / 0.3)')}, 0 2px 4px ${accentColor.replace(')', ' / 0.2)')}`,
+                      boxShadow: `0 4px 12px ${accentAlpha(19)}, 0 2px 4px ${accentAlpha(12)}`,
                     }}
                   >
                     <ArrowDown className="h-4 w-4 sm:h-5 sm:w-5" />

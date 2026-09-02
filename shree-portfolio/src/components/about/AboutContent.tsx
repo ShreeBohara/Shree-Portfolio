@@ -113,7 +113,7 @@ export function AboutContent() {
                 </div>
                 <Link href="/browse?section=education" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-accent-color transition-colors cursor-pointer">
                   <GraduationCap className="h-4 w-4 text-accent-color" />
-                  <span>USC CS '26</span>
+                  <span>M.S. CS, USC 2026</span>
                 </Link>
                 <Link href="/browse?section=projects" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-accent-color transition-colors cursor-pointer">
                   <Code2 className="h-4 w-4 text-accent-color" />
@@ -423,9 +423,9 @@ export function AboutContent() {
         {...fadeInUp}
       >
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-4">Let's Connect</h2>
+          <h2 className="text-3xl font-bold mb-4">Let&apos;s Connect</h2>
           <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
-            I'm always open to discussing new opportunities, interesting projects, or just having a chat about technology.
+            I&apos;m always open to a conversation about AI infrastructure, agent systems, or production reliability.
           </p>
 
           <div className="flex items-center justify-center gap-4 flex-wrap">

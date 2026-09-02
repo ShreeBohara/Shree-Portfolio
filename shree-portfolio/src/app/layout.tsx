@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Orbitron } from "next/font/google";
 import "./globals.css";
-import { ThemeColorProvider } from "@/components/providers/ThemeColorProvider";
 import { MobileDetector } from "@/components/providers/MobileDetector";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
@@ -128,9 +127,7 @@ export default function RootLayout({
       </head>
       <body className="font-mono antialiased bg-background text-foreground">
         <MobileDetector />
-        <ThemeColorProvider>
           {children}
-        </ThemeColorProvider>
         <SpeedInsights />
         <Analytics />
       </body>

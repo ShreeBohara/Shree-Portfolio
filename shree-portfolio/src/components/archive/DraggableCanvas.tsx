@@ -214,7 +214,7 @@ export function DraggableCanvas({ enabled = true, startInvisible = false }: Drag
     // Momentum tracking
     const momentum = { x: 0, y: 0 };
     let lastTime = Date.now();
-    let lastDragPos = { x: 0, y: 0 };
+    const lastDragPos = { x: 0, y: 0 };
 
     // Cache viewport dimensions to avoid layout thrashing
     let viewportWidth = window.innerWidth;

@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: shree-portfolio
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: shree-portfolio/.nvmrc
+          cache: npm
+          cache-dependency-path: shree-portfolio/package-lock.json
+
+      - run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+        env:
+          # The build only needs these to exist; pages are static and the chat
+          # route is not exercised here.
+          OPENAI_API_KEY: ci-placeholder
+          SUPABASE_URL: https://ci.placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_URL: https://ci.placeholder.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ci-placeholder
+
+  hygiene:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reject Finder/iCloud conflict copies
+        # The repo used to live in an iCloud-synced folder, which silently
+        # created "ProjectGrid 2.tsx" — a stale duplicate that shadowed the real
+        # file and did not compile. Fail fast if one reappears.
+        run: |
+          if git ls-files | grep -E ' [0-9]+\.(tsx?|jsx?|css|json|md)$'; then
+            echo "::error::Conflict-copy filenames found (e.g. 'Component 2.tsx'). Remove them."
+            exit 1
+          fi
+          echo "No conflict copies."
+
+      - name: Reject committed .DS_Store
+        run: |
+          if git ls-files | grep -q '\.DS_Store$'; then
+            echo "::error::.DS_Store is tracked; remove it and keep it in .gitignore."
+            exit 1
+          fi
+          echo "No .DS_Store tracked."

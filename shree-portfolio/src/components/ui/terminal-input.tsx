@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useLayoutEffect, KeyboardEvent, forwardRef, useImperativeHandle } from 'react';
 import { Send, Shuffle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ACCENT, accentAlpha } from '@/lib/accent';
 import { Button } from '@/components/ui/button';
 
 // Singleton canvas for text measurement to avoid repeated creation
@@ -43,7 +44,7 @@ export const TerminalInput = forwardRef<TerminalInputRef, TerminalInputProps>(({
   placeholder = 'Type your question...',
   disabled = false,
   className,
-  accentColor = 'oklch(0.72 0.12 185)',
+  accentColor = ACCENT,
   showMobileSendButton = true,
   onRandomPrompt,
 }, ref) => {
@@ -416,7 +417,7 @@ export const TerminalInput = forwardRef<TerminalInputRef, TerminalInputProps>(({
           isFocused && 'opacity-100'
         )}
         style={{
-          backgroundImage: `radial-gradient(circle at 50% 50%, ${accentColor}40, transparent 70%)`,
+          backgroundImage: `radial-gradient(circle at 50% 50%, ${accentAlpha(25)}, transparent 70%)`,
           animation: isFocused ? 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' : 'none',
         }}
       />
@@ -435,12 +436,12 @@ export const TerminalInput = forwardRef<TerminalInputRef, TerminalInputProps>(({
           borderColor: isFocused
             ? accentColor
             : isHovered
-              ? `${accentColor}60`
+              ? accentAlpha(38)
               : 'rgb(63 63 70 / 0.5)',
           boxShadow: isFocused
-            ? `0 0 0 1px ${accentColor}, 0 0 40px ${accentColor}40, 0 25px 50px -12px rgba(0, 0, 0, 0.6)`
+            ? `0 0 0 1px ${accentColor}, 0 0 40px ${accentAlpha(25)}, 0 25px 50px -12px rgba(0, 0, 0, 0.6)`
             : isHovered
-              ? `0 0 20px ${accentColor}20, 0 25px 50px -12px rgba(0, 0, 0, 0.5)`
+              ? `0 0 20px ${accentAlpha(12)}, 0 25px 50px -12px rgba(0, 0, 0, 0.5)`
               : '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
           transform: isFocused ? 'scale(1.005)' : 'scale(1)',
         }}
@@ -461,9 +462,9 @@ export const TerminalInput = forwardRef<TerminalInputRef, TerminalInputProps>(({
             style={{
               color: accentColor,
               textShadow: isFocused
-                ? `0 0 20px ${accentColor}80, 0 0 10px ${accentColor}60`
+                ? `0 0 20px ${accentAlpha(50)}, 0 0 10px ${accentAlpha(38)}`
                 : isHovered
-                  ? `0 0 10px ${accentColor}40`
+                  ? accentAlpha(25)
                   : 'none',
               transform: isFocused ? 'scale(1.05)' : 'scale(1)',
             }}
@@ -575,7 +576,7 @@ export const TerminalInput = forwardRef<TerminalInputRef, TerminalInputProps>(({
                             minWidth: '0.65em',
                             height: '1.3em',
                             lineHeight: '1.3em',
-                            boxShadow: `0 0 10px ${accentColor}60, 0 0 5px ${accentColor}40`,
+                            boxShadow: `0 0 10px ${accentAlpha(38)}, 0 0 5px ${accentAlpha(25)}`,
                             flexShrink: 0,
                           }}
                         >
@@ -641,7 +642,7 @@ export const TerminalInput = forwardRef<TerminalInputRef, TerminalInputProps>(({
                 backgroundColor: value.trim() && !disabled ? accentColor : 'rgb(63 63 70)',
                 borderColor: value.trim() && !disabled ? 'transparent' : 'rgb(82 82 91)',
                 borderWidth: '1px',
-                boxShadow: value.trim() && !disabled ? `0 0 15px ${accentColor}40` : '0 1px 2px rgba(0,0,0,0.3)',
+                boxShadow: value.trim() && !disabled ? `0 0 15px ${accentAlpha(25)}` : '0 1px 2px rgba(0,0,0,0.3)',
                 color: value.trim() && !disabled ? '#ffffff' : 'rgb(161 161 170)',
               }}
             >
@@ -655,7 +656,7 @@ export const TerminalInput = forwardRef<TerminalInputRef, TerminalInputProps>(({
           <div
             className="hidden lg:block absolute right-4 top-1/2 -translate-y-1/2 text-xs font-mono select-none pointer-events-none transition-all duration-300 animate-pulse"
             style={{
-              color: `${accentColor}60`,
+              color: accentAlpha(38),
               opacity: 0.7,
             }}
           >

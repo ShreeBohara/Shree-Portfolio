@@ -14,13 +14,10 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { personalInfo } from '@/data/portfolio';
-import { ThemeColorPicker } from '@/components/ui/theme-color-picker';
-import { getCurrentAccentColor } from '@/hooks/useThemeColor';
 
 export function Header() {
   const { toggleSidebar, isSidebarOpen, triggerNewChat, scrollProgress } = useUIStore();
   const pathname = usePathname();
-  const [accentColor, setAccentColor] = useState('oklch(0.72 0.12 185)');
 
   const handleChatClick = (e: React.MouseEvent) => {
     // If already on chat page, start new conversation
@@ -30,26 +27,6 @@ export function Header() {
     }
   };
 
-
-
-  // Update accent color when it changes
-  useEffect(() => {
-    const updateAccentColor = () => {
-      const color = getCurrentAccentColor();
-      if (color) setAccentColor(color);
-    };
-
-    updateAccentColor();
-
-    // Watch for changes to the CSS variable
-    const observer = new MutationObserver(updateAccentColor);
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['style', 'class'],
-    });
-
-    return () => observer.disconnect();
-  }, []);
 
 
 
@@ -128,23 +105,7 @@ export function Header() {
             <DropdownMenuContent align="end">
               <DropdownMenuItem
                 asChild
-                className="group transition-colors"
-                onMouseEnter={(e) => {
-                  const target = e.currentTarget;
-                  target.style.color = accentColor;
-                  const bgColor = accentColor.replace(')', ' / 0.1)');
-                  target.style.backgroundColor = bgColor;
-                  // Update icon color
-                  const icon = target.querySelector('svg');
-                  if (icon) icon.style.color = accentColor;
-                }}
-                onMouseLeave={(e) => {
-                  const target = e.currentTarget;
-                  target.style.color = '';
-                  target.style.backgroundColor = '';
-                  const icon = target.querySelector('svg');
-                  if (icon) icon.style.color = '';
-                }}
+                className="group transition-colors hover:text-accent-color hover:bg-accent-color/10"
               >
                 <a href={personalInfo.links.resume.pdf} target="_blank" rel="noopener noreferrer" className="cursor-pointer">
                   <Download className="h-4 w-4 mr-2" />
@@ -153,22 +114,7 @@ export function Header() {
               </DropdownMenuItem>
               <DropdownMenuItem
                 asChild
-                className="group transition-colors"
-                onMouseEnter={(e) => {
-                  const target = e.currentTarget;
-                  target.style.color = accentColor;
-                  const bgColor = accentColor.replace(')', ' / 0.1)');
-                  target.style.backgroundColor = bgColor;
-                  const icon = target.querySelector('svg');
-                  if (icon) icon.style.color = accentColor;
-                }}
-                onMouseLeave={(e) => {
-                  const target = e.currentTarget;
-                  target.style.color = '';
-                  target.style.backgroundColor = '';
-                  const icon = target.querySelector('svg');
-                  if (icon) icon.style.color = '';
-                }}
+                className="group transition-colors hover:text-accent-color hover:bg-accent-color/10"
               >
                 <a href={personalInfo.links.linkedin} target="_blank" rel="noopener noreferrer" className="cursor-pointer">
                   <Linkedin className="h-4 w-4 mr-2" />
@@ -177,22 +123,7 @@ export function Header() {
               </DropdownMenuItem>
               <DropdownMenuItem
                 asChild
-                className="group transition-colors"
-                onMouseEnter={(e) => {
-                  const target = e.currentTarget;
-                  target.style.color = accentColor;
-                  const bgColor = accentColor.replace(')', ' / 0.1)');
-                  target.style.backgroundColor = bgColor;
-                  const icon = target.querySelector('svg');
-                  if (icon) icon.style.color = accentColor;
-                }}
-                onMouseLeave={(e) => {
-                  const target = e.currentTarget;
-                  target.style.color = '';
-                  target.style.backgroundColor = '';
-                  const icon = target.querySelector('svg');
-                  if (icon) icon.style.color = '';
-                }}
+                className="group transition-colors hover:text-accent-color hover:bg-accent-color/10"
               >
                 <a href={personalInfo.links.github} target="_blank" rel="noopener noreferrer" className="cursor-pointer">
                   <GithubIcon className="h-4 w-4 mr-2" />
@@ -202,22 +133,7 @@ export function Header() {
               {/* Book a Call - visible in dropdown on mobile */}
               <DropdownMenuItem
                 asChild
-                className="group transition-colors sm:hidden"
-                onMouseEnter={(e) => {
-                  const target = e.currentTarget;
-                  target.style.color = accentColor;
-                  const bgColor = accentColor.replace(')', ' / 0.1)');
-                  target.style.backgroundColor = bgColor;
-                  const icon = target.querySelector('svg');
-                  if (icon) icon.style.color = accentColor;
-                }}
-                onMouseLeave={(e) => {
-                  const target = e.currentTarget;
-                  target.style.color = '';
-                  target.style.backgroundColor = '';
-                  const icon = target.querySelector('svg');
-                  if (icon) icon.style.color = '';
-                }}
+                className="group transition-colors sm:hidden hover:text-accent-color hover:bg-accent-color/10"
               >
                 <a href={personalInfo.links.calendar} target="_blank" rel="noopener noreferrer" className="cursor-pointer">
                   <Calendar className="h-4 w-4 mr-2" />
@@ -279,9 +195,6 @@ export function Header() {
                 <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" stroke="url(#gemini-rainbow)" />
               </svg>
             </Link>
-
-            {/* Theme Color Picker */}
-            <ThemeColorPicker />
 
 
           </div>

@@ -24,7 +24,7 @@ export function generateScatterPositions(
   const canvasRatio = canvasWidth / canvasHeight;
 
   // sqrt(count * ratio) gives approx cols
-  let cols = Math.ceil(Math.sqrt(count * canvasRatio));
+  const cols = Math.ceil(Math.sqrt(count * canvasRatio));
   let rows = Math.ceil(count / cols);
 
   // Adjust if we have too many cells
@@ -120,7 +120,7 @@ export function calculateBurstPositions(
 
   // We'll try to fulfill the directional requests by pulling from relevant quadrants
   // This is a "best effort" since random distribution might not have equal quadrant counts
-  let availablePositions = [...positions];
+  const availablePositions = [...positions];
 
   const getBestPositionForBatch = (batchIndex: number): Point => {
     // Define preferred quadrants for each batch based on spec

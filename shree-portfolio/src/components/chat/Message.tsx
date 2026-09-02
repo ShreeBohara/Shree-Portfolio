@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Bot, ExternalLink, FolderKanban, Briefcase, GraduationCap, Wrench, FileText, Check, Copy } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ACCENT, accentAlpha } from '@/lib/accent';
 import { Citation } from '@/data/types';
 import { Badge } from '@/components/ui/badge';
 import { useUIStore } from '@/store/ui-store';
@@ -38,7 +39,7 @@ const CALENDLY_TRIGGERS = [
 ];
 
 // Code Block component with copy functionality
-function CodeBlock({ children, className, accentColor = 'oklch(0.72 0.12 185)', ...props }: any) {
+function CodeBlock({ children, className, accentColor = ACCENT, ...props }: any) {
   const [copied, setCopied] = useState(false);
   const codeContent = String(children).trim();
 
@@ -67,7 +68,7 @@ function CodeBlock({ children, className, accentColor = 'oklch(0.72 0.12 185)', 
         }}
         whileHover={{
           borderColor: accentColor,
-          boxShadow: `0 0 10px ${accentColor}30`,
+          boxShadow: `0 0 10px ${accentAlpha(19)}`,
         }}
         whileTap={{ scale: 0.95 }}
       >
@@ -99,7 +100,7 @@ function CodeBlock({ children, className, accentColor = 'oklch(0.72 0.12 185)', 
   );
 }
 
-export function Message({ role, content, citations, isStreaming, accentColor = 'oklch(0.72 0.12 185)', isLoading = false, noBorder = false }: MessageProps) {
+export function Message({ role, content, citations, isStreaming, accentColor = ACCENT, isLoading = false, noBorder = false }: MessageProps) {
   const { setSelectedItem } = useUIStore();
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -156,7 +157,7 @@ export function Message({ role, content, citations, isStreaming, accentColor = '
           height: 1.2em;
           vertical-align: text-bottom;
           margin-left: 2px;
-          box-shadow: 0 0 10px ${accentColor}60, 0 0 5px ${accentColor}40;
+          box-shadow: 0 0 10px ${accentAlpha(38)}, 0 0 5px ${accentAlpha(25)};
           will-change: transform;
         `;
         cursorSpan.textContent = ' ';
