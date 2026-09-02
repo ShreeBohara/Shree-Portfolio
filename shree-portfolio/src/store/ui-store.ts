@@ -33,9 +33,6 @@ interface UIState {
 
 
 
-  // Theme accent color
-  accentColor: 'teal' | 'blue' | 'pink' | 'orange' | 'yellow' | 'green' | 'red' | 'violet';
-  setAccentColor: (color: 'teal' | 'blue' | 'pink' | 'orange' | 'yellow' | 'green' | 'red' | 'violet') => void;
 
   // Initial animation state
   isInitialAnimationComplete: boolean;
@@ -104,9 +101,6 @@ export const useUIStore = create<UIState>()(
 
 
 
-      // Theme accent color
-      accentColor: 'blue',
-      setAccentColor: (color) => set({ accentColor: color }),
 
       // Initial animation state
       isInitialAnimationComplete: false,
@@ -130,7 +124,6 @@ export const useUIStore = create<UIState>()(
       partialize: (state) => ({
 
         viewMode: state.viewMode,
-        accentColor: state.accentColor,
       }),
     }
   )

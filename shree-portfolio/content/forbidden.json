@@ -1,0 +1,37 @@
+{
+  "_readme": [
+    "Strings that must never reach a public page, checked by scripts/lint-content.ts.",
+    "Each rule has a `pattern` (case-insensitive regex), a `why`, and optional `files`",
+    "limiting it to matching paths. Global rules apply to every file under content/.",
+    "Sources: corpus/facts.md corrections, corpus/experience/quinstreet/IMPORT-POLICY.md,",
+    "corpus/profile.md, and the per-project claim constraints in each dossier."
+  ],
+  "rules": [
+    { "pattern": "34K|34,000 lines", "why": "CodebaseQA's retired line count. The corpus measured ~24,400 and retired this figure as roughly 40% high." },
+    { "pattern": "150K\\+ users|5K\\+ daily SMS", "why": "Retired Pond figures; the corpus marks them disputed and unverified." },
+    { "pattern": "fastest MVP", "why": "Unsupported superlative: zero corpus hits, never claimed on a resume." },
+    { "pattern": "23 (dynamic|step)", "why": "No corpus record of a 23-question flow. The defensible fact is the share of accounts created through it." },
+    { "pattern": "3-way A/B|three-way A/B", "why": "The experiment had four variants (facts.md, measured)." },
+    { "pattern": "White Label", "why": "A comparative claim about an employer's internal product." },
+    { "pattern": "graduate student|seeking full-time|available (from )?May 2026", "why": "Stale status. Full-time Software Engineer at QuinStreet since June 2026." },
+    { "pattern": "bohara@usc\\.edu", "why": "Retired address; a school account after graduation is a silent failure mode." },
+    { "pattern": "Foster City", "why": "The resume says San Francisco, and the site must match the document a recruiter reads next to it." },
+    { "pattern": "part-time", "why": "The QuinStreet internship was full-time for twelve months." },
+    { "pattern": "promoted", "why": "Same title both phases: the corpus wording is 'converted to full-time'." },
+    { "pattern": "SB Group|Shree-Sahil", "why": "The trading system is a project, never an employer, and the repo name carries a person's name." },
+    { "pattern": "trades live|live trading|P&L|win rate|Sharpe", "why": "The trading system has never placed an order; no P&L claim exists." },
+    { "pattern": "NL-Challenge|New Lantern", "why": "Relevant Priors must not carry the company's name until the repo is renamed." },
+    { "pattern": "\\$\\d|revenue|run rate", "why": "No revenue figure about a public company goes on a personal site." },
+    { "pattern": "28 days at|28-day outage", "why": "Incident exposure detail is the employer's to disclose, not his." },
+    { "pattern": "61K|44,300|44\\.3K|1\\.2% to 38\\.4%|38\\.4%", "why": "Year One executive-brief metrics; magnitudes only until Shree clears them." },
+    { "pattern": "30% of (user )?queries|27% support|support load", "why": "Internal product KPIs from the same brief." },
+    { "pattern": "34,203|7-8 bugs|7 to 8 bugs", "why": "Employer defect-rate absolutes; the ratio is the publishable form." },
+    { "pattern": "Kubernetes|Terraform|GraphQL|Jenkins|DynamoDB|LangChain|PyTorch", "why": "Withheld in corpus/skills.md: no dossier evidences them, so they are traps in a screen." },
+    { "pattern": "\\[CONFIRM|\\[INSTITUTION|\\[pending|TODO", "why": "Placeholder left in copy." },
+    { "pattern": "published (paper|research)", "why": "The DuckDB write-up is a six-page paper in ACM format with no venue.", "files": ["duckdb"] },
+    { "pattern": "\\bled\\b", "why": "'Led' was retired for the DeepTek internship as an overclaim.", "files": ["deeptek"] },
+    { "pattern": "Spring Boot|JWT", "why": "DeepTek used Node.js with OAuth 2.0 and RBAC.", "files": ["deeptek"] },
+    { "pattern": "LA Hacks", "why": "EchoLens's award is unresolved: the corpus says LA Hacks, the only public record is a different event with no winner ribbon.", "files": ["echolens"] },
+    { "pattern": "solo-built|hand-typed|wrote every line", "why": "Most of these projects were agent-built; the disclosure is the point." }
+  ]
+}

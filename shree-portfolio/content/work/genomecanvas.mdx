@@ -1,0 +1,97 @@
+---
+title: GenomeCanvas
+subtitle: A navigable 3D universe of real AlphaFold protein structures
+tier: standard
+status: unprovisioned
+summary: >-
+  Fifty-four human proteins rendered as real AlphaFold backbone ribbons in a
+  Three.js scene, with an AI guide that moves the interface before it speaks.
+dates:
+  start: 2026-03
+  end: 2026-08
+links:
+  repo: https://github.com/ShreeBohara/GenomeCanvas
+stack:
+  - Next.js
+  - React
+  - Three.js
+  - react-three-fiber
+  - Mol*
+  - Zustand
+  - FastAPI
+  - Pydantic v2
+  - Server-Sent Events
+  - Claude API
+tags: [frontend, ai-trust, data]
+metrics:
+  - id: proteins
+    label: Proteins, graph nodes and edges
+    value: 54 / 187 / 217
+    provenance: measured
+    source: "facts.md: GenomeCanvas › Proteins / nodes / edges"
+    note: Plus 14,904 interpolated backbone vertices.
+  - id: real-structures
+    label: Real AlphaFold structures
+    value: 52 of 54
+    provenance: measured
+    source: "facts.md: GenomeCanvas › Real AlphaFold structures"
+    note: The two substitutes are the two proteins above AlphaFold DB's 2,700-residue ceiling; both are labelled in the UI.
+  - id: external-calls
+    label: External calls at request time
+    value: zero
+    provenance: measured
+    source: "facts.md: GenomeCanvas › External calls at request time"
+    note: AlphaFold is fetched at build time; the language model is optional, so the app runs with no API key.
+  - id: molstar-bundle
+    label: Mol* contribution to the JS bundle
+    value: 0 bytes
+    provenance: measured
+    source: "facts.md: GenomeCanvas › Mol* bundle contribution"
+    note: 4.9 MB side-loaded at runtime, never imported.
+builtWith:
+  duration: Built in phases between March and August 2026.
+  tools: [Claude Code, Codex]
+  agentLanes: Agent branches per subsystem, merged as reviewed pull requests.
+  handWritten: >-
+    The 351-line spec written before any code, the decision to put fixtures
+    behind a repository interface, the typed side-channel that sends UI commands
+    ahead of prose, the all-or-nothing fallback when the model fails, and the
+    adversarial pass that found an end-to-end suite which had stayed green while
+    never reaching the backend.
+  notBroken: Tests across three runners — backend, component and end-to-end.
+  coAuthored: true
+askSuggestions:
+  - Why do the UI commands arrive before the text?
+  - How are the two placeholder proteins handled?
+  - What did the adversarial review find?
+order: 6
+sourceDossier: corpus/projects/genomecanvas.md
+updated: 2026-09-01
+---
+
+## A cockpit, not a file browser
+
+AlphaFold published 214 million predicted protein structures and a file browser
+to find them in. GenomeCanvas is a small cockpit instead: <Fact id="proteins" /> (proteins,
+graph nodes and edges) float in a Three.js scene as alpha-carbon backbone ribbons coloured vertex by
+vertex with AlphaFold's own confidence scores, linked to a knowledge graph of
+diseases, drugs and trials. A double-click hands off to Mol*, the viewer
+AlphaFold DB itself ships — side-loaded, so it costs
+<Fact id="molstar-bundle" /> in the bundle.
+
+## The interface moves before it speaks
+
+Ask for the proteins involved in a disease and the backend streams typed UI
+commands ahead of any prose: the universe dims, the graph re-roots and the
+camera re-frames before the first sentence arrives. Every answer is built from
+local data first and the model only re-words a result that is already correct,
+so there are <Fact id="external-calls" /> at request time and the app works with
+no API key at all.
+
+## Honest about where it stands
+
+The deployment is configured but not provisioned, so the code is the artifact
+rather than a URL. The similarity measure ranks by backbone shape distance, not
+fold similarity, and the layout is hand-curated rather than a projection —
+distinctions worth keeping straight, because the shorter versions of both claims
+would be wrong.
