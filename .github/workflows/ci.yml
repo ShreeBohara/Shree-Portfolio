@@ -12,15 +12,20 @@ jobs:
       run:
         working-directory: shree-portfolio
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version-file: shree-portfolio/.nvmrc
           cache: npm
           cache-dependency-path: shree-portfolio/package-lock.json
 
       - run: npm ci
+
+      - name: Generate content collections
+        # The generated types are not committed, so a clean checkout has no
+        # `content-collections` module until this runs. Typecheck needs it.
+        run: npm run content:build
 
       - name: Typecheck
         run: npm run typecheck
@@ -52,7 +57,7 @@ jobs:
   hygiene:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Reject Finder/iCloud conflict copies
         # The repo used to live in an iCloud-synced folder, which silently

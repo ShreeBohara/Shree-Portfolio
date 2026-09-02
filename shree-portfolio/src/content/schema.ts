@@ -68,6 +68,8 @@ export const status = z.enum([
 ]);
 
 export const workSchema = z.object({
+  /** The MDX body. Declared explicitly rather than relying on the implicit field. */
+  content: z.string(),
   title: z.string(),
   subtitle: z.string().optional(),
   tier,

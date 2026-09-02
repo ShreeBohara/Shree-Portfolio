@@ -11,7 +11,10 @@
     "check": "npm run typecheck && npm run lint && npm run lint:content && npm run verify:facts && npm run build",
     "lint:content": "tsx scripts/lint-content.ts",
     "prebuild": "npm run lint:content",
-    "verify:facts": "tsx scripts/verify-facts.ts"
+    "verify:facts": "tsx scripts/verify-facts.ts",
+    "content:build": "content-collections build",
+    "pretypecheck": "npm run content:build",
+    "prelint": "npm run content:build"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.11",
@@ -44,6 +47,7 @@
     "zustand": "^5.0.8"
   },
   "devDependencies": {
+    "@content-collections/cli": "^0.1.9",
     "@content-collections/core": "^0.15.2",
     "@content-collections/mdx": "^0.2.2",
     "@content-collections/next": "^0.2.11",

@@ -43,5 +43,5 @@ const work = defineCollection({
 });
 
 export default defineConfig({
-  collections: [work],
+  content: [work],
 });
