@@ -1,14 +1,13 @@
 'use client';
 
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useArchiveStore } from '@/store/archive-store';
 import { ImageCard } from './ImageCard';
 import { gsap } from 'gsap';
 import { Draggable } from 'gsap/Draggable';
 import { InertiaPlugin } from 'gsap/InertiaPlugin';
-import { getAllPhotos } from '@/data/archive-photos';
 import { calculateBurstPositions } from '@/lib/archive/scatter-algorithm';
-import { PHYSICS_CONFIG, optimizeGSAPTicker } from '@/lib/archive/physics-config';
+import { optimizeGSAPTicker } from '@/lib/archive/physics-config';
 
 // Register GSAP plugins
 if (typeof window !== 'undefined') {
@@ -47,7 +46,6 @@ export function DraggableCanvas({ enabled = true, startInvisible = false }: Drag
 
   // Track velocity for tilt effect
   const currentVelocity = useRef({ x: 0, y: 0 });
-  const lastPos = useRef({ x: 0, y: 0 });
 
 
 
@@ -117,7 +115,7 @@ export function DraggableCanvas({ enabled = true, startInvisible = false }: Drag
     // Initial cache
     updatePhotoRefs();
     // Also retry after a moment to ensure all elements are mounted
-    setTimeout(updatePhotoRefs, 100);
+    const photoRefsTimer = setTimeout(updatePhotoRefs, 100);
 
     // Create Draggable on the proxy element
     const draggable = Draggable.create(dragProxyRef.current, {
@@ -333,12 +331,15 @@ export function DraggableCanvas({ enabled = true, startInvisible = false }: Drag
     gsap.ticker.add(updatePositions);
 
     return () => {
+      clearTimeout(photoRefsTimer);
       window.removeEventListener('resize', handleResize);
       if (draggableInstance.current) {
         draggableInstance.current.kill();
         draggableInstance.current = null;
       }
       gsap.ticker.remove(updatePositions);
+      gsap.killTweensOf(scaleRef);
+      scaleRef.current = 1;
     };
   }, [photos, canvasSize, setSelectedPhotoId, setState, enabled]);
 
@@ -412,6 +413,10 @@ export function DraggableCanvas({ enabled = true, startInvisible = false }: Drag
                   vignette: 40,
                 }}
                 crop={photo.crop}
+                onActivate={enabled ? () => {
+                  setSelectedPhotoId(photo.id);
+                  setState('lightbox');
+                } : undefined}
                 className={`transition-shadow hover:shadow-2xl ${startInvisible ? 'opacity-0 grayscale' : ''}`}
                 style={{
                   width: `${displayWidth}px`,

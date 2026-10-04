@@ -10,12 +10,14 @@
 
 const DENY_PATTERNS: { pattern: RegExp; reply: string }[] = [
   {
-    pattern: /\b(visa|h-?1b|opt|cpt|stem opt|sponsorship|sponsor|green card|work authoriz|work authoris|citizenship|immigration)\b/i,
+    pattern: /\b(visa|h-?1b|opt|cpt|stem opt|sponsorship|sponsor|green card|(?:work|employment)\s+authori[sz](?:ation|ations|ed|e|ing)?|authori[sz](?:ation|ed)\s+to\s+work|citizenship|immigration)\b/i,
     reply:
       "I don't cover work authorisation or immigration questions here. Shree is happy to talk about it directly — shreetbohara@gmail.com.",
   },
   {
-    pattern: /\b(salary|compensation|pay|rate|wage|equity|package|how much (do|does|would) (you|he) (make|earn|charge)|expected pay)\b/i,
+    // "Rate" and "package" also describe engineering work. Match them in
+    // compensation phrases without blocking rate limiting or package managers.
+    pattern: /\b(salar(?:y|ies)|compensation|pay|wages?|(?:hourly|daily|contract|consulting|freelance)\s+rates?|(?:benefits|employment|job|offer)\s+packages?|(?:your|his|shree['’]s)\s+(?:equity|rates?|packages?)\b(?!\s+(?:limit(?:ing|er|ers|s)?|manager|management|of)\b)|(?:get|receive)\s+(?:equity|stock options)|equity\s+(?:do you|does (?:he|shree))|how much (?:do|does|would) (?:you|he|shree) (?:make|earn|charge)|expected pay)\b/i,
     reply:
       "Compensation isn't something I discuss on the site. Shree would rather have that conversation directly — shreetbohara@gmail.com.",
   },

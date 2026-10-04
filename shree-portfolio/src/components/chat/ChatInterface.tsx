@@ -10,6 +10,7 @@ import { PromptSuggestions, promptCategories } from './PromptSuggestions';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUIStore } from '@/store/ui-store';
 import { Citation } from '@/data/types';
+import { readChatResponse } from '@/lib/ai/chat-stream';
 import { Badge } from '@/components/ui/badge';
 // Removed placeholder import - using streaming API instead
 import { personalInfo, projects, experiences, education } from '@/data/portfolio';
@@ -167,6 +168,7 @@ export function ChatInterface() {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const userScrolledRef = useRef(false);
   const loadingStartTimeRef = useRef<number>(0);
+  const activeRequestRef = useRef<AbortController | null>(null);
   const nameRef = useRef<HTMLHeadingElement>(null);
   const textWrapperRef = useRef<HTMLSpanElement>(null);
   const MIN_LOADING_DISPLAY_TIME = 2000; // 2 seconds minimum loading display
@@ -198,6 +200,11 @@ export function ChatInterface() {
 
   const contextItemTitle = getContextItemTitle();
 
+  useEffect(() => () => {
+    activeRequestRef.current?.abort();
+    activeRequestRef.current = null;
+  }, []);
+
 
   // Track state changes for animation coordination
   useEffect(() => {
@@ -215,6 +222,7 @@ export function ChatInterface() {
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.defaultPrevented) return;
       // Cmd/Ctrl + K: Focus input
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
@@ -348,99 +356,61 @@ export function ChatInterface() {
     }
   };
 
-  const handleSubmitInput = async () => {
-    if (!query.trim() || isLoading) return;
-
-    const userMessage = query.trim();
-    setLastQuery(userMessage);
-    setQuery('');
+  const streamAnswer = async (message: string) => {
+    activeRequestRef.current?.abort();
+    const controller = new AbortController();
+    activeRequestRef.current = controller;
     setError(null);
-    setShowSuggestions(false);
-
-    // Set user message
-    setCurrentChat({ role: 'user', content: userMessage });
-    setResponse(null); // Don't set response until we get data
+    setCurrentChat({ role: 'user', content: message });
+    setResponse(null);
     setIsLoading(true);
-    loadingStartTimeRef.current = Date.now(); // Track loading start time
+    loadingStartTimeRef.current = Date.now();
 
     try {
-      // Call streaming API
-      const response = await fetch('/api/chat', {
+      const apiResponse = await fetch('/api/chat', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          query: userMessage,
-          context: chatContext,
-          stream: true,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: message, context: chatContext, stream: true }),
+        signal: controller.signal,
       });
-
-      if (!response.ok) {
-        throw new Error(`API error: ${response.statusText}`);
-      }
-
-      // Handle streaming response
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
       let citations: Citation[] = [];
       let accumulatedContent = '';
       let isFirstChunk = true;
-      let buffer = '';
 
-      if (!reader) {
-        throw new Error('No response body');
-      }
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop() || '';
-
-        for (const line of lines) {
-          if (!line.trim()) continue;
-          try {
-            const data = JSON.parse(line);
-
-            if (data.type === 'metadata') {
-              citations = data.citations || [];
-              // Don't set response yet - wait for first chunk of text
-              // This prevents the "Thinking" state with empty content
-            } else if (data.type === 'chunk') {
-              // Wait for minimum display time before showing first chunk
-              if (isFirstChunk) {
-                await ensureMinimumLoadingTime();
-                isFirstChunk = false;
-              }
-              accumulatedContent += data.content;
-              setResponse({ role: 'assistant', content: accumulatedContent, citations });
-            } else if (data.type === 'error') {
-              throw new Error(data.error || 'Streaming error');
-            } else if (data.type === 'done') {
-              // Streaming complete
-            }
-          } catch (parseError) {
-            // Skip invalid JSON lines
-            console.warn('Failed to parse chunk:', parseError);
+      for await (const event of readChatResponse(apiResponse)) {
+        if (controller.signal.aborted || activeRequestRef.current !== controller) return;
+        if (event.type === 'metadata') {
+          citations = event.citations;
+        } else if (event.type === 'chunk') {
+          if (isFirstChunk) {
+            await ensureMinimumLoadingTime();
+            isFirstChunk = false;
           }
+          if (controller.signal.aborted || activeRequestRef.current !== controller) return;
+          accumulatedContent += event.content;
+          setResponse({ role: 'assistant', content: accumulatedContent, citations });
         }
       }
-
-      // If we finished streaming but haven't set a response yet (e.g. only metadata), set it now
-      if (!accumulatedContent && citations.length > 0) {
-        setResponse({ role: 'assistant', content: '', citations });
-      }
     } catch (err) {
+      if (controller.signal.aborted || activeRequestRef.current !== controller) return;
       setError(err instanceof Error ? err.message : 'An error occurred while processing your request.');
       setCurrentChat(null);
       setResponse(null);
     } finally {
-      setIsLoading(false);
+      if (activeRequestRef.current === controller) {
+        activeRequestRef.current = null;
+        setIsLoading(false);
+      }
     }
+  };
+
+  const handleSubmitInput = async () => {
+    if (!query.trim() || isLoading) return;
+    const userMessage = query.trim();
+    setLastQuery(userMessage);
+    setQuery('');
+    setShowSuggestions(false);
+    await streamAnswer(userMessage);
   };
 
   const handlePromptSelect = (prompt: string) => {
@@ -450,93 +420,7 @@ export function ChatInterface() {
 
   const handleRetry = async () => {
     if (!lastQuery || isLoading) return;
-
-    setError(null);
-    setIsLoading(true);
-    loadingStartTimeRef.current = Date.now(); // Track loading start time
-
-    // Set user message
-    setCurrentChat({ role: 'user', content: lastQuery });
-    setResponse(null); // Don't set response until we get data
-
-    try {
-      // Call streaming API
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          query: lastQuery,
-          context: chatContext,
-          stream: true,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`API error: ${response.statusText}`);
-      }
-
-      // Handle streaming response
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-      let citations: Citation[] = [];
-      let accumulatedContent = '';
-      let isFirstChunk = true;
-      let buffer = '';
-
-      if (!reader) {
-        throw new Error('No response body');
-      }
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop() || '';
-
-        for (const line of lines) {
-          if (!line.trim()) continue;
-          try {
-            const data = JSON.parse(line);
-
-            if (data.type === 'metadata') {
-              citations = data.citations || [];
-              // Don't set response yet - wait for first chunk of text
-              // This prevents the "Thinking" state with empty content
-            } else if (data.type === 'chunk') {
-              // Wait for minimum display time before showing first chunk
-              if (isFirstChunk) {
-                await ensureMinimumLoadingTime();
-                isFirstChunk = false;
-              }
-              accumulatedContent += data.content;
-              setResponse({ role: 'assistant', content: accumulatedContent, citations });
-            } else if (data.type === 'error') {
-              throw new Error(data.error || 'Streaming error');
-            } else if (data.type === 'done') {
-              // Streaming complete
-            }
-          } catch (parseError) {
-            // Skip invalid JSON lines
-            console.warn('Failed to parse chunk:', parseError);
-          }
-        }
-      }
-
-      // If we finished streaming but haven't set a response yet (e.g. only metadata), set it now
-      if (!accumulatedContent && citations.length > 0) {
-        setResponse({ role: 'assistant', content: '', citations });
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred while processing your request.');
-      setCurrentChat(null);
-      setResponse(null);
-    } finally {
-      setIsLoading(false);
-    }
+    await streamAnswer(lastQuery);
   };
 
   const handleDismissError = () => {
@@ -547,6 +431,9 @@ export function ChatInterface() {
   };
 
   const handleNewChat = () => {
+    activeRequestRef.current?.abort();
+    activeRequestRef.current = null;
+    setIsLoading(false);
     setCurrentChat(null);
     setResponse(null);
     setError(null);
@@ -973,4 +860,3 @@ export function ChatInterface() {
     </div >
   );
 }
-

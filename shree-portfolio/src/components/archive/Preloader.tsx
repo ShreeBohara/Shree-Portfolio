@@ -5,6 +5,9 @@ import { useArchiveStore } from '@/store/archive-store';
 import { getStackPhotos } from '@/data/archive-photos';
 import { motion, AnimatePresence } from 'framer-motion';
 
+type ArchivePhoto = ReturnType<typeof useArchiveStore.getState>['photos'][number];
+const LOAD_TIMEOUT = 10_000;
+
 export function Preloader() {
   const {
     preloadProgress,
@@ -13,103 +16,100 @@ export function Preloader() {
     resetLoadedImages,
     setState,
     setPhotos,
-    loadedImagesCount
   } = useArchiveStore();
-
   const [isComplete, setIsComplete] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [stackPhotos, setStackPhotos] = useState<any[]>([])
 
   useEffect(() => {
-    // Reset on mount
+    let active = true;
+    const controller = new AbortController();
+    const fetchTimer = setTimeout(() => controller.abort(), LOAD_TIMEOUT);
+    let transitionTimer: ReturnType<typeof setTimeout> | undefined;
+    const pendingImages = new Set<() => void>();
     resetLoadedImages();
     setPreloadProgress(0);
-    // Fetch photos from API
-    const loadPhotos = async () => {
-      try {
-        const res = await fetch('/api/archive');
-        if (res.ok) {
-          const apiPhotos = await res.json();
 
-          if (apiPhotos && apiPhotos.length > 0) {
-            setStackPhotos(apiPhotos);
-            setIsLoading(false);
-          } else {
-            // Fallback to placeholder if no photos in database
-            const { getStackPhotos } = await import('@/data/archive-photos');
-            setStackPhotos(getStackPhotos(50));
-            setIsLoading(false);
+    const loadPhotos = async () => {
+      let photos: ArchivePhoto[] = getStackPhotos(50);
+      try {
+        const res = await fetch('/api/archive', { signal: controller.signal });
+        if (res.ok) {
+          const apiPhotos: unknown = await res.json();
+          if (Array.isArray(apiPhotos) && apiPhotos.length > 0) {
+            photos = apiPhotos;
           }
-        } else {
-          // API error - use placeholders
-          const { getStackPhotos } = await import('@/data/archive-photos');
-          setStackPhotos(getStackPhotos(50));
-          setIsLoading(false);
         }
       } catch (error) {
-        console.error('Failed to fetch photos:', error);
-        // Error - use placeholders
-        const { getStackPhotos } = await import('@/data/archive-photos');
-        setStackPhotos(getStackPhotos(50));
-        setIsLoading(false);
+        if (active && !controller.signal.aborted) {
+          console.error('Failed to fetch photos:', error);
+        }
+      } finally {
+        clearTimeout(fetchTimer);
       }
-    };
-    loadPhotos();
-  }, []);
+      if (!active) return;
 
-  // Update progress based on loaded images
-  useEffect(() => {
-    if (isLoading || stackPhotos.length === 0) return;
-    const progress = Math.round((loadedImagesCount / stackPhotos.length) * 100);
-    setPreloadProgress(progress);
+      let completed = 0;
+      await Promise.all(photos.map(photo => new Promise<void>(resolve => {
+        const image = new Image();
+        let settled = false;
+        const clearImage = () => {
+          clearTimeout(imageTimer);
+          image.onload = null;
+          image.onerror = null;
+          pendingImages.delete(cancel);
+        };
+        const finish = () => {
+          if (settled) return;
+          settled = true;
+          clearImage();
+          if (active) {
+            completed += 1;
+            incrementLoadedImages();
+            setPreloadProgress(Math.round(completed / photos.length * 100));
+          }
+          resolve();
+        };
+        const cancel = () => {
+          if (settled) return;
+          settled = true;
+          clearImage();
+          image.removeAttribute('src');
+          resolve();
+        };
+        // Errors and stalled downloads both settle, so the gallery can open.
+        const imageTimer = setTimeout(finish, LOAD_TIMEOUT);
+        pendingImages.add(cancel);
+        image.onload = finish;
+        image.onerror = finish;
+        image.src = photo.thumbnail || photo.src;
+      })));
+      if (!active) return;
 
-    if (progress === 100 && !isComplete) {
-      // Add initial positions for stack
-      const photosWithPositions = stackPhotos.map((photo, index) => ({
+      setPhotos(photos.map((photo, index) => ({
         ...photo,
         position: {
           x: 0,
           y: 0,
-          rotation: (Math.random() - 0.5) * 6, // -3 to +3 degrees
+          rotation: (Math.random() - 0.5) * 6,
           scale: 1,
           zIndex: index,
         },
-        zDepth: 0.5 + Math.random() * 1.3, // 0.5 to 1.8 for deeper parallax
-      }));
-
-      setPhotos(photosWithPositions);
+        zDepth: 0.5 + Math.random() * 1.3,
+      })));
       setIsComplete(true);
-
-      // Transition to stack state after a brief pause
-      setTimeout(() => {
-        setState('stack');
+      transitionTimer = setTimeout(() => {
+        if (active) setState('stack');
       }, 500);
-    }
-  }, [loadedImagesCount, stackPhotos.length, isComplete]);
-
-  useEffect(() => {
-    if (isLoading || stackPhotos.length === 0) return;
-    // Preload images
-    const loadImages = async () => {
-      const loadPromises = stackPhotos.map((photo) => {
-        return new Promise<void>((resolve) => {
-          const img = new Image();
-          img.onload = () => {
-            incrementLoadedImages();
-            resolve();
-          };
-          img.onerror = () => {
-            // Still increment to avoid hanging
-            incrementLoadedImages();
-            resolve();
-          };
-          img.src = photo.thumbnail || photo.src;
-        });
-      });
-      await Promise.all(loadPromises);
     };
-    loadImages();
-  }, [isLoading, stackPhotos]);
+    void loadPhotos();
+
+    return () => {
+      active = false;
+      controller.abort();
+      clearTimeout(fetchTimer);
+      clearTimeout(transitionTimer);
+      pendingImages.forEach(cancel => cancel());
+    };
+  }, [resetLoadedImages, setPreloadProgress, incrementLoadedImages, setPhotos, setState]);
 
   return (
     <AnimatePresence>

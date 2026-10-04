@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { projects, experiences, education, personalInfo } from '@/data/portfolio';
 import { Project, Experience, Education } from '@/data/types';
 import { useRouter } from 'next/navigation';
+import { useEffect, useRef } from 'react';
 
 // Helper function to render text with clickable URLs
 const renderTextWithLinks = (text: string) => {
@@ -36,35 +37,10 @@ const renderTextWithLinks = (text: string) => {
   });
 };
 
-// Mock data - will be replaced with real data later
-const mockProject = {
-  id: 'project-1',
-  title: 'AI Customer Support Platform',
-  category: 'AI/ML',
-  year: 2024,
-  duration: '3 months',
-  summary: 'Built an intelligent customer support system that reduced response time by 60% and improved customer satisfaction scores by 35%.',
-  problem: 'Customer support team was overwhelmed with repetitive queries, leading to slow response times and inconsistent answers.',
-  approach: 'Developed an AI-powered chatbot using GPT-4 and RAG to handle common queries, with seamless handoff to human agents for complex issues.',
-  impact: 'Automated 70% of support tickets, saving 200+ hours per month and improving first-response time from 2 hours to 5 minutes.',
-  metrics: [
-    { label: 'Response Time', value: '60% faster' },
-    { label: 'Ticket Automation', value: '70%' },
-    { label: 'Cost Savings', value: '$50k/month' },
-    { label: 'User Satisfaction', value: '+35 NPS' },
-  ],
-  myRole: 'Led the technical architecture and implementation as the sole developer on this project.',
-  technologies: ['Next.js', 'TypeScript', 'OpenAI API', 'Pinecone', 'Tailwind CSS', 'PostgreSQL'],
-  links: {
-    live: 'https://example.com',
-    github: 'https://github.com',
-    caseStudy: 'https://example.com/case-study',
-  },
-};
-
 export function DetailsPanel() {
   const router = useRouter();
-  const { isDetailsPanelOpen, closeDetailsPanel, selectedItemId, selectedItemType, setChatContext } = useUIStore();
+  const { isDetailsPanelOpen, closeDetailsPanel, selectedItemId, selectedItemType, setChatContext, isMobile } = useUIStore();
+  const panelRef = useRef<HTMLElement>(null);
 
   // Get the actual data based on selected item
   const selectedItem = selectedItemId && selectedItemType === 'project'
@@ -74,6 +50,59 @@ export function DetailsPanel() {
     : selectedItemType === 'education'
     ? education.find(e => e.id === selectedItemId)
     : null;
+
+  const hasSelectedItem = Boolean(selectedItem);
+
+  useEffect(() => {
+    if (!isDetailsPanelOpen || !hasSelectedItem) return;
+    const previousFocus = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null;
+    const frame = requestAnimationFrame(() => {
+      panelRef.current?.querySelector<HTMLButtonElement>('button')?.focus();
+    });
+
+    return () => {
+      cancelAnimationFrame(frame);
+      if (previousFocus?.isConnected) previousFocus.focus();
+    };
+  }, [isDetailsPanelOpen, hasSelectedItem]);
+
+  useEffect(() => {
+    if (!isDetailsPanelOpen || !hasSelectedItem) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        event.stopPropagation();
+        closeDetailsPanel();
+        return;
+      }
+      if (event.key !== 'Tab' || !isMobile || !panelRef.current) return;
+
+      const focusable = Array.from(panelRef.current.querySelectorAll<HTMLElement>(
+        'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])',
+      )).filter(element => !element.hasAttribute('disabled') && element.getClientRects().length > 0);
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (!first || !last) {
+        event.preventDefault();
+        panelRef.current.focus();
+      } else if (!panelRef.current.contains(document.activeElement)) {
+        event.preventDefault();
+        (event.shiftKey ? last : first).focus();
+      } else if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isDetailsPanelOpen, hasSelectedItem, isMobile, closeDetailsPanel]);
 
   const handleAskAbout = () => {
     if (selectedItemId && selectedItemType) {
@@ -460,6 +489,11 @@ export function DetailsPanel() {
 
           {/* Panel */}
           <motion.aside
+            ref={panelRef}
+            role="dialog"
+            aria-modal={isMobile}
+            aria-label="Portfolio details"
+            tabIndex={-1}
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}

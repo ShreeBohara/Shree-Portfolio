@@ -5,15 +5,13 @@ import { useArchiveStore } from '@/store/archive-store';
 import { Preloader } from './Preloader';
 import { DraggableCanvas } from './DraggableCanvas';
 import { LightboxModal } from './LightboxModal';
-import { ImageCard } from './ImageCard';
 import { calculateBurstPositions } from '@/lib/archive/scatter-algorithm';
 import { gsap } from 'gsap';
 import { useScrambleText } from '@/hooks/useScrambleText';
 
 export function ArchiveCanvas() {
-  const { currentState, photos, setPhotos, setState, canvasSize, setCanvasSize, setIsBursting } = useArchiveStore();
+  const { currentState, photos, setPhotos, setState, canvasSize, setCanvasSize, setIsBursting, setSelectedPhotoId } = useArchiveStore();
   const canvasRef = useRef<HTMLDivElement>(null);
-  const burstTimelineRef = useRef<gsap.core.Timeline | null>(null);
 
   const { displayText } = useScrambleText({
     text: 'ARCHIVE',
@@ -25,13 +23,11 @@ export function ArchiveCanvas() {
 
   // Reset state on mount to ensure full animation sequence
   useEffect(() => {
+    setSelectedPhotoId(null);
+    setIsBursting(false);
     setState('preloader');
-  }, [setState]);
-
-  // Log state transitions
-  useEffect(() => {
-
-  }, [currentState]);
+    return () => setIsBursting(false);
+  }, [setState, setSelectedPhotoId, setIsBursting]);
 
   // Update canvas size based on viewport
   useEffect(() => {
@@ -73,10 +69,16 @@ export function ArchiveCanvas() {
 
 
 
-    // Wait for DOM to be ready
-    setTimeout(() => {
+    let burstTimer: ReturnType<typeof setTimeout> | undefined;
+    const tweens: gsap.core.Tween[] = [];
+    // Wait for DOM to be ready. Both timers belong to this effect.
+    const readyTimer = setTimeout(() => {
+      const elements = new Map(Array.from(
+        canvasRef.current?.querySelectorAll<HTMLElement>('[data-id]') ?? [],
+        element => [element.dataset.id, element]
+      ));
       photos.forEach((photo, index) => {
-        const element = document.querySelector(`[data-id="${photo.id}"]`) as HTMLElement;
+        const element = elements.get(photo.id);
         if (element) {
           const initialPos = getInitialStackPosition(index);
 
@@ -93,7 +95,7 @@ export function ArchiveCanvas() {
           });
 
           // Animate to center (stack)
-          gsap.to(element, {
+          tweens.push(gsap.to(element, {
             x: photo.position?.x || 0,
             y: photo.position?.y || 0,
             xPercent: -50,
@@ -104,7 +106,7 @@ export function ArchiveCanvas() {
             duration: 0.8,
             delay: index * 0.08,
             ease: 'power3.out',
-          });
+          }));
         }
       });
 
@@ -112,12 +114,15 @@ export function ArchiveCanvas() {
       const stackDelay = 0.08;
       const totalStackTime = photos.length * stackDelay + 0.8;
 
-      const burstTimer = setTimeout(() => {
+      burstTimer = setTimeout(() => {
         setState('burst');
       }, (totalStackTime + 1) * 1000);
-
-      return () => clearTimeout(burstTimer);
     }, 100);
+    return () => {
+      clearTimeout(readyTimer);
+      clearTimeout(burstTimer);
+      tweens.forEach(tween => tween.kill());
+    };
   }, [currentState, photos, setState]);
 
   // Handle burst animation
@@ -137,30 +142,32 @@ export function ArchiveCanvas() {
 
     // DON'T update photos in store yet - let animation complete first
 
+    let active = true;
+    let timeline: gsap.core.Timeline | null = null;
     // Wait a moment for DOM to be ready, then create and run animations
-    setTimeout(() => {
+    const readyTimer = setTimeout(() => {
 
       // Create burst timeline
       const tl = gsap.timeline({
+        paused: true,
         onComplete: () => {
+          if (!active) return;
           // Update photos with final positions after animation
           setPhotos(scatteredPhotos);
           setState('canvas');
           setIsBursting(false);
         },
       });
+      timeline = tl;
+      const elements = new Map(Array.from(
+        canvasRef.current?.querySelectorAll<HTMLElement>('[data-id]') ?? [],
+        element => [element.dataset.id, element]
+      ));
 
       // Animate each photo to its burst position
-      scatteredPhotos.forEach((photo, index) => {
-        const element = document.querySelector(`[data-id="${photo.id}"]`) as HTMLElement;
+      scatteredPhotos.forEach((photo) => {
+        const element = elements.get(photo.id);
         if (element) {
-          if (index === 0) {
-            const currentPos = {
-              x: gsap.getProperty(element, 'x') as number,
-              y: gsap.getProperty(element, 'y') as number,
-            };
-
-          }
 
           // Force initial position to be at stack center (should already be there from stack animation)
           // But just in case, we don't reset it because it might cause a jump if stack animation isn't perfectly finished
@@ -203,7 +210,7 @@ export function ArchiveCanvas() {
       });
 
       // Animate Text to Color
-      const textElement = document.querySelector('#archive-title-text');
+      const textElement = canvasRef.current?.querySelector('#archive-title-text');
       if (textElement) {
         tl.to(
           textElement,
@@ -216,18 +223,17 @@ export function ArchiveCanvas() {
         );
       }
 
-      burstTimelineRef.current = tl;
-
       // Play the timeline
       tl.play();
     }, 100); // Small delay to ensure DOM is ready
 
     return () => {
-      if (burstTimelineRef.current) {
-        burstTimelineRef.current.kill();
-      }
+      active = false;
+      clearTimeout(readyTimer);
+      timeline?.kill();
+      setIsBursting(false);
     };
-  }, [currentState, photos.length, canvasSize, setPhotos, setState, setIsBursting]);
+  }, [currentState, photos, canvasSize, setPhotos, setState, setIsBursting]);
 
   return (
     <div ref={canvasRef} className="fixed inset-0 bg-black overflow-hidden">
@@ -266,7 +272,7 @@ export function ArchiveCanvas() {
       {/* It is enabled only in 'canvas' or 'lightbox' state, but always visible */}
       {(currentState === 'stack' || currentState === 'burst' || currentState === 'canvas' || currentState === 'lightbox') && (
         <DraggableCanvas
-          enabled={currentState === 'canvas' || currentState === 'lightbox'}
+          enabled={currentState === 'canvas'}
           startInvisible={currentState === 'stack'}
         />
       )}

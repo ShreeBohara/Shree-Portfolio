@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type KeyboardEvent } from 'react';
 import { motion } from 'framer-motion';
 import { Users, ArrowRight, FolderCode, Sparkles } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -37,6 +37,14 @@ export function ProjectCard({
     setSelectedItem(project.id, 'project');
   };
 
+  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.target !== event.currentTarget) return;
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      handleClick();
+    }
+  };
+
   const getCategoryClass = (category: string) => {
     const categoryMap = {
       'AI/ML': 'category-ai',
@@ -66,6 +74,10 @@ export function ProjectCard({
         <Card
           className="group hover:shadow-md hover:border-accent-color/50 transition-all cursor-pointer overflow-hidden"
           onClick={handleClick}
+          onKeyDown={handleKeyDown}
+          role="button"
+          tabIndex={0}
+          aria-label={`View details for ${project.title}`}
         >
           <div className="flex items-center p-4">
             {/* Thumbnail */}
@@ -148,6 +160,10 @@ export function ProjectCard({
       <Card
         className="group h-full hover:shadow-lg hover:border-accent-color/50 transition-all cursor-pointer overflow-hidden hover:scale-[1.02] hover:-translate-y-1"
         onClick={handleClick}
+        onKeyDown={handleKeyDown}
+        role="button"
+        tabIndex={0}
+        aria-label={`View details for ${project.title}`}
       >
         {/* Thumbnail Section */}
         <div className="relative h-40 w-full overflow-hidden">

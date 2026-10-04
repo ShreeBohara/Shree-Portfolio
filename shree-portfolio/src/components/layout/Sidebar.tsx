@@ -1,11 +1,10 @@
 'use client';
 
-import { ChevronLeft, ChevronRight, Briefcase, GraduationCap, Folder, Download, Github as GithubIcon, Calendar, Mail, Linkedin, Images } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Briefcase, GraduationCap, Folder, Download, Github as GithubIcon, Calendar, Mail, Linkedin } from 'lucide-react';
 import { useUIStore } from '@/store/ui-store';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useRouter, usePathname } from 'next/navigation';
-import Link from 'next/link';
 import { personalInfo } from '@/data/portfolio';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { useSwipeable } from 'react-swipeable';
@@ -18,19 +17,17 @@ interface SidebarProps {
 }
 
 export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
-  const { isSidebarOpen, setSidebarOpen } = useUIStore();
+  const { isSidebarOpen, setSidebarOpen, isMobile } = useUIStore();
   const router = useRouter();
   const pathname = usePathname();
   const isBrowsePage = pathname === '/browse';
 
   const handleSectionClick = (section: Section) => {
     if (isBrowsePage && onSectionChange) {
-      // If already on browse page, just change the section
       onSectionChange(section);
-    } else {
-      // If on chat page, navigate to browse with the section
-      router.push(`/browse?section=${section}`);
     }
+    router.push(`/browse?section=${section}`, { scroll: false });
+    if (window.innerWidth < 1024) setSidebarOpen(false);
   };
 
   // Swipe handlers for mobile
@@ -88,6 +85,7 @@ export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
       {/* Sidebar */}
       <aside
         {...swipeHandlers}
+        inert={isMobile && !isSidebarOpen}
         className={cn(
           "fixed left-0 top-0 z-40 h-screen bg-sidebar border-r transition-all duration-300 touch-pan-y overflow-hidden",
           isSidebarOpen ? "w-[280px]" : "w-0 lg:w-[60px]"
@@ -112,6 +110,8 @@ export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
               variant="ghost"
               size="icon"
               onClick={() => setSidebarOpen(!isSidebarOpen)}
+              aria-label={isSidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
+              aria-expanded={isSidebarOpen}
               className={cn(
                 "hidden lg:flex h-8 w-8 shrink-0 hover:text-accent-color hover:bg-accent-color/10",
                 !isSidebarOpen && "mx-auto"
@@ -137,6 +137,7 @@ export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
                     variant={isBrowsePage && activeSection === 'projects' ? 'secondary' : 'ghost'}
                     size={isSidebarOpen ? 'sm' : 'icon'}
                     onClick={() => handleSectionClick('projects')}
+                    aria-label="Projects"
                     className={cn(
                       "justify-start shrink-0",
                       !isSidebarOpen && "lg:justify-center lg:w-10",
@@ -160,6 +161,7 @@ export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
                     variant={isBrowsePage && activeSection === 'experience' ? 'secondary' : 'ghost'}
                     size={isSidebarOpen ? 'sm' : 'icon'}
                     onClick={() => handleSectionClick('experience')}
+                    aria-label="Experience"
                     className={cn(
                       "justify-start shrink-0",
                       !isSidebarOpen && "lg:justify-center lg:w-10",
@@ -183,6 +185,7 @@ export function Sidebar({ activeSection, onSectionChange }: SidebarProps) {
                     variant={isBrowsePage && activeSection === 'education' ? 'secondary' : 'ghost'}
                     size={isSidebarOpen ? 'sm' : 'icon'}
                     onClick={() => handleSectionClick('education')}
+                    aria-label="Education"
                     className={cn(
                       "justify-start shrink-0",
                       !isSidebarOpen && "lg:justify-center lg:w-10",

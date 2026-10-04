@@ -6,10 +6,13 @@ import { Suspense } from 'react';
 
 function BrowseContent() {
   const searchParams = useSearchParams();
-  const section = searchParams.get('section') as 'projects' | 'experience' | 'education' | null;
+  const requestedSection = searchParams.get('section');
+  const section = requestedSection === 'experience' || requestedSection === 'education'
+    ? requestedSection
+    : 'projects';
   
   return (
-    <PortfolioLayout showCatalog={true} initialSection={section || 'projects'}>
+    <PortfolioLayout showCatalog={true} initialSection={section}>
       <div />
     </PortfolioLayout>
   );

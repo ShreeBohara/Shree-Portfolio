@@ -18,6 +18,7 @@ interface ImageCardProps {
     zIndex: number;
   };
   onClick?: () => void;
+  onActivate?: () => void;
   animationDelay?: number;
   initialPosition?: { x: number; y: number };
   zDepth?: number;
@@ -39,12 +40,11 @@ export const ImageCard = memo(function ImageCard({
   id,
   src,
   alt = '',
-  width,
-  height,
   className = '',
   style,
   position,
   onClick,
+  onActivate,
   animationDelay = 0,
   initialPosition,
   zDepth = 1,
@@ -140,7 +140,10 @@ export const ImageCard = memo(function ImageCard({
       ref={cardRef}
       data-id={id}
       data-zdepth={zDepth}
-      className={`absolute cursor-pointer transition-shadow hover:shadow-2xl ${className}`}
+      role={onActivate || onClick ? 'button' : undefined}
+      tabIndex={onActivate || onClick ? 0 : undefined}
+      aria-label={onActivate || onClick ? (alt ? `View ${alt}` : 'View archive photo') : undefined}
+      className={`absolute cursor-pointer transition-shadow hover:shadow-2xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white ${className}`}
       style={{
         ...style,
         zIndex: position?.zIndex || 1,
@@ -151,6 +154,12 @@ export const ImageCard = memo(function ImageCard({
         pointerEvents: 'auto', // Ensure clickable by default
       }}
       onClick={onClick}
+      onKeyDown={event => {
+        if ((event.key === 'Enter' || event.key === ' ') && (onActivate || onClick)) {
+          event.preventDefault();
+          (onActivate || onClick)?.();
+        }
+      }}
     >
       <div className="relative overflow-hidden rounded-sm shadow-lg w-full h-full">
         <Image
@@ -191,6 +200,9 @@ export const ImageCard = memo(function ImageCard({
   return (
     prevProps.id === nextProps.id &&
     prevProps.src === nextProps.src &&
+    prevProps.alt === nextProps.alt &&
+    prevProps.onClick === nextProps.onClick &&
+    prevProps.onActivate === nextProps.onActivate &&
     prevProps.position?.x === nextProps.position?.x &&
     prevProps.position?.y === nextProps.position?.y &&
     prevProps.position?.scale === nextProps.position?.scale &&

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { useArchiveStore } from '@/store/archive-store';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -18,10 +18,40 @@ export function LightboxModal() {
   const isOpen = currentState === 'lightbox' && selectedPhotoId !== null;
   const currentPhoto = photos.find(p => p.id === selectedPhotoId);
   const currentIndex = photos.findIndex(p => p.id === selectedPhotoId);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const returnFocusRef = useRef<HTMLElement | null>(null);
+
+  const handleClose = useCallback(() => {
+    setSelectedPhotoId(null);
+    setState('canvas');
+  }, [setSelectedPhotoId, setState]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    // The canvas disables its photo controls when this opens, so the browser
+    // may already have blurred the trigger before this effect runs.
+    const photoId = useArchiveStore.getState().selectedPhotoId;
+    const openingPhoto = Array.from(document.querySelectorAll<HTMLElement>('[data-id]'))
+      .find(element => element.dataset.id === photoId);
+    returnFocusRef.current = openingPhoto ?? (
+      document.activeElement instanceof HTMLElement ? document.activeElement : null
+    );
+    closeButtonRef.current?.focus();
+  }, [isOpen]);
+
+  const restoreFocus = useCallback(() => {
+    // Wait until the exiting dialog is gone and canvas controls are enabled.
+    if (useArchiveStore.getState().currentState === 'lightbox') return;
+    if (returnFocusRef.current?.isConnected) {
+      returnFocusRef.current.focus({ preventScroll: true });
+    }
+    returnFocusRef.current = null;
+  }, []);
 
   // Navigate between photos
   const navigateTo = useCallback((direction: 'prev' | 'next') => {
-    if (!photos.length) return;
+    if (!photos.length || currentIndex < 0) return;
 
     const newIndex = direction === 'next'
       ? (currentIndex + 1) % photos.length
@@ -37,32 +67,45 @@ export function LightboxModal() {
     const handleKeyDown = (e: KeyboardEvent) => {
       switch (e.key) {
         case 'Escape':
+          e.preventDefault();
           handleClose();
           break;
         case 'ArrowLeft':
+          e.preventDefault();
           navigateTo('prev');
           break;
         case 'ArrowRight':
+          e.preventDefault();
           navigateTo('next');
           break;
+        case 'Tab': {
+          const buttons = dialogRef.current?.querySelectorAll<HTMLButtonElement>('button:not([disabled])');
+          if (!buttons?.length) return;
+          const first = buttons[0];
+          const last = buttons[buttons.length - 1];
+          if (!dialogRef.current?.contains(document.activeElement) || (!e.shiftKey && document.activeElement === last)) {
+            e.preventDefault();
+            first.focus();
+          } else if (e.shiftKey && document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          }
+          break;
+        }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, navigateTo]);
-
-  const handleClose = () => {
-    setSelectedPhotoId(null);
-    setState('canvas');
-  };
+  }, [isOpen, navigateTo, handleClose]);
 
   return (
-    <AnimatePresence>
+    <AnimatePresence onExitComplete={restoreFocus}>
       {isOpen && currentPhoto && (
         <>
           {/* Backdrop */}
           <motion.div
+            aria-hidden="true"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -73,6 +116,10 @@ export function LightboxModal() {
 
           {/* Modal content */}
           <motion.div
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label={currentPhoto.title || 'Archive photo viewer'}
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
@@ -82,6 +129,8 @@ export function LightboxModal() {
             <div className="relative w-full max-w-5xl mx-auto pointer-events-auto">
               {/* Close button */}
               <Button
+                ref={closeButtonRef}
+                aria-label="Close photo viewer"
                 variant="ghost"
                 size="icon"
                 onClick={handleClose}
@@ -92,6 +141,7 @@ export function LightboxModal() {
 
               {/* Navigation buttons */}
               <Button
+                aria-label="Previous photo"
                 variant="ghost"
                 size="icon"
                 onClick={() => navigateTo('prev')}
@@ -101,6 +151,7 @@ export function LightboxModal() {
               </Button>
 
               <Button
+                aria-label="Next photo"
                 variant="ghost"
                 size="icon"
                 onClick={() => navigateTo('next')}
@@ -120,9 +171,8 @@ export function LightboxModal() {
               >
                 <img
                   src={currentPhoto.src}
-                  alt={currentPhoto.title || ''}
+                  alt={currentPhoto.title || 'Archive photograph'}
                   className="w-full h-auto max-h-[80vh] object-contain"
-                  onLoad={(e) => { }}
                 />
 
                 {/* Photo info overlay */}

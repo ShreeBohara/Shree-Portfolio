@@ -3,8 +3,9 @@ import { buildMessages } from './prompts';
 import { getOpenAIClient, isOpenAIConfigured } from './client';
 import { AI_CONFIG } from './config';
 import { Citation } from '@/data/types';
-import { projects } from '@/data/portfolio';
-import { chunkProject } from './chunking';
+import { projects, experiences, education } from '@/data/portfolio';
+import { chunkProject, chunkExperience, chunkEducation, ContentChunk } from './chunking';
+import { isVectorStoreAvailable } from './vector-store';
 
 export interface ChatContext {
   enabled?: boolean;
@@ -18,14 +19,26 @@ export interface RAGResponse {
   confidence: number;
 }
 
+export interface PreparedRAGContext {
+  chunks: RetrievedChunk[];
+  fallback?: RAGResponse;
+}
+
 // When retrieval or the model is unavailable we say so. The previous fallback
 // answered from a canned script that claimed skills (TensorFlow, PyTorch) which
 // appear nowhere in the portfolio data — an outage produced confident fiction.
 const UNAVAILABLE_MESSAGE =
   "The assistant is unavailable right now, so I can't look anything up. The projects and experience pages have the same material, and Shree is reachable at shreetbohara@gmail.com.";
 
+const NO_MATCH_MESSAGE =
+  "I couldn't find supporting material on the site for that question. Try asking about a specific project or experience, or reach Shree at shreetbohara@gmail.com.";
+
 function unavailableResponse(): RAGResponse {
   return { answer: UNAVAILABLE_MESSAGE, citations: [], confidence: 0 };
+}
+
+function noMatchResponse(): RAGResponse {
+  return { answer: NO_MATCH_MESSAGE, citations: [], confidence: 0 };
 }
 
 function isProjectOverviewQuery(query: string): boolean {
@@ -101,11 +114,29 @@ function countUniqueProjects(chunks: RetrievedChunk[]): number {
   ).size;
 }
 
+function getKnownItemChunks(context?: ChatContext): RetrievedChunk[] {
+  if (!context?.enabled || !context.itemId) return [];
+  let chunks: ContentChunk[] = [];
+  if (context.itemType === 'project') {
+    const item = projects.find((project) => project.id === context.itemId);
+    if (item) chunks = chunkProject(item);
+  } else if (context.itemType === 'experience') {
+    const item = experiences.find((experience) => experience.id === context.itemId);
+    if (item) chunks = chunkExperience(item);
+  } else if (context.itemType === 'education') {
+    const item = education.find((entry) => entry.id === context.itemId);
+    if (item) chunks = chunkEducation(item);
+  }
+  // These are an exact item match, not a measured semantic similarity. Keep
+  // confidence conservative while grounding the model in the current page data.
+  return chunks.map((chunk) => ({ ...chunk, similarity: 0.5 }));
+}
+
 export async function resolveRetrievedChunks(
   query: string,
   context?: ChatContext
 ): Promise<RetrievedChunk[]> {
-  const retrievedChunks = await retrieveRelevantContent(query, {
+  const options = {
     limit: AI_CONFIG.retrieval.topK,
     filter: context?.enabled && context?.itemId
       ? {
@@ -114,13 +145,10 @@ export async function resolveRetrievedChunks(
       }
       : undefined,
     boostItemId: context?.enabled ? context.itemId : undefined,
-  });
+  };
+  let retrievedChunks = await retrieveRelevantContent(query, options);
 
-  if (context?.enabled && context?.itemId) {
-    return retrievedChunks;
-  }
-
-  if (isProjectOverviewQuery(query)) {
+  if (!(context?.enabled && context?.itemId) && isProjectOverviewQuery(query)) {
     const deterministicProjectChunks = buildDeterministicProjectOverviewChunks(query);
     const projectOnlyChunks = retrievedChunks.filter((chunk) => chunk.metadata.type === 'project');
     const shouldUseDeterministicFallback =
@@ -135,36 +163,59 @@ export async function resolveRetrievedChunks(
     return projectOnlyChunks;
   }
 
+  if (retrievedChunks.length === 0) {
+    // The existing RPC limits global results before applying its item filter.
+    // A known page can therefore be absent even when its content is available.
+    // Use that page's current local data without broadening the selected scope.
+    const knownItemChunks = getKnownItemChunks(context);
+    if (knownItemChunks.length > 0) return knownItemChunks;
+    // Resolve the fallback before the route sends citations, preserving the
+    // selected item for contextual questions in both response modes.
+    retrievedChunks = await retrieveRelevantContent(query, {
+      ...options,
+      limit: 5,
+      minScore: 0.25,
+    });
+  }
+
   return retrievedChunks;
 }
 
 /**
- * Main RAG function that retrieves context and generates response
- * Falls back to placeholder if vector store is not available
+ * Complete retrieval before producing either citations or an answer. Missing
+ * services, retrieval failures and empty results never reach the model.
  */
-export async function getRAGResponse(
+export async function prepareRAGContext(
   query: string,
   context?: ChatContext
-): Promise<RAGResponse> {
-  // Check if vector store is available
-  const { isVectorStoreAvailable } = await import('./vector-store');
-
-  if (!isVectorStoreAvailable() || !isOpenAIConfigured()) {
-    console.warn('Vector store or OpenAI client not available');
-    return unavailableResponse();
+): Promise<PreparedRAGContext> {
+  try {
+    if (!isOpenAIConfigured() || !isVectorStoreAvailable()) {
+      return { chunks: [], fallback: unavailableResponse() };
+    }
+    const chunks = await resolveRetrievedChunks(query, context);
+    if (chunks.length === 0) {
+      return { chunks, fallback: noMatchResponse() };
+    }
+    return { chunks };
+  } catch (error) {
+    console.error('RAG retrieval error:', error);
+    return { chunks: [], fallback: unavailableResponse() };
   }
+}
+
+/** Retrieves supporting material and generates a grounded response. */
+export async function getRAGResponse(
+  query: string,
+  context?: ChatContext,
+  preparedContext?: PreparedRAGContext
+): Promise<RAGResponse> {
+  const prepared = preparedContext ?? await prepareRAGContext(query, context);
+  if (prepared.fallback) return prepared.fallback;
+  if (prepared.chunks.length === 0) return noMatchResponse();
 
   try {
-    // Retrieve relevant content
-    const retrievedChunks = await resolveRetrievedChunks(query, context);
-
-    // Log retrieval for debugging
-
-    if (retrievedChunks.length > 0) {
-
-    } else {
-      console.warn(`[RAG] No chunks retrieved for query: "${query}"`);
-    }
+    const retrievedChunks = prepared.chunks;
 
     // Extract citations
     const citations = extractCitations(retrievedChunks);
@@ -172,23 +223,20 @@ export async function getRAGResponse(
     // Build messages for OpenAI
     const messages = buildMessages(query, retrievedChunks, context);
 
-    // Log prompt for debugging (first 500 chars)
-
     // Generate response using OpenAI
     const openai = getOpenAIClient();
     const completion = await openai.chat.completions.create({
       model: AI_CONFIG.model,
-      messages: messages as any,
+      messages,
       temperature: AI_CONFIG.temperature,
       max_tokens: AI_CONFIG.maxTokens,
     });
 
-    const answer = completion.choices[0]?.message?.content || 'I apologize, but I could not generate a response.';
+    const answer = completion.choices[0]?.message?.content;
+    if (!answer) return unavailableResponse();
 
     // Calculate confidence based on retrieved chunks similarity scores
-    const avgSimilarity = retrievedChunks.length > 0
-      ? retrievedChunks.reduce((sum, chunk) => sum + chunk.similarity, 0) / retrievedChunks.length
-      : 0.5;
+    const avgSimilarity = retrievedChunks.reduce((sum, chunk) => sum + chunk.similarity, 0) / retrievedChunks.length;
 
     return {
       answer,
@@ -207,39 +255,25 @@ export async function getRAGResponse(
 export async function* streamRAGResponse(
   query: string,
   context?: ChatContext,
-  // Chunks already resolved by the caller. The route retrieves once to build the
-  // citation list and passes the same set here, so the sources shown to the user
-  // are the sources the model actually saw.
-  preResolvedChunks?: RetrievedChunk[]
+  // Preparation resolves every retrieval attempt before the route sends its
+  // citation list, so the sources shown are the sources the model actually saw.
+  preparedContext?: PreparedRAGContext,
+  signal?: AbortSignal
 ): AsyncGenerator<string, void, unknown> {
-  // Check if vector store is available
-  const { isVectorStoreAvailable } = await import('./vector-store');
-
-  if (!isVectorStoreAvailable() || !isOpenAIConfigured()) {
-    console.warn('Vector store or OpenAI client not available');
-    yield UNAVAILABLE_MESSAGE;
+  if (signal?.aborted) return;
+  const prepared = preparedContext ?? await prepareRAGContext(query, context);
+  if (signal?.aborted) return;
+  if (prepared.fallback) {
+    yield prepared.fallback.answer;
+    return;
+  }
+  if (prepared.chunks.length === 0) {
+    yield NO_MATCH_MESSAGE;
     return;
   }
 
   try {
-    // Retrieve relevant content (reusing the caller's set when provided)
-    let retrievedChunks = preResolvedChunks ?? await resolveRetrievedChunks(query, context);
-
-    // Log retrieval for debugging
-    if (retrievedChunks.length > 0) {
-
-    } else {
-      console.warn(`[RAG Stream] No chunks retrieved for query: "${query}"`);
-      // Try with even lower threshold as fallback
-      const fallbackChunks = await retrieveRelevantContent(query, {
-        limit: 5,
-        minScore: 0.25, // Genuinely lower than AI_CONFIG.retrieval.minScore (0.4)
-      });
-      if (fallbackChunks.length > 0) {
-
-        retrievedChunks = fallbackChunks;
-      }
-    }
+    const retrievedChunks = prepared.chunks;
 
     // Build messages for OpenAI
     const messages = buildMessages(query, retrievedChunks, context);
@@ -248,20 +282,27 @@ export async function* streamRAGResponse(
     const openai = getOpenAIClient();
     const stream = await openai.chat.completions.create({
       model: AI_CONFIG.model,
-      messages: messages as any,
+      messages,
       temperature: AI_CONFIG.temperature,
       max_tokens: AI_CONFIG.maxTokens,
       stream: true,
-    });
+    }, { signal });
 
+    let hasContent = false;
     for await (const chunk of stream) {
+      if (signal?.aborted) return;
       const content = chunk.choices[0]?.delta?.content || '';
       if (content) {
+        hasContent = true;
         yield content;
       }
     }
+    if (!hasContent) throw new Error('The model returned an empty response');
   } catch (error) {
+    if (signal?.aborted) return;
     console.error('RAG streaming error:', error);
-    yield UNAVAILABLE_MESSAGE;
+    // A partial answer must be reported as failed, not completed with outage
+    // text appended to it. The route emits an error event the client can retry.
+    throw new Error(UNAVAILABLE_MESSAGE);
   }
 }

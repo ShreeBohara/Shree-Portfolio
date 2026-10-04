@@ -170,6 +170,41 @@ export async function deleteAllEmbeddings(): Promise<void> {
   }
 }
 
+/** Removes obsolete rows only after their replacements were successfully stored. */
+export async function pruneEmbeddings(retainedIds: string[]): Promise<void> {
+  if (retainedIds.length === 0) throw new Error('Refusing to prune the index without replacement IDs');
+  const client = getSupabaseClient();
+  if (!client) throw new Error('Supabase client not initialized');
+
+  const retained = new Set(retainedIds);
+  const obsoleteIds: string[] = [];
+  const PAGE_SIZE = 1000;
+  // Collect all obsolete IDs before deletion; deleting while paging would shift
+  // the next page and skip rows. The ordering makes pagination deterministic.
+  for (let offset = 0; ; offset += PAGE_SIZE) {
+    const { data, error } = await client
+      .from('portfolio_embeddings')
+      .select('id')
+      .order('id')
+      .range(offset, offset + PAGE_SIZE - 1);
+    if (error) throw new Error(`Failed to list obsolete embeddings: ${error.message}`);
+    const rows = data || [];
+    obsoleteIds.push(...rows.filter((row) => !retained.has(row.id)).map((row) => row.id));
+    if (rows.length < PAGE_SIZE) break;
+  }
+
+  // Keep requests bounded and let the client encode IDs, rather than building
+  // an unbounded or manually escaped "not in" filter in the URL.
+  const DELETE_BATCH_SIZE = 200;
+  for (let offset = 0; offset < obsoleteIds.length; offset += DELETE_BATCH_SIZE) {
+    const { error } = await client
+      .from('portfolio_embeddings')
+      .delete()
+      .in('id', obsoleteIds.slice(offset, offset + DELETE_BATCH_SIZE));
+    if (error) throw new Error(`Failed to prune obsolete embeddings: ${error.message}`);
+  }
+}
+
 /**
  * Gets embedding count
  */
@@ -185,7 +220,7 @@ export async function getEmbeddingCount(): Promise<number> {
 
   if (error) {
     console.error('Error counting embeddings:', error);
-    return 0;
+    throw new Error(`Failed to count embeddings: ${error.message}`);
   }
 
   return count || 0;
@@ -197,4 +232,3 @@ export async function getEmbeddingCount(): Promise<number> {
 export function isVectorStoreAvailable(): boolean {
   return getSupabaseClient() !== null;
 }
-
