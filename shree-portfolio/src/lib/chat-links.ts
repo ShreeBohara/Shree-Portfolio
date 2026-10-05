@@ -14,6 +14,7 @@ for (const project of projects) {
   destinationLabels.set(`/projects/${project.slug}`, 'project page');
   if (project.links.github) destinationLabels.set(project.links.github, 'source repository');
   if (project.links.caseStudy) destinationLabels.set(project.links.caseStudy, 'engineering write-up');
+  if (project.links.writeup) destinationLabels.set(project.links.writeup, 'engineering write-up');
   if (project.links.video) destinationLabels.set(project.links.video, 'video');
 }
 for (const experience of experiences) {

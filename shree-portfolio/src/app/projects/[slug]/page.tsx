@@ -177,7 +177,7 @@ export default async function ProjectPage({
             {project.links && (
               <section>
                 <h2 className="text-2xl font-semibold mb-4">Links</h2>
-                <div className="flex gap-4">
+                <div className="flex flex-wrap gap-4">
                   {project.links.github && (
                     <a
                       href={project.links.github}
@@ -204,6 +204,16 @@ export default async function ProjectPage({
                       className="px-6 py-2 border border-primary text-primary rounded-lg hover:bg-primary hover:text-primary-foreground transition-colors"
                     >
                       Read Case Study
+                    </a>
+                  )}
+                  {project.links.writeup && (
+                    <a
+                      href={project.links.writeup}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-6 py-2 border border-primary text-primary rounded-lg hover:bg-primary hover:text-primary-foreground transition-colors"
+                    >
+                      Engineering Write-up
                     </a>
                   )}
                 </div>

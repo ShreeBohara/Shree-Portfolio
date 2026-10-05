@@ -235,6 +235,14 @@ export function DetailsPanel() {
                     </a>
                   </Button>
                 )}
+                {project.links.writeup && (
+                  <Button variant="outline" className="justify-start hover:border-accent-color/50 hover:text-accent-color hover:bg-accent-color/10" asChild>
+                    <a href={project.links.writeup} target="_blank" rel="noopener noreferrer">
+                      <FileText className="h-4 w-4 mr-2" />
+                      Engineering Write-up
+                    </a>
+                  </Button>
+                )}
               </div>
             </div>
           </div>

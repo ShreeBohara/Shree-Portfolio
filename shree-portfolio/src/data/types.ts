@@ -27,6 +27,7 @@ export interface Project {
     live?: string;       // Live demo URL
     github?: string;     // GitHub repository
     caseStudy?: string;  // Detailed write-up
+    writeup?: string;    // Public engineering write-up, separate from source code
     video?: string;      // Demo video
   };
 

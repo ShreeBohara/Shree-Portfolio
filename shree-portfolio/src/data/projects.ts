@@ -51,7 +51,10 @@ export const projects: Project[] = [
     myRole: 'Translated a trader’s method into software and owned the system design, verification and operator workflow, directing AI-assisted implementation. The trader owns the strategy; this is a software project, with a private source repository.',
     technologies: ['Python', 'FastAPI', 'React', 'TypeScript', 'Socket.IO', 'WebSockets'],
     tags: ['Event Sourcing', 'Replay', 'Order State', 'Risk Controls', 'Realtime Systems'],
-    links: { caseStudy: 'https://github.com/ShreeBohara/refuses-to-trade' },
+    links: {
+      caseStudy: '/work/algorithmic-options-trading-system',
+      writeup: 'https://github.com/ShreeBohara/refuses-to-trade',
+    },
     images: {
       thumbnail: '/images/projects/options-trading.webp',
       thumbnailAlt: 'Options Trading — Replay & order gates. Conceptual illustration of a market feed, replay ledger and order gates with the broker path paused.',

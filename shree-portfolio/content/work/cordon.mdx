@@ -79,7 +79,7 @@ builtWith:
     The threat model, the decision to contain rather than detect, the 14-type
     event contract frozen as the first commit, the phase gates and their exit
     tests, and the choice to disclose the false positive instead of tuning it out.
-  notBroken: 22 automated tests; 20 run offline in 0.34s, two need live credentials.
+  notBroken: August 6, 2026 source record lists 22 automated tests; 20 ran offline in 0.34s and two required live credentials. These project checks were not rerun for this page.
 askSuggestions:
   - How does containment differ from detecting prompt injection?
   - What happens to agents that were never exposed?
@@ -88,38 +88,133 @@ related: [delta-sentinel]
 order: 1
 featured: true
 sourceDossier: corpus/projects/cordon.md
-updated: 2026-10-04
+updated: 2026-10-05
 ---
 
-## Limit what an exposed agent can do
+## The failure I designed around
 
-An agent can encounter hostile instructions while reading a document or
-receiving a handoff. CORDON explores how an agent runtime can restrict sensitive
-actions after that exposure, while retaining useful work by other agents.
+An inbox agent reads a hostile email, passes its instructions to a research
+agent, and that agent delegates to a coding agent. The coder then asks for a
+protected deploy credential. Each handoff looks like ordinary work; the agents
+can still authenticate correctly even though untrusted content has changed
+what they are trying to do.
 
-## Assume the injection lands
+I designed CORDON around that path: assume the injection reaches an agent, then
+restrict its authority at the tool and credential boundary. The goal is to
+contain the exposed path while letting unaffected agents continue useful work.
 
-The runtime records provenance taint when an agent reads an untrusted channel.
-Credential requests pass through a broker that checks this state before calling
-its secret resolver. The recorded fixture reported
-<Fact id="secrets-leaked" />. That observation is scoped to those controlled
-tests; the threat model still depends on instrumented tool calls and handoffs.
+## Put authority behind a runtime boundary
 
-## Tracing the outbreak
+Instrumented tool calls, handoffs and credential requests pass through a Python
+reference monitor. Tools have configured trust labels: reading an email or web
+page marks the caller as tainted because of the source, without asking the model
+whether the text looks malicious. A handoff from a tainted agent propagates
+that state. Within a run, exposure cannot be cleared by moving the agent back to
+a healthy state.
 
-The reference monitor follows the recorded delegation graph to identify exposed
-agents and request their quarantine. Decisions are written to an Ed25519-signed,
-hash-chained audit log for replay. Agent taint and broker controls are separate
-from hardware isolation; the sandbox setup does not establish that boundary.
+The credential broker checks taint before calling its secret resolver. This
+ordering matters: fetching a secret and withholding it afterward would still
+bring it into process memory. The controlled fixture recorded
+<Fact id="secrets-leaked" />; tests also check that the resolver was not called
+for a denied request. The boundary depends on tool calls and handoffs being
+instrumented. It does not establish protection for arbitrary integrations that
+bypass the monitor.
 
-## What the evaluation shows
+## Quarantine the path that carried exposure
 
-<Fact id="attack-success" /> against <Fact id="attack-success-baseline" /> for
-the keyword baseline, while preserving <Fact id="utility" /> of benign work. The
-number worth stating plainly is the other one: <Fact id="false-positive" />.
+When a tainted agent requests sensitive access for an outbound action, CORDON
+traces backward through the delegation graph to the origin of exposure, then
+forward to the agents it reached. Each edge records whether the sender was
+tainted at handoff time. That distinction keeps an earlier, clean delegation
+from implicating the orchestrator, and leaves an agent outside the exposed path
+unaffected.
 
-The evaluation is <Fact id="eval-size" />: ten handcrafted attacks and seven
-benign controls. One benign request was denied. These results describe this
-fixture and baseline, not universal prompt-injection protection. The default
-demo is scripted; live integrations require provider credentials. No current
-remote-service availability or new evaluation was established by this update.
+Quarantine denies further broker requests and asks the sandbox adapter to freeze
+the affected agents. Credential “revocation” here means denial by CORDON's
+broker, not revocation of a vault service-account token. The sandbox integration
+is another containment action; it does not establish hardware isolation.
+
+## Make the decisions inspectable
+
+Decisions are recorded in an Ed25519-signed, SHA-256 hash-chained audit log.
+Verification checks the signatures and chain links for tampering; the log is an
+account of recorded events, not proof that every external action was observed.
+
+I froze the typed event contract before building its consumers. The dashboard
+uses the same pure state reducer for live Server-Sent Events and scripted
+replay. Seeking backward recomputes state from an event prefix instead of trying
+to undo prior mutations. This let the interface be built against recorded
+events before the agent swarm was ready.
+
+## Compare attacks and useful work together
+
+The recorded evaluation contains <Fact id="eval-size" />: ten handcrafted
+injections and seven benign controls. Attack variants include direct requests,
+social engineering, obfuscated wording and multi-hop handoffs. Some benign
+controls contain innocuous trigger words, so the comparison also tests the cost
+of a naive keyword detector. These results were measured against the recorded
+checkout on August 6, 2026.
+
+<ComparisonTable>
+  <caption>Recorded outcomes on the same fixture</caption>
+  <thead>
+    <tr>
+      <th scope="col">Outcome</th>
+      <th scope="col">CORDON</th>
+      <th scope="col">Keyword baseline</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row">Successful attacks</th>
+      <td>0 of 10 (<Fact id="attack-success" />)</td>
+      <td>6 of 10 (<Fact id="attack-success-baseline" />)</td>
+    </tr>
+    <tr>
+      <th scope="row">Benign tasks preserved</th>
+      <td>6 of 7</td>
+      <td>3 of 7</td>
+    </tr>
+  </tbody>
+</ComparisonTable>
+
+That is <Fact id="utility" /> of benign work preserved, respectively. The
+tradeoff is <Fact id="false-positive" />: a legitimate deploy request
+following untrusted input was denied. Agent-level taint is deliberately coarse;
+it records exposure, not whether a particular instruction is safe. I kept that
+case in the evaluation and disclosed it rather than tuning it away.
+
+This is a bounded synthetic comparison against a naive keyword baseline. It
+does not demonstrate representative production coverage or superiority over
+other agent-security systems.
+
+## What is implemented, and what the demo illustrates
+
+The repository contains the security engine, credential and sandbox adapters,
+signed audit records and an OpenAI Agents SDK swarm. The default demonstration
+uses a scripted attack and recorded event playback. In standalone mode,
+backend-dependent controls are omitted; running the real integrations requires
+provider credentials. The public replay does not establish current
+remote-service availability, which was not rechecked for this page.
+
+The prototype keeps its state in memory, mirrors its Python and TypeScript event
+contracts manually, and freezes sandboxes serially. Persistent state, enforced
+contract synchronization and broader evaluations remain engineering work before
+making a production-readiness claim. This case study adds no new execution or
+evaluation evidence.
+
+## My contribution and the build process
+
+I built CORDON with Claude Code as a research and implementation partner. My
+contribution was the threat model, the choice to contain exposure at the runtime
+boundary, the event contract, phase gates with exit tests, and the decision to
+report the false positive. AI-assisted implementation is part of the work; the
+agent swarm inside the product is the subject being contained, not the source
+of its safety decisions.
+
+The first-place event result and 37-team field are recorded from my
+confirmation; an independent public award record is not linked here.
+
+[View the public repository](https://github.com/ShreeBohara/cordon-agi-house) ·
+[Watch the recorded demo](https://youtu.be/wDH33k4yc7Q) ·
+[Back to the CORDON project](/projects/cordon)

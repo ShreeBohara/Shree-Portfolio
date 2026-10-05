@@ -13,8 +13,9 @@ const selectedProjects = selectedIds.map(id => {
     title: project.title,
     duration: project.duration,
     summary: project.summary,
-    // Use an existing public artifact while the site update awaits publication.
+    // Prefer the supplied public artifact over a private implementation source.
     url: project.links.github
+      || project.links.writeup
       || (project.links.caseStudy?.startsWith('https://') ? project.links.caseStudy : undefined)
       || `https://shreebohara.com/projects/${project.slug}`,
   };

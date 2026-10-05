@@ -27,6 +27,7 @@ export function chunkProject(project: Project): ContentChunk[] {
     ['Source repository', project.links.github],
     ['Supplied demo link', project.links.live],
     ['Case study / engineering write-up', project.links.caseStudy],
+    ['Public engineering write-up (not implementation source)', project.links.writeup],
     ['Video', project.links.video],
   ].filter(([, url]) => url).map(([label, url]) => `${label}: ${url}`).join('\n');
 

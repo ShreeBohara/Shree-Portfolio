@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { cn } from '@/lib/utils';
 
 export type FactProvenance =
@@ -42,17 +42,28 @@ const PROVENANCE_COPY: Record<FactProvenance, string> = {
  */
 export function Fact({ fact, className }: { fact: FactData; className?: string }) {
   const [open, setOpen] = useState(false);
+  const receiptId = useId();
+
+  useEffect(() => {
+    if (!open) return;
+    const dismiss = (event: KeyboardEvent) => { if (event.key === 'Escape') setOpen(false); };
+    document.addEventListener('keydown', dismiss);
+    return () => document.removeEventListener('keydown', dismiss);
+  }, [open]);
 
   return (
-    <span className={cn('relative inline-block', className)}>
+    <span
+      className={cn('relative inline-block', className)}
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={(event) => { if (!event.currentTarget.contains(document.activeElement)) setOpen(false); }}
+    >
       <button
         type="button"
-        onMouseEnter={() => setOpen(true)}
-        onMouseLeave={() => setOpen(false)}
         onFocus={() => setOpen(true)}
         onBlur={() => setOpen(false)}
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => setOpen(true)}
         aria-expanded={open}
+        aria-describedby={open ? receiptId : undefined}
         aria-label={`${fact.label}: ${fact.value}. ${PROVENANCE_COPY[fact.provenance]}. Source: ${fact.source}`}
         className={cn(
           'font-mono tabular-nums underline decoration-dotted underline-offset-4 cursor-help',
@@ -66,8 +77,9 @@ export function Fact({ fact, className }: { fact: FactData; className?: string }
 
       {open && (
         <span
+          id={receiptId}
           role="tooltip"
-          className="absolute left-0 top-full z-50 mt-2 block w-72 rounded-lg border bg-background p-3 text-left text-xs shadow-lg"
+          className="absolute left-0 top-full z-50 block w-72 rounded-lg border bg-background p-3 text-left text-xs shadow-lg max-lg:fixed max-lg:bottom-6 max-lg:left-6 max-lg:right-6 max-lg:top-auto max-lg:w-auto"
         >
           <span className="block font-medium text-foreground">{fact.label}</span>
           <span className="mt-1 block text-muted-foreground">

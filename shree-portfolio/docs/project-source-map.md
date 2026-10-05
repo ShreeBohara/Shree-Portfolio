@@ -46,3 +46,48 @@ These entries preserve the original catalog's IDs, routes and available thumbnai
 `Project` has no status/source/builtWith field. Relevant public status is therefore in `duration` and `impact`; supported AI attribution is in `myRole`. Source provenance stays here instead of becoming another public content panel. Historical coding-tool use is not inferred where evidence is absent.
 
 External code, video, paper and write-up links are supplied reference destinations, not assertions that a remote service is currently live. New placeholder images and invented demo URLs are omitted. The site's existing case studies should be reviewed alongside this catalog so their richer copy retains the same boundaries.
+
+## Case-study review, October 5, 2026
+
+FaultLab and CORDON now expand their existing safe case studies with concrete
+failure scenarios, design choices, historical outcomes and explicit limits.
+The trading project has a new `/work/algorithmic-options-trading-system` page.
+Its catalog `caseStudy` links to that page; optional `links.writeup` preserves
+the public `refuses-to-trade` engineering repository separately from the private
+implementation. The project page, detail panel, assistant context and résumé
+projection keep that distinction. The résumé continues to link to the same
+public engineering artifact.
+
+- FaultLab scenario, roles, campaign and continuation:
+  [dossier](/Users/shree/Projects/Claude_Resume_Work/corpus/projects/faultlab.md:42),
+  [historical facts](/Users/shree/Projects/Claude_Resume_Work/corpus/facts.md:696)
+  and [continuation](/Users/shree/Projects/Claude_Resume_Work/corpus/projects/faultlab.md:107).
+  Existing three metric declarations are unchanged. Imported-regression retry
+  guarantees describe that workflow, not every historical execution path.
+- CORDON tool boundary, broker ordering and tracing:
+  [dossier](/Users/shree/Projects/Claude_Resume_Work/corpus/projects/cordon.md:95),
+  [paired evaluation](/Users/shree/Projects/Claude_Resume_Work/corpus/projects/cordon.reference.md:1036)
+  and [dated metrics](/Users/shree/Projects/Claude_Resume_Work/corpus/facts.md:540).
+  Its six metric declarations and award metadata are unchanged. The table
+  compares attack success and preserved benign tasks on the same fixture;
+  baseline success is not relabeled as its blocking rate. Broker denial is not
+  described as vault-token revocation or hardware isolation.
+- Trading design and historical records:
+  [public architecture](/Users/shree/Projects/refuses-to-trade/README.md:36),
+  [gates](/Users/shree/Projects/refuses-to-trade/README.md:63),
+  [decisions](/Users/shree/Projects/refuses-to-trade/README.md:103),
+  [counted records](/Users/shree/Projects/refuses-to-trade/README.md:18) and
+  [canonical constraints](/Users/shree/Projects/Claude_Resume_Work/corpus/experience/sb-group/01-trading-system.md:48).
+  Three metric receipts use the corpus's measured rows for structural gate
+  count, strategy-built intents and disabled broker submissions. The timeout
+  scenario is explicitly illustrative. Conflicting gate rosters and differently
+  scoped session/test totals are omitted. No source-project checks or broker
+  executions were performed during this website edit.
+
+The copy is organized around the reader's problem, decisions and evidence,
+consistent with Google's [audience guidance](https://developers.google.com/tech-writing/one/audience)
+and [document structure guidance](https://developers.google.com/tech-writing/one/documents).
+The established layout and content renderer are retained, with readable list
+markers and an accessible comparison table. The `/work` route's existing
+noindex behavior is unchanged; this update does not start a UI redesign or
+change the public project evidence cutoff.

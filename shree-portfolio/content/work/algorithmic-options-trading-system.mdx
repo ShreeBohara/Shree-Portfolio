@@ -1,0 +1,165 @@
+---
+title: Algorithmic Options Trading System
+subtitle: Fail-closed execution, explicit order state and replayable evidence
+tier: case-study
+status: private
+summary: >-
+  Recorded 349 strategy-built execution intents with broker submission disabled.
+  Python and React tooling keeps uncertain order state visible and separates a
+  trader's method from permission to execute it.
+dates:
+  start: "2023"
+  end: Present
+  display: 2023 – Present
+links:
+  writeup: https://github.com/ShreeBohara/refuses-to-trade
+stack: [Python, FastAPI, React, TypeScript, Socket.IO, WebSockets, JSONL]
+tags: [systems, reliability, event-sourcing, operator-tools]
+metrics:
+  - id: execution-gates
+    label: Fail-closed gates in the execution design
+    value: "11"
+    provenance: measured
+    source: "facts.md: trading system › Safety gates"
+    note: A count of structural controls, not evidence that every gate worked in a broker execution.
+  - id: recorded-intents
+    label: Recorded strategy-built execution intents
+    value: "349"
+    provenance: measured
+    source: "facts.md: trading system › Strategy-built orders"
+    note: Historical 2026 execution_intent records with live execution disabled; these are not broker-submitted or filled orders.
+  - id: broker-submissions
+    label: Broker submissions with execution disabled
+    value: "0"
+    provenance: measured
+    source: "facts.md: trading system › Orders placed"
+    note: Every recorded session had live_orders_enabled=false. This does not establish the effectiveness of every gate or live-money readiness.
+builtWith:
+  duration: Project begun in 2023; this page describes the 2026 rebuild and its historical observe/paper records.
+  tools: [Codex]
+  agentLanes: AI coding agents implemented much of the code under Shree's direction.
+  handWritten: >-
+    Software specification, system design, verification and the operator workflow,
+    directing AI-assisted implementation. The trader owns the strategy.
+  notBroken: >-
+    The public engineering record and historical observe/paper logs, with execution
+    disabled. Those records do not validate every gate, broker fill handling or
+    emergency execution; this page did not rerun the private implementation.
+  coAuthored: true
+askSuggestions:
+  - Why is an unknown broker response different from a rejected order?
+  - What do the recorded intents and zero submissions establish?
+  - Why use an append-only log instead of a database?
+related: [faultlab]
+order: 2
+featured: true
+updated: 2026-10-05
+---
+
+## Encode the method without hiding uncertainty
+
+A trader's mechanical rules can be expressed in software. Deciding whether the
+software has enough information and permission to act is a separate problem.
+A stale price, an ambiguous contract mapping or a missing broker response can
+make an otherwise valid strategy decision unsafe to execute.
+
+Shree built Python services and a React operator dashboard around that
+distinction. The strategy produces an intent; the execution boundary decides
+whether it may reach the broker. The system is designed for supervised use,
+with an operator able to pause it. It is a software project dated 2023–Present,
+and the measurements on this page concern its 2026 rebuild.
+
+## A missing response is not a failed order
+
+Consider an illustrative execution scenario: a submission request times out,
+but the broker may already have received it. Treating the timeout as a rejection
+and submitting again could duplicate an effect. Treating it as success could
+invent a position the system does not actually hold.
+
+This is a design example, not a recorded broker submission. The documented
+response is to keep **UNKNOWN** as an explicit order state:
+
+1. Record that the submission outcome needs reconciliation.
+2. Read the broker's order book and match the request using its order tag.
+3. Block new entries while an unknown order remains unresolved.
+
+Cancel and modify timeouts receive the same ambiguity treatment. Reads can be
+retried; writes are not blindly repeated. Order tags also carry enough identity
+for recovery to associate broker records with the originating trade cycle.
+This is the intended recovery contract, rather than evidence that every broker
+failure has been handled successfully.
+
+## Put the checks beside the external effect
+
+The design places <Fact id="execution-gates" /> fail-closed gates between a
+strategy decision and an order leaving the process. They cover execution permission,
+operator state, unresolved broker state, market-data health and contract
+compatibility. A refusal or an exception in a check is recorded with its reason;
+silence is not treated as permission.
+
+Entry and exit paths use different check sets. A data-quality condition that
+blocks a new entry should not simply become an identical block on leaving an
+existing position. The dashboard shows the reasons for disabled actions instead
+of rebuilding the execution rules in the browser.
+
+These controls are design boundaries. Counting them does not measure their
+effectiveness, and the recorded zero-submission result cannot be attributed to
+all of them: execution was disabled in those records.
+
+## Make the log useful to more than the runner
+
+An append-only JSONL event log is the system of record. The dashboard, ledgers,
+replay and recovery read that record rather than each maintaining a separate
+version of what happened. Operator controls travel through a separate channel,
+so the dashboard's read model does not rewrite the execution history.
+
+The log reader consumes complete, newline-terminated records and resumes from
+its last byte offset. A partially written final record waits for completion
+instead of becoming a dashboard parse error. Replay also makes a recorded
+session available for investigation without repeating broker effects.
+
+The trade-off is deliberate: JSONL makes the history easy to inspect and replay,
+but does not provide database queries. A new analysis needs a reader or
+projection. It is an approach for this supervised system, not a claim that a
+file log replaces a database in every application.
+
+## What Shree contributed
+
+The trader owns the strategy. Shree translated that method into software and
+owned the system design, verification and operator workflow. He directed AI
+coding agents through much of the implementation, including the work on
+execution boundaries and the dashboard. His contribution was the software
+specification, design, review and verification of that AI-assisted work.
+
+The engineering choices are the contribution: distinguish intent from
+permission, preserve unknown state, reconcile before proceeding and give the
+operator a record they can inspect.
+
+## What the recorded results establish
+
+Historical 2026 observe/paper records contain <Fact id="recorded-intents" />
+strategy-built execution intents and <Fact id="broker-submissions" /> broker
+submissions. Live execution was disabled throughout those records. Market-data
+input was real; paper fills were simulated locally.
+
+That establishes that the strategy produced intents while submission was
+disabled. It does not establish live-money readiness, the effectiveness of
+every gate or successful broker fill, cancel and emergency-exit handling.
+Late-reported fills and an exit that cannot fill remain separate operational
+risks in the public write-up.
+
+These are Shree's historical measurements of the private implementation,
+published with counting methods. They are not an independent audit. This case
+study did not rerun its tests or perform broker execution, and it makes no
+investment-performance claim.
+
+## Read the public engineering record
+
+The implementation source is private. The
+[public engineering write-up](https://github.com/ShreeBohara/refuses-to-trade)
+contains architecture, decisions, post-mortems and small synthetic excerpts
+written for that repository. Those excerpts are not the private application
+source. Strategy parameters, account details, credentials and raw session logs
+are outside this case study.
+
+[Back to project](/projects/algorithmic-options-trading-system)

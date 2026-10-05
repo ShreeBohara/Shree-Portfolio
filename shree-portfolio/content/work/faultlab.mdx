@@ -56,59 +56,111 @@ related: [cordon]
 order: 3
 featured: false
 sourceDossier: corpus/projects/faultlab.md
-updated: 2026-10-04
+updated: 2026-10-05
 ---
 
-## Test the tool failure, then test the repair
+## When the tool succeeds but its response disappears
 
-An upgrade request can succeed while its response disappears. Retrying may
-duplicate an effect; reporting success may invent evidence. FaultLab exposes
-that ambiguity in a synthetic shop, with no real orders or customers involved.
+The task sounds simple: upgrade an order and send one truthful confirmation.
+But an upgrade can commit while its response is lost. The agent cannot tell
+whether to retry, wait or report success. A retry risks a duplicate effect;
+a confident answer without a receipt risks inventing evidence.
 
-An Actor performs the task, an Explorer chooses faults and a Mechanic proposes
-bounded recovery hooks. The Referee grades effects and reports with
-<Fact id="referee-checks" />. It is fixed code, so the proposing model cannot
-talk itself into a passing grade.
+FaultLab makes that ambiguity happen in a synthetic shop. Delay, lost responses,
+stale reads and temporary errors are controlled faults, with no real orders or
+customers involved. The question is whether an agent can recover safely, and
+whether a proposed recovery rule survives a harder case.
 
-## Preserve the whole evidence chain
+## Separate the proposal from the verdict
 
-Each world has its own SQLite database. Clock changes and effects are serialized
-in transactions, while receipt and event histories are protected from rewriting.
-Fresh reproduction, reduction, controlled diagnosis, source validation,
-adversarial challenge and promotion are separate stages. A missing verdict,
-lab error or fault that never fired remains visible.
+The Actor performs the shop task. The Explorer chooses fault schedules and
+later tries to break a candidate repair. The Mechanic proposes bounded recovery
+hooks from the recorded evidence. The Referee grades tool effects and the final
+report with <Fact id="referee-checks" />, using the simulator's private truth.
+It is fixed code: the model proposing a repair does not grade its own work.
 
-The React dashboard keeps opening saved evidence separate from executing a new
-trial. Importing a regression ZIP saves historical source evidence without a
-provider request or policy activation. A fresh rerun displays its task, target
-and spending bound, then binds the manifest and target configuration to a saved
-request ID. A timeout keeps that ID unresolved, so retrying the same request
-recovers its existing execution rather than starting another.
+Python and FastAPI expose the lab, while each simulated world has its own SQLite
+database. Transactions serialize clock changes and effects; protected receipt,
+projection and event histories preserve what actually happened. The React
+dashboard presents that evidence and the backend's decisions.
 
-## What the historical trace count means
+## Make each stage earn the next
 
-The September 14, 2026 campaign read back <Fact id="historical-traces" /> by exact
-trace ID and matched them to local records. This verifies that campaign's trace
-evidence. It does not validate later source code, prove a repair effective or
-describe a production agent. Its candidate validation batches disagreed, and an
-adversarial counterexample blocked promotion.
+The loop first reproduces a failure in fresh worlds, then reduces the fault to
+the smallest recipe that still breaks the agent. A controlled experiment tests
+the explanation before the Mechanic proposes a rule. Source validation checks
+that rule against the original failure; an adversarial challenge tests whether
+it survives different fault schedules. Promotion is a separate gate.
 
-## Where the continuation stands
+These stages retain different outcomes. An agent violation, a lab error and a
+scheduled fault that never fired cannot be treated as the same result. A source
+validation pass alone cannot replace the active policy.
 
-Through the September 30, 2026 record, some native-agent candidates passed source
-validation and ran challenges with no failed checks. A scheduled fault still
-did not fire, so those challenges remained inconclusive. Generated accepted
-policies: <Fact id="generated-accepted" />; the recorded baseline `policy-v0`
-remained active. Full product acceptance and accepted-repair transfer are unproven.
+## The historical campaign rejected its own repair
 
-The diagnosis repair now records validation attempts and distinguishes a valid
-model request from a code default. An additional diagnosis guide was built, but
-it is **not offered in normal Learn runs**. The first request-only probe did not
-meet its declared acceptance rule; the second was incomplete after provider
-payment-required responses. Those probes do not establish improved end-to-end
-repair effectiveness, and provider availability was not rechecked for this page.
+In the September 14, 2026 campaign, a delayed upgrade response left the Actor
+polling for status without filing its final report. The failure reproduced in
+three fresh worlds; removing the fault let the agent complete all three.
 
-The evidence comes from the public repository's
-[historical README](https://github.com/ShreeBohara/faultlab/blob/main/README.md),
-and the local dated continuation records cited by the résumé corpus. This local
-page update does not publish or push those continuation records.
+The Mechanic proposed re-reading the order, waiting, replaying the request once
+and never confirming without a receipt. One validation batch passed all three
+trials, while other batches passed one and two: the results disagreed. The
+Explorer then combined a longer delay with a slow response, and the rule broke
+in all three challenge trials. Promotion was blocked. After receiving the
+counterexample, the original Mechanic proposed the same rule again; the run
+ended `no change`.
+
+That campaign also read back <Fact id="historical-traces" /> by exact Weave trace
+ID and matched them to local records. This verifies its trace evidence, not
+repair effectiveness, later source code or a production agent.
+
+## Reviewing history must not execute it
+
+The continuation added a regression-review workflow. Importing a ZIP saves
+historical source evidence without a provider request, new trial or policy
+activation. Its original decision remains historical rather than becoming a
+local acceptance claim.
+
+A fresh imported regression run is a separate action. The dashboard shows its
+task, target and spending bound before confirmation. The backend binds the
+store, manifest and target configuration to a saved request ID and charges model
+requests, including transport retries, under the declared ceiling. If the
+response times out, the UI retains the unresolved ID: checking or retrying that
+same request recovers its execution rather than starting another. Runtime
+fingerprints keep older evidence attached to the code that produced it.
+
+## What remains unproven
+
+Through September 30, 2026, some native-agent candidates passed source validation
+and completed challenges with no failed checks. A scheduled status-read fault
+still did not fire, so those challenges remained inconclusive. Generated
+accepted policies: <Fact id="generated-accepted" />; recorded active pointers
+remained at `policy-v0`. Full product acceptance and accepted-repair transfer
+remain unproven.
+
+The diagnosis step also exposed a failure in the lab itself: an overlength model
+hypothesis failed schema validation, and code stored an inconclusive default.
+The repair preserves attempts and validation errors and distinguishes a valid
+model request from a code default. Recorded offline checks support that software
+change; they do not establish improved end-to-end repair effectiveness.
+
+An additional diagnosis guide was built but is **not offered in normal Learn
+runs**. Its first request-only probe did not meet the declared acceptance rule;
+the second was incomplete after provider errors. Provider availability was not
+rechecked for this page.
+
+## Co-development and evidence
+
+I co-developed the original project with Aryan Bhusari as members of Team
+Gatekeeper, a two-person team at CoreWeave Hacks. Implementation and review
+continued with Claude and Cursor Agent. The capabilities described here belong
+to the team project; the records do not establish sole authorship of every
+later component.
+
+The [public repository](https://github.com/ShreeBohara/faultlab) includes the
+[historical campaign README](https://github.com/ShreeBohara/faultlab/blob/main/README.md). The résumé
+corpus also cites dated local continuation records through September 30. This
+page does not publish those records or imply that all later changes are present
+in the public repository.
+
+[Back to the FaultLab project](/projects/faultlab)

@@ -10,6 +10,7 @@ import ts from 'typescript';
 import { projects, experiences, education, personalInfo } from '../src/data/portfolio';
 import { contentUpdatedAt, siteDescription } from '../src/data/site';
 import { chunkProject, chunkExperience, chunkPersonalInfo, chunkAllContent } from '../src/lib/ai/chunking';
+import { getChatLinkLabel } from '../src/lib/chat-links';
 import { lint, lintText, lintPublicStrings, type Rule } from '../scripts/lint-content';
 
 function loadPublicModule<T>(file: string, extra: Record<string, unknown> = {}): T {
@@ -95,10 +96,28 @@ test('FaultLab public content preserves historical evidence and unaccepted conti
   assert.match(caseStudy, /source: "facts\.md: FaultLab › Weave traces verified"/);
   assert.match(caseStudy, /id: generated-accepted[\s\S]*?value: "0"/);
   assert.match(caseStudy, /September 30, 2026/);
-  assert.match(caseStudy, /not offered in normal Learn runs/);
+  assert.match(caseStudy, /not offered in normal Learn\s+runs/);
   assert.match(caseStudy, /request-only probe/);
   assert.match(caseStudy, /status: repo/);
   assert.doesNotMatch(caseStudy, /^\s+live:/m);
+});
+
+test('the trading case study and public write-up remain separate from private implementation code', async () => {
+  const project = projects.find(item => item.id === 'project-trading');
+  assert.ok(project);
+  assert.equal(project.links.caseStudy, '/work/algorithmic-options-trading-system');
+  assert.equal(project.links.writeup, 'https://github.com/ShreeBohara/refuses-to-trade');
+  assert.equal(project.links.github, undefined);
+  const page = loadPublicModule<{ default: (props: { params: Promise<{ slug: string }> }) => Promise<ReactNode> }>('src/app/projects/[slug]/page.tsx');
+  const markup = renderToStaticMarkup(await page.default({ params: Promise.resolve({ slug: project.slug }) }));
+  assert.match(markup, /href="\/work\/algorithmic-options-trading-system"[^>]*>Read Case Study<\/a>/);
+  assert.match(markup, /href="https:\/\/github.com\/ShreeBohara\/refuses-to-trade"[^>]*>Engineering Write-up<\/a>/);
+  assert.doesNotMatch(markup, />View on GitHub<\/a>/);
+  const context = chunkProject(project).map(chunk => chunk.content).join('\n');
+  assert.match(context, /Implementation source: Private repository/);
+  assert.ok(context.includes(`Case study / engineering write-up: ${project.links.caseStudy}`));
+  assert.ok(context.includes(`Public engineering write-up (not implementation source): ${project.links.writeup}`));
+  assert.equal(getChatLinkLabel('source repository', project.links.writeup), 'engineering write-up');
 });
 
 test('the complete catalog reaches static routes, detail metadata, sitemap and uniquely identified chat chunks', async () => {
