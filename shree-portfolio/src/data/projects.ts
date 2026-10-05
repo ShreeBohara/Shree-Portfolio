@@ -16,8 +16,8 @@ export const projects: Project[] = [
     impact: 'The historical September 14 campaign matched 143 of 143 Weave traces to local records. Through the September 30 continuation, zero generated policies were accepted: incomplete fault exposure and lab errors remained visible, with the original baseline retained.',
     metrics: [
       { label: 'Code referee', value: '8 checks' },
-      { label: 'Historical trace verification · Sep 14', value: '143 of 143' },
       { label: 'Generated policies accepted · Sep 30', value: '0 · baseline retained' },
+      { label: 'Historical trace verification · Sep 14', value: '143 of 143' },
     ],
     myRole: 'Co-developed with Aryan Bhusari as members of Team Gatekeeper (a two-person team), followed by continued AI-assisted engineering. The implementation and experiment results describe team capabilities; individual ownership of every later component is not established.',
     teamSize: 2,
@@ -42,10 +42,10 @@ export const projects: Project[] = [
     summary: 'Live execution was disabled in recorded sessions. This Python and React tooling encodes a trader’s method, keeps uncertain order state explicit and has a public engineering write-up.',
     problem: 'A trader’s mechanical rules need consistent execution, while uncertain broker responses and stale market data require a clear reason to stop and a way to reconstruct what happened.',
     approach: 'Built a market-data pipeline, operator dashboard and replay engine around an append-only event log. Eleven fail-closed gates sit between strategy decisions and the broker; ambiguous submissions are reconciled against the broker’s order book before further action.',
-    impact: 'Recorded 349 strategy-built orders and zero broker submissions while live execution was disabled. These records demonstrate observe/paper-mode behavior; live-money readiness and the effectiveness of every gate remain unproven.',
+    impact: 'Recorded 349 strategy-built execution intents and zero broker submissions while live execution was disabled. These records demonstrate observe/paper-mode behavior; live-money readiness and the effectiveness of every gate remain unproven.',
     metrics: [
       { label: 'Order admission design', value: '11 fail-closed gates' },
-      { label: 'Recorded strategy-built orders', value: '349' },
+      { label: 'Recorded execution intents', value: '349' },
       { label: 'Broker submissions · execution disabled', value: '0' },
     ],
     myRole: 'Translated a trader’s method into software and owned the system design, verification and operator workflow, directing AI-assisted implementation. The trader owns the strategy; this is a software project, with a private source repository.',

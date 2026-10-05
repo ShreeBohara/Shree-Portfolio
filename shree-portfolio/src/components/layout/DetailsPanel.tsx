@@ -165,6 +165,12 @@ export function DetailsPanel() {
                 <p className="text-muted-foreground">{project.summary}</p>
               </div>
 
+              {/* My Role */}
+              <div>
+                <h3 className="font-medium mb-1">My Role</h3>
+                <p className="text-sm text-muted-foreground">{project.myRole}</p>
+              </div>
+
               {/* Metrics */}
               <div className="grid grid-cols-2 gap-3">
                 {project.metrics.map((metric) => (
@@ -189,12 +195,6 @@ export function DetailsPanel() {
                   <h3 className="font-medium mb-1">Impact</h3>
                   <p className="text-sm text-muted-foreground">{project.impact}</p>
                 </div>
-              </div>
-
-              {/* My Role */}
-              <div>
-                <h3 className="font-medium mb-1">My Role</h3>
-                <p className="text-sm text-muted-foreground">{project.myRole}</p>
               </div>
 
               {/* Technologies */}

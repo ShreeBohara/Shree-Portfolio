@@ -644,20 +644,20 @@ export function ChatInterface() {
                       ease: [0.22, 1, 0.36, 1],
                     }}
                   >
-                    {/* Projects count */}
-                    <Link href="/browse?section=projects" aria-label="Projects">
+                    {/* Direct project navigation */}
+                    <Link href="/browse?section=projects" aria-label="View projects">
                       <motion.div
                         className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground/80 hover:text-accent-color transition-colors"
                         whileHover={{ scale: 1.05 }}
                       >
                         <FolderKanban className="h-3.5 w-3.5 sm:h-4 sm:w-4" style={{ color: accentColor }} />
-                        <span className="hidden sm:inline">Projects</span>
+                        <span>View projects</span>
                       </motion.div>
                     </Link>
 
 
 
-                    <span className="text-muted-foreground/30">|</span>
+                    <span className="hidden text-muted-foreground/30 sm:inline">|</span>
 
                     {/* QuinStreet */}
                     <Link href="/browse?section=experience">
@@ -670,7 +670,7 @@ export function ChatInterface() {
                       </motion.div>
                     </Link>
 
-                    <span className="text-muted-foreground/30">|</span>
+                    <span className="hidden text-muted-foreground/30 sm:inline">|</span>
 
                     {/* Location */}
                     <Link href="/about">

@@ -100,6 +100,18 @@ export default async function ProjectPage({
             <p className="text-xl text-muted-foreground">{project.summary}</p>
           </div>
 
+          {project.myRole && (
+            <section className="mb-8">
+              <h2 className="text-2xl font-semibold mb-3">My Role</h2>
+              <p className="text-muted-foreground">{project.myRole}</p>
+              {project.teamSize && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  Team Size: {project.teamSize} {project.teamSize === 1 ? 'person' : 'people'}
+                </p>
+              )}
+            </section>
+          )}
+
           {project.images?.thumbnail && project.images.thumbnailCaption && (
             <figure className="mb-8">
               <div className="relative aspect-[5/2] overflow-hidden rounded-lg border bg-[#111820]">
@@ -220,18 +232,6 @@ export default async function ProjectPage({
               </section>
             )}
 
-            {/* My Role */}
-            {project.myRole && (
-              <section>
-                <h2 className="text-2xl font-semibold mb-3">My Role</h2>
-                <p className="text-muted-foreground">{project.myRole}</p>
-                {project.teamSize && (
-                  <p className="text-sm text-muted-foreground mt-2">
-                    Team Size: {project.teamSize} {project.teamSize === 1 ? 'person' : 'people'}
-                  </p>
-                )}
-              </section>
-            )}
           </div>
         </div>
       </PortfolioLayout>

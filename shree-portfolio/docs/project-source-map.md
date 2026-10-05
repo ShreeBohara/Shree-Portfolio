@@ -91,3 +91,17 @@ The established layout and content renderer are retained, with readable list
 markers and an accessible comparison table. The `/work` route's existing
 noindex behavior is unchanged; this update does not start a UI redesign or
 change the public project evidence cutoff.
+
+### Reader review follow-up, October 5
+
+Three independent AI reviewers assessed the public copy from recruiter,
+engineering and first-time-visitor perspectives. This was an expert content
+review, not a study with real visitors. The follow-up names the quantities
+beside inline Fact values, consistently calls the trading records execution
+intents, and shows FaultLab's retained-baseline verdict on its Browse card.
+Existing My Role copy now appears directly after project summaries. Home
+distinguishes direct project navigation from AI topics, and case studies have
+compact return, Browse and email links. Contribution and validation labels use
+plain language. No metric values, historical evidence cutoffs or ownership
+claims changed; résumé projection and source publication boundaries remain the
+same. The established visual design is retained.

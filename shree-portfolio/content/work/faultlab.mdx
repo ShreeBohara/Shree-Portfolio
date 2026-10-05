@@ -76,7 +76,7 @@ whether a proposed recovery rule survives a harder case.
 The Actor performs the shop task. The Explorer chooses fault schedules and
 later tries to break a candidate repair. The Mechanic proposes bounded recovery
 hooks from the recorded evidence. The Referee grades tool effects and the final
-report with <Fact id="referee-checks" />, using the simulator's private truth.
+report with <Fact id="referee-checks" /> fixed-code checks, using the simulator's private truth.
 It is fixed code: the model proposing a repair does not grade its own work.
 
 Python and FastAPI expose the lab, while each simulated world has its own SQLite
@@ -110,8 +110,8 @@ in all three challenge trials. Promotion was blocked. After receiving the
 counterexample, the original Mechanic proposed the same rule again; the run
 ended `no change`.
 
-That campaign also read back <Fact id="historical-traces" /> by exact Weave trace
-ID and matched them to local records. This verifies its trace evidence, not
+That campaign also read back <Fact id="historical-traces" /> historical Weave traces
+by exact trace ID and matched them to local records. This verifies its trace evidence, not
 repair effectiveness, later source code or a production agent.
 
 ## Reviewing history must not execute it

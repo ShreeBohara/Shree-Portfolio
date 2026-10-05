@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import { MDXContent } from '@content-collections/mdx/react';
 import { workWithPages, workBySlug, publishableAwards } from '@/lib/content';
 import { mdxComponents } from '@/components/mdx';
+import { personalInfo, projects } from '@/data/portfolio';
 
 /**
  * Provisional renderer for the new content layer.
@@ -40,9 +42,20 @@ export default async function WorkPage({ params }: { params: Promise<{ slug: str
   if (!work || work.tier === 'one-liner') notFound();
 
   const awards = publishableAwards(work);
+  const project = projects.find((item) => item.links.caseStudy === `/work/${work.slug}`);
 
   return (
     <article className="mx-auto max-w-3xl px-6 py-16">
+      <nav aria-label="Case study navigation" className="mb-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
+        {project && (
+          <Link href={`/projects/${project.slug}`} className="underline underline-offset-4 hover:text-foreground">
+            Back to project
+          </Link>
+        )}
+        <Link href="/browse?section=projects" className="underline underline-offset-4 hover:text-foreground">
+          Browse projects
+        </Link>
+      </nav>
       <p className="font-mono text-xs uppercase tracking-wider text-muted-foreground">
         {work.dates.display ?? `${work.dates.start} – ${work.dates.end}`} · {work.status}
       </p>
@@ -76,15 +89,23 @@ export default async function WorkPage({ params }: { params: Promise<{ slug: str
             </div>
           )}
           <div>
-            <dt className="inline font-medium text-foreground">Mine: </dt>
+            <dt className="inline font-medium text-foreground">My contribution: </dt>
             <dd className="inline">{work.builtWith.handWritten}</dd>
           </div>
           <div>
-            <dt className="inline font-medium text-foreground">How &quot;not broken&quot; was decided: </dt>
+            <dt className="inline font-medium text-foreground">Validation: </dt>
             <dd className="inline">{work.builtWith.notBroken}</dd>
           </div>
         </dl>
       </section>
+      <nav aria-label="After the case study" className="mt-8 flex flex-wrap gap-x-6 gap-y-2 border-t pt-5 text-sm text-muted-foreground">
+        <Link href="/browse?section=projects" className="underline underline-offset-4 hover:text-foreground">
+          Browse projects
+        </Link>
+        <a href={`mailto:${personalInfo.links.email}`} className="underline underline-offset-4 hover:text-foreground">
+          Email Shree
+        </a>
+      </nav>
     </article>
   );
 }

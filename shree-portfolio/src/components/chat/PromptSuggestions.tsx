@@ -266,6 +266,7 @@ export function PromptSuggestions({ onSelectPrompt, isVisible, contextType }: Pr
 
   return (
     <div ref={containerRef} className="w-full max-w-3xl mx-auto flex flex-col items-center relative">
+      <p className="mb-2 text-xs text-muted-foreground">Choose a topic to ask the AI</p>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

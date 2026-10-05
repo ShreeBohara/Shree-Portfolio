@@ -115,7 +115,7 @@ a healthy state.
 The credential broker checks taint before calling its secret resolver. This
 ordering matters: fetching a secret and withholding it afterward would still
 bring it into process memory. The controlled fixture recorded
-<Fact id="secrets-leaked" />; tests also check that the resolver was not called
+<Fact id="secrets-leaked" /> secret leaks; tests also check that the resolver was not called
 for a denied request. The boundary depends on tool calls and handoffs being
 instrumented. It does not establish protection for arbitrary integrations that
 bypass the monitor.
