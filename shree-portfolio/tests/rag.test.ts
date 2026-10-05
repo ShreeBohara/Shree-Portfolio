@@ -377,7 +377,7 @@ test('contact and résumé questions use approved current links without guessing
 });
 
 test('benchmark answers retain recorded dataset scale in both modes when generation omits it', async () => {
-  const query = "Was Shree's DuckDB project 1.56 times faster on every query?";
+  const query = "What benchmark speedup did Shree's DuckDB project record?";
   const { route, portfolio } = harness({ modelAnswer: 'No. The overall TPC-H speedup was 1.56×, not a result on every query.' });
   const project = portfolio.projects.find(project => project.id === 'project-duckdb');
   assert.ok(project);
@@ -391,6 +391,42 @@ test('benchmark answers retain recorded dataset scale in both modes when generat
   const complete = harness({ modelAnswer: 'The overall TPC-H speedup at 100 GB was 1.56×.' });
   const existing = await (await request(complete.route, false, undefined, query)).json();
   assert.doesNotMatch(existing.answer, /Recorded benchmark scope:/);
+});
+
+test('universal benchmark claims keep suite speedup and study size separate without generation', async () => {
+  const { route, portfolio, modelRequests } = harness({ modelAnswer: 'Every query became faster.' });
+  const query = "Was Shree's DuckDB project 1.56 times faster on every query, and where is the write-up?";
+  const project = portfolio.projects.find(project => project.id === 'project-duckdb');
+  assert.ok(project);
+  const ordinary = await (await request(route, false, undefined, query)).json();
+  assert.match(ordinary.answer, /does not establish the same speedup on every query or workload/);
+  assert.match(ordinary.answer, /different scopes/);
+  for (const metric of project.metrics) assert.ok(ordinary.answer.includes(`${metric.label}: ${metric.value}`));
+  assert.ok(ordinary.answer.includes(project.links.caseStudy!));
+  assert.ok(ordinary.answer.includes(project.summary));
+  const streamed = await events(await request(route, true, undefined, query));
+  assert.equal(streamed.filter(event => event.type === 'chunk').map(event => event.content).join(''), ordinary.answer);
+  assert.equal(streamed.at(-1)?.type, 'done');
+  assert.deepEqual(streamed[0].citations, ordinary.citations);
+  assert.equal(modelRequests.length, 0);
+});
+
+test('benchmark source answers preserve selected-item and multi-project boundaries', async () => {
+  const { rag, modelRequests } = harness();
+  const comparison = await rag.prepareRAGContext('Are the DuckDB project and FaultLab always faster?');
+  assert.equal(comparison.fallback, undefined);
+  assert.deepEqual([...new Set(comparison.chunks.map(item => item.metadata.itemId))].sort(), ['project-duckdb', 'project-faultlab']);
+  const selected = await rag.prepareRAGContext('Was the DuckDB project faster on every query?', { enabled: true, itemType: 'project', itemId: 'project-faultlab' });
+  assert.equal(selected.fallback, undefined);
+  assert.ok(selected.chunks.every(item => item.metadata.itemId === 'project-faultlab'));
+  const ordinary = await rag.prepareRAGContext('How did the DuckDB project implement its hash join?');
+  assert.equal(ordinary.fallback, undefined);
+  const workloads = await rag.prepareRAGContext("List all benchmark workloads in Shree's DuckDB project");
+  assert.equal(workloads.fallback, undefined);
+  assert.ok(workloads.chunks.some(item => item.content.includes('TPC-H, TPC-DS and IMDB')));
+  const listSpeedups = await rag.prepareRAGContext("List every query's speedup in Shree's DuckDB project");
+  assert.equal(listSpeedups.fallback, undefined);
+  assert.equal(modelRequests.length, 0);
 });
 
 test('empty and whitespace-only nonstreaming model results return availability instead of success', async () => {
@@ -464,7 +500,7 @@ test('explicit new project names use current public content before unrelated sav
     ['How does the algorithmic-options-trading-system work?', 'project-trading'],
     ['How does your trading system handle uncertain orders?', 'project-trading'],
     ['Explain the DuckDB hash join optimization', 'project-duckdb'],
-    ["Was Shree's DuckDB project faster on every query?", 'project-duckdb'],
+    ["Was Shree's DuckDB project faster in the recorded study?", 'project-duckdb'],
     ['Tell me about Fault Lab', 'project-faultlab'],
   ]) {
     const project = portfolio.projects.find((item) => item.id === id);

@@ -243,6 +243,29 @@ function getDirectPublicContactResponse(query: string, chunks: RetrievedChunk[])
   return { answer: parts.join('\n\n'), citations: extractCitations(chunks), confidence: 0.5 };
 }
 
+function getDirectBenchmarkScopeResponse(query: string, chunks: RetrievedChunk[]): RAGResponse | undefined {
+  const asksUniversalGain = /\b(?:every|all)\s+(?:(?:individual|single|tested)\s+)?(?:quer(?:y|ies)|workloads?)\b|\b(?:always|guarantee[ds]?)\b/i.test(query);
+  const asksAboutGain = /\b(?:faster|speedups?|performance\s+(?:gains?|improvements?))\b/i.test(query);
+  if (!asksUniversalGain || !asksAboutGain || /\b(?:list|enumerate)\b/i.test(query)) return;
+  const ids = new Set(chunks.map(chunk => chunk.metadata.itemId));
+  if (ids.size !== 1 || chunks.some(chunk => chunk.metadata.type !== 'project')) return;
+  const project = projects.find(project => ids.has(project.id));
+  if (!project) return;
+  // A suite result and a broader study count have different scopes. Keep the
+  // stored labels intact instead of asking the model to combine their numbers.
+  const hasScopedOverall = project.metrics.some(metric => /\boverall\b/i.test(metric.label) && /\b\d+\s*(?:GB|MB|TB)\b/i.test(metric.label));
+  const hasStudyCount = project.metrics.some(metric => /\bstudy\b/i.test(metric.label) && /\bqueries\b/i.test(metric.value));
+  if (!hasScopedOverall || !hasStudyCount) return;
+  const parts = [
+    'The public record does not establish the same speedup on every query or workload.',
+    `For ${project.title}, these measurements have different scopes:\n\n${project.metrics.map(metric => `- ${metric.label}: ${metric.value}`).join('\n')}`,
+    project.impact,
+    project.summary,
+  ];
+  if (project.links.caseStudy) parts.push(`Read the [engineering write-up](${project.links.caseStudy}).`);
+  return { answer: parts.join('\n\n'), citations: extractCitations(chunks), confidence: 0.5 };
+}
+
 function withRecordedBenchmarkScale(answer: string, chunks: RetrievedChunk[]): string {
   if (!/\b(?:benchmark|speedup|faster)\b|\d\s*×/i.test(answer)) return answer;
   const ids = new Set(chunks.filter(chunk => chunk.metadata.type === 'project').map(chunk => chunk.metadata.itemId));
@@ -325,6 +348,8 @@ export async function prepareRAGContext(
     }
     const directContact = getDirectPublicContactResponse(query, chunks);
     if (directContact) return { chunks, fallback: directContact };
+    const directBenchmark = getDirectBenchmarkScopeResponse(query, chunks);
+    if (directBenchmark) return { chunks, fallback: directBenchmark };
     return { chunks };
   } catch (error) {
     console.error('RAG retrieval error:', error);

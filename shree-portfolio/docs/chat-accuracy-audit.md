@@ -45,10 +45,13 @@ answer is supported by that source.
   impact record when the model omits a documented dataset scale. The same
   correction works in both API modes, without a second model call. This is a
   narrow completeness guard; it does not validate arbitrary generated claims.
+  Universal benchmark claims with both a scoped overall result and a study
+  count return their separately labeled catalog measurements directly. This
+  avoids conflating a suite result with the broader study in either API mode.
 
 ## Validation and evidence
 
-`npm run check` passes: **74 tests**, TypeScript, public content lint, source-backed
+`npm run check` passes: **76 tests**, TypeScript, public content lint, source-backed
 fact verification, résumé verification and the production build. ESLint has
 52 existing warnings and no errors. Offline tests exercise the real route and
 RAG modules with explicit service substitutes, including both response modes,
