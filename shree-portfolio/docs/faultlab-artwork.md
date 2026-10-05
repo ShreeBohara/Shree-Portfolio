@@ -1,12 +1,16 @@
 # FaultLab project artwork
 
+This records the initial text-free artwork. The current typographic panoramic
+cover, final asset size and generation prompts are in
+[the project artwork record](project-artwork.md). The original PNG is preserved.
+
 Generated October 4, 2026 using the built-in image generation tool, at the user's
 request. This is a conceptual illustration, not a product screenshot or proof of
 test outcomes. The original PNG is preserved in the task's generated-images
 folder; the website uses an optimized WebP encoding at the same pixel dimensions
 (1672 × 941, quality 88), approximately 60 KB. Composition is unchanged.
 
-Website asset: `public/images/projects/faultlab.webp`.
+Website asset URL (now used by the revised cover): `public/images/projects/faultlab.webp`.
 
 ## Generation prompt
 

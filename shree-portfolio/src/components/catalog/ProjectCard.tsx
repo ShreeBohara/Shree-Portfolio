@@ -59,6 +59,7 @@ export function ProjectCard({
 
   const thumbnailUrl = project.images?.thumbnail;
   const showThumbnail = Boolean(thumbnailUrl) && !hasImageError;
+  const isCaptionedCover = Boolean(project.images?.thumbnailCaption);
   const gradientClass = categoryGradients[project.category] || categoryGradients['Full-Stack'];
 
   if (viewMode === 'list') {
@@ -83,12 +84,15 @@ export function ProjectCard({
             {/* Thumbnail */}
             <div className="hidden sm:block w-20 h-20 rounded-lg overflow-hidden mr-4 shrink-0">
               {showThumbnail ? (
-                <div className="relative w-full h-full group-hover:scale-105 transition-transform duration-300">
+                <div className={cn(
+                  "relative w-full h-full",
+                  isCaptionedCover ? "bg-[#111820]" : "group-hover:scale-105 transition-transform duration-300"
+                )}>
                   <Image
                     src={thumbnailUrl!}
                     alt={project.images?.thumbnailAlt ?? project.title}
                     fill
-                    className="object-cover"
+                    className={isCaptionedCover ? "object-contain" : "object-cover"}
                     sizes="80px"
                     unoptimized
                     onError={() => setHasImageError(true)}
@@ -166,20 +170,22 @@ export function ProjectCard({
         aria-label={`View details for ${project.title}`}
       >
         {/* Thumbnail Section */}
-        <div className="relative h-40 w-full overflow-hidden">
+        <div className={cn("relative h-40 w-full overflow-hidden", isCaptionedCover && "bg-[#111820]")}>
           {showThumbnail ? (
             <>
               <Image
                 src={thumbnailUrl!}
                 alt={project.images?.thumbnailAlt ?? project.title}
                 fill
-                className="object-cover group-hover:scale-110 transition-transform duration-500"
+                className={isCaptionedCover ? "object-contain" : "object-cover group-hover:scale-110 transition-transform duration-500"}
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 unoptimized
                 onError={() => setHasImageError(true)}
               />
-              {/* Gradient overlay for better text readability */}
-              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent opacity-60" />
+              {/* Legacy thumbnails retain their theme gradient. */}
+              {!isCaptionedCover && (
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent opacity-60" />
+              )}
             </>
           ) : (
             <div className={cn(

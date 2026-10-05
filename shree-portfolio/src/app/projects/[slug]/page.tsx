@@ -100,9 +100,9 @@ export default async function ProjectPage({
             <p className="text-xl text-muted-foreground">{project.summary}</p>
           </div>
 
-          {project.id === 'project-faultlab' && project.images?.thumbnail && (
+          {project.images?.thumbnail && project.images.thumbnailCaption && (
             <figure className="mb-8">
-              <div className="relative aspect-video overflow-hidden rounded-lg border bg-muted/20">
+              <div className="relative aspect-[5/2] overflow-hidden rounded-lg border bg-[#111820]">
                 <Image
                   src={project.images.thumbnail}
                   alt={project.images.thumbnailAlt ?? `${project.title} preview`}

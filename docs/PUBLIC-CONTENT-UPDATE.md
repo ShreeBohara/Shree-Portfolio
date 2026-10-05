@@ -27,12 +27,15 @@ current factual records from private employer evidence and historical outputs.
 - Prompt suggestions now match supported public information. Featured cards link
   to their own detail pages. Profile metadata reads the public copy, and sitemap
   timestamps use the review date rather than claiming a new edit on every request.
-- At the user's later request, FaultLab has generated conceptual artwork on its
-  original catalog card and its direct detail page, with descriptive alternative
-  text and a conceptual-art caption. Other project-page layouts are retained.
-  The [artwork record](../shree-portfolio/docs/faultlab-artwork.md) preserves the
-  generation prompt. The shipping WebP is approximately 60 KB; its original PNG
-  is preserved outside the repository.
+- All 15 catalog projects now have images. At the user's later request, the seven
+  generated covers (including FaultLab) were refined with large project titles,
+  concise descriptors and focused illustrations. Captioned covers fit in full,
+  avoiding text clipping at narrow or unusually wide card sizes; legacy covers
+  retain their original behavior. Direct captioned figures use a 5:2 ratio.
+  The [artwork record](../shree-portfolio/docs/project-artwork.md) preserves the
+  research, final asset paths and exact generation/edit prompts. The seven
+  shipping WebPs total 635,808 bytes; original PNGs and prior drafts are preserved
+  outside the repository. Captions identify conceptual AI-generated artwork.
 
 ## Sources and limits
 
@@ -114,12 +117,21 @@ Screenshots, route responses and PDF inspection records are saved under the
 task's local visualization directory. Live generated chat output and the saved
 embedding index were not tested or refreshed.
 
-The later artwork addition also passed the 55-test suite, scoped ESLint,
-TypeScript and a fresh production build. The WebP, catalog and FaultLab detail
-route returned HTTP 200. An older image-bearing project retained its existing
-detail-page layout. The generated image rendered at desktop and mobile widths
-without overflow; its alternative text and visible caption identify conceptual
-artwork, and no browser console errors were recorded.
+The final typographic artwork update passed the full `npm run check`: 55 tests,
+TypeScript, ESLint (53 existing warnings, no errors), content/fact checks, résumé
+consistency and 34 production build outputs. All 15 image URLs and all 15 direct
+project routes returned HTTP 200, plus Browse/About (32 responses). The seven
+captioned detail pages expose figures; the eight older pages retain their layout.
+Original image files and résumé artifacts are unchanged.
+
+Browser review covered three-column desktop (1408 × 792), two-column desktop
+(1200 × 800), the widest single-column case (760 × 900; a 710 × 160 image slot),
+and mobile (390 × 844). Generated text and illustrations fit in full, stay clear
+of corner badges and have matching alternative text. The mobile FaultLab figure
+and its caption are visible without overflow. Earshot/GenomeCanvas cards still
+open and close their detail dialogs. No browser console errors were recorded.
+Final screenshots, HTTP results and the check log are saved in the task's local
+visualization directory.
 
 ## Maintenance and release
 
