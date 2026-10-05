@@ -29,7 +29,7 @@ export async function generateMetadata({
     }
   }
 
-  const description = `${experience.role} at ${experience.company}. ${experience.highlights[0]}`
+  const description = `${experience.role} at ${experience.company}. ${experience.highlights[0]?.text ?? ''}`
   const ogImage = `${baseUrl}/api/og?title=${encodeURIComponent(experience.role)}&category=${encodeURIComponent(experience.company)}`
 
   return {

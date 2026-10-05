@@ -122,7 +122,7 @@ bypass the monitor.
 
 ## Quarantine the path that carried exposure
 
-When a tainted agent requests sensitive access for an outbound action, CORDON
+When the broker denies a tainted agent's sensitive credential request, CORDON
 traces backward through the delegation graph to the origin of exposure, then
 forward to the agents it reached. Each edge records whether the sender was
 tainted at handoff time. That distinction keeps an earlier, clean delegation
@@ -133,6 +133,8 @@ Quarantine denies further broker requests and asks the sandbox adapter to freeze
 the affected agents. Credential “revocation” here means denial by CORDON's
 broker, not revocation of a vault service-account token. The sandbox integration
 is another containment action; it does not establish hardware isolation.
+
+<ArchitectureDiagram kind="cordon" />
 
 ## Make the decisions inspectable
 

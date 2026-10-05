@@ -5,14 +5,12 @@ import { MDXContent } from '@content-collections/mdx/react';
 import { workWithPages, workBySlug, publishableAwards } from '@/lib/content';
 import { mdxComponents } from '@/components/mdx';
 import { personalInfo, projects } from '@/data/portfolio';
+import { isIndexableWork } from '@/lib/work-discovery';
 
 /**
- * Provisional renderer for the new content layer.
- *
- * The real templates (case study and standard) land in Phase 3. This route
- * exists so the pipeline is exercised end to end — frontmatter, MDX body, Fact
- * receipts and heading anchors — while the live site still serves the old
- * /projects pages. It is noindex until the copy for every project is written.
+ * Evidence-backed case studies complement the classic /projects overview.
+ * Search eligibility is reviewed per case study, rather than enabling every
+ * MDX page when one project is ready to publish.
  */
 
 export function generateStaticParams() {
@@ -28,10 +26,36 @@ export async function generateMetadata({
   const work = workBySlug(slug);
   if (!work) return {};
 
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://shreebohara.com';
+  const url = `${baseUrl}/work/${work.slug}`;
+  const title = `${work.title} | Shree Bohara`;
+  const image = `${baseUrl}/api/og?title=${encodeURIComponent(work.title)}&category=Engineering%20Case%20Study`;
+  const indexable = isIndexableWork(work);
+
   return {
     title: work.title,
     description: work.summary,
-    robots: { index: false, follow: false },
+    alternates: { canonical: url },
+    openGraph: {
+      title,
+      description: work.summary,
+      type: 'article',
+      url,
+      siteName: 'Shree Bohara Portfolio',
+      modifiedTime: work.updated,
+      images: [{ url: image, width: 1200, height: 630, alt: `${work.title} case study` }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description: work.summary,
+      images: [image],
+    },
+    robots: {
+      index: indexable,
+      follow: indexable,
+      googleBot: { index: indexable, follow: indexable },
+    },
   };
 }
 

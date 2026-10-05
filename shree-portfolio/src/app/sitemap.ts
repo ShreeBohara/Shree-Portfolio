@@ -1,6 +1,8 @@
 import { MetadataRoute } from 'next'
 import { projects, experiences } from '@/data/portfolio'
 import { contentUpdatedAt } from '@/data/site'
+import { workWithPages } from '@/lib/content'
+import { isIndexableWork } from '@/lib/work-discovery'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://shreebohara.com'
@@ -43,5 +45,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }))
 
-  return [...staticPages, ...projectPages, ...experiencePages]
+  // Use the case study's editorial date, never the build or deployment time.
+  const caseStudyPages: MetadataRoute.Sitemap = workWithPages()
+    .filter(isIndexableWork)
+    .map((work) => ({
+      url: `${baseUrl}/work/${work.slug}`,
+      lastModified: work.updated,
+      changeFrequency: 'monthly' as const,
+      priority: 0.8,
+    }))
+
+  return [...staticPages, ...projectPages, ...experiencePages, ...caseStudyPages]
 }

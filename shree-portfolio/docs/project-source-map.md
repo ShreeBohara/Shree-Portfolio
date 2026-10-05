@@ -105,3 +105,27 @@ compact return, Browse and email links. Contribution and validation labels use
 plain language. No metric values, historical evidence cutoffs or ownership
 claims changed; résumé projection and source publication boundaries remain the
 same. The established visual design is retained.
+
+### Architecture and discovery review, October 5
+
+The three reviewed case studies now include server-rendered, responsive diagrams
+of their control flow. FaultLab distinguishes proposal, challenge and promotion;
+CORDON distinguishes a broker denial from the allowed resolver path; trading
+marks broker submission and UNKNOWN reconciliation as documented design paths,
+separate from the historical execution-disabled records. These diagrams add no
+new metrics, runtime validation or live-service claims.
+
+One CORDON source mismatch was resolved against the pinned public implementation:
+the dossier's outbound-action wording can imply an independent outbound check,
+but [ToolProxy.request_credential](https://github.com/ShreeBohara/cordon-agi-house/blob/3c22c1c772217d82f0835a3fdc7f0c4af701d476/control_plane/proxy.py#L78-L87)
+triggers quarantine after a denied, tainted sensitive request. It emits
+`outbound_attempt: true` as metadata rather than checking separate outbound
+evidence. The case-study trigger sentence and diagram now state the actual
+condition; the illustrative deployment threat remains. The read-only corpus
+was not changed.
+
+FaultLab, CORDON and trading now have individual canonicals, sharing metadata
+and indexing directives, and appear in the sitemap with their editorial dates.
+GenomeCanvas and future unreviewed case studies retain noindex. This makes the
+reviewed pages eligible for discovery; it does not establish that a search
+engine has crawled, selected or indexed them.

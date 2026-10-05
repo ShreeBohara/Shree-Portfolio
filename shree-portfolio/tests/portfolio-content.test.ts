@@ -11,6 +11,8 @@ import { projects, experiences, education, personalInfo } from '../src/data/port
 import { contentUpdatedAt, siteDescription } from '../src/data/site';
 import { chunkProject, chunkExperience, chunkPersonalInfo, chunkAllContent } from '../src/lib/ai/chunking';
 import { getChatLinkLabel } from '../src/lib/chat-links';
+import * as workContent from '../src/lib/content';
+import { isIndexableWork } from '../src/lib/work-discovery';
 import { lint, lintText, lintPublicStrings, type Rule } from '../scripts/lint-content';
 
 function loadPublicModule<T>(file: string, extra: Record<string, unknown> = {}): T {
@@ -19,10 +21,15 @@ function loadPublicModule<T>(file: string, extra: Record<string, unknown> = {}):
   const dependencies: Record<string, unknown> = {
     'react/jsx-runtime': jsxRuntime,
     'next/image': { default: ({ src, alt }: { src: string; alt: string }) => jsxRuntime.jsx('img', { src, alt }) },
+    'next/link': { default: ({ children, ...props }: { children: ReactNode }) => jsxRuntime.jsx('a', { ...props, children }) },
     'next/navigation': { notFound: () => { throw new Error('Missing project'); } },
     '@/data/portfolio': { projects, experiences, education, personalInfo },
     '@/data/site': { contentUpdatedAt, siteDescription },
     '@/lib/schemas': { ProjectSchema: () => null, BreadcrumbListSchema: () => null },
+    '@/lib/content': workContent,
+    '@/lib/work-discovery': { isIndexableWork },
+    '@content-collections/mdx/react': { MDXContent: () => null },
+    '@/components/mdx': { mdxComponents: () => ({}) },
     '@/components/layout/PortfolioLayout': { PortfolioLayout: ({ children }: { children: ReactNode }) => children },
     ...extra,
   };
@@ -87,6 +94,98 @@ test('FaultLab reaches catalog retrieval and the rendered project-to-case-study 
   const caseStudy = readFileSync(resolve(`content${project.links.caseStudy}.mdx`), 'utf8');
   assert.match(caseStudy, /title: FaultLab/);
   assert.match(caseStudy, /coAuthored: true/);
+});
+
+test('reviewed case studies have matching canonical, sharing and sitemap URLs without indexing unreviewed pages', async () => {
+  type Metadata = {
+    title: string;
+    description: string;
+    alternates: { canonical: string };
+    robots: { index: boolean; follow: boolean; googleBot: { index: boolean; follow: boolean } };
+    openGraph: { title: string; description: string; url: string; images: Array<{ url: string }> };
+    twitter: { title: string; description: string; images: string[] };
+  };
+  type WorkPage = {
+    generateMetadata: (props: { params: Promise<{ slug: string }> }) => Promise<Metadata>;
+    generateStaticParams: () => Array<{ slug: string }>;
+  };
+  const page = loadPublicModule<WorkPage>('src/app/work/[slug]/page.tsx');
+  const site = loadPublicModule<{ default: () => Array<{ url: string; lastModified: string }> }>('src/app/sitemap.ts');
+  const sitemap = site.default();
+  const reviewed = new Set(['faultlab', 'cordon', 'algorithmic-options-trading-system']);
+  const works = workContent.workWithPages();
+  assert.deepEqual(Array.from(page.generateStaticParams(), value => value.slug).sort(), works.map(work => work.slug).sort());
+  assert.equal(sitemap.filter(entry => entry.url.includes('/work/')).length, reviewed.size);
+
+  for (const work of works) {
+    const url = `https://portfolio.test/work/${work.slug}`;
+    const metadata = await page.generateMetadata({ params: Promise.resolve({ slug: work.slug }) });
+    assert.equal(metadata.title, work.title);
+    assert.equal(metadata.description, work.summary);
+    assert.equal(metadata.alternates.canonical, url, 'case studies must not inherit the home canonical');
+    assert.equal(metadata.openGraph.url, url);
+    assert.equal(metadata.openGraph.description, work.summary);
+    assert.equal(metadata.twitter.description, work.summary);
+    assert.ok(metadata.openGraph.title.includes(work.title));
+    assert.ok(metadata.twitter.title.includes(work.title));
+    assert.ok(metadata.openGraph.images.every(image => image.url.startsWith('https://portfolio.test/')));
+    assert.ok(metadata.twitter.images.every(image => image.startsWith('https://portfolio.test/')));
+    const indexable = reviewed.has(work.slug);
+    assert.equal(metadata.robots.index, indexable);
+    assert.equal(metadata.robots.follow, indexable);
+    assert.equal(metadata.robots.googleBot.index, indexable, 'Googlebot must not contradict the generic directive');
+    assert.equal(metadata.robots.googleBot.follow, indexable);
+    const entry = sitemap.find(item => item.url === url);
+    assert.equal(Boolean(entry), indexable, 'noindex pages must stay out of the sitemap');
+    if (entry) assert.equal(entry.lastModified, work.updated, 'use the reviewed content date, not today or the build time');
+  }
+
+  const unreviewed = { ...works[0], slug: 'new-unreviewed-case-study', tier: 'case-study' as const };
+  const oneLiner = { ...works[0], slug: 'faultlab', tier: 'one-liner' as const };
+  const candidates = [unreviewed, oneLiner];
+  const candidateContent = {
+    ...workContent,
+    workBySlug: (slug: string) => candidates.find(work => work.slug === slug),
+    workWithPages: () => candidates,
+  };
+  const candidatePage = loadPublicModule<WorkPage>('src/app/work/[slug]/page.tsx', { '@/lib/content': candidateContent });
+  const candidateSite = loadPublicModule<{ default: () => Array<{ url: string }> }>('src/app/sitemap.ts', { '@/lib/content': candidateContent });
+  for (const work of candidates) {
+    const metadata = await candidatePage.generateMetadata({ params: Promise.resolve({ slug: work.slug }) });
+    assert.equal(metadata.robots.index, false, 'publishing MDX or reusing a reviewed slug must not bypass review');
+    assert.equal(metadata.robots.googleBot.index, false);
+  }
+  assert.ok(candidateSite.default().every(entry => !entry.url.includes('/work/')));
+});
+
+test('browse filters share their own catalog canonical and experience descriptions contain actual highlight text', async () => {
+  type Metadata = {
+    title: string;
+    description: string;
+    alternates: { canonical: string };
+    openGraph: { url: string; title: string; description: string };
+    twitter: { title: string; description: string };
+  };
+  const browse = loadPublicModule<{ metadata: Metadata }>('src/app/browse/layout.tsx').metadata;
+  assert.equal(browse.alternates.canonical, 'https://portfolio.test/browse');
+  assert.equal(browse.openGraph.url, browse.alternates.canonical);
+  assert.match(browse.title, /Browse/);
+  assert.match(browse.openGraph.description, /Shree Bohara.*projects, work experience, and education/);
+  assert.equal(browse.twitter.description, browse.openGraph.description);
+  assert.ok(!browse.alternates.canonical.includes('?section='));
+
+  const page = loadPublicModule<{
+    generateMetadata: (props: { params: Promise<{ id: string }> }) => Promise<Metadata>;
+  }>('src/app/experience/[id]/page.tsx', { '@/lib/utils': { formatDate: () => '' } });
+  for (const experience of experiences) {
+    const metadata = await page.generateMetadata({ params: Promise.resolve({ id: experience.id }) });
+    assert.equal(metadata.alternates.canonical, `https://portfolio.test/experience/${experience.id}`);
+    assert.equal(metadata.openGraph.url, metadata.alternates.canonical);
+    assert.ok(metadata.description.includes(experience.highlights[0].text));
+    assert.doesNotMatch(metadata.description, /\[object Object\]|undefined/);
+    assert.equal(metadata.openGraph.description, metadata.description);
+    assert.equal(metadata.twitter.description, metadata.description);
+  }
 });
 
 test('FaultLab public content preserves historical evidence and unaccepted continuation limits', () => {

@@ -1,5 +1,6 @@
 import type { ComponentProps } from 'react';
 import { Fact, type FactData } from './Fact';
+import { ArchitectureDiagram } from './ArchitectureDiagram';
 
 /**
  * Components available inside MDX bodies.
@@ -12,6 +13,7 @@ export function mdxComponents(metrics: FactData[]) {
   const byId = new Map(metrics.map((metric) => [metric.id, metric]));
 
   return {
+    ArchitectureDiagram,
     Fact: ({ id }: { id: string }) => {
       const fact = byId.get(id);
       if (!fact) return null; // unreachable: the build rejects unknown ids
