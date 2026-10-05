@@ -17,6 +17,7 @@ function loadPublicModule<T>(file: string, extra: Record<string, unknown> = {}):
   const loaded = { exports: {} };
   const dependencies: Record<string, unknown> = {
     'react/jsx-runtime': jsxRuntime,
+    'next/image': { default: ({ src, alt }: { src: string; alt: string }) => jsxRuntime.jsx('img', { src, alt }) },
     'next/navigation': { notFound: () => { throw new Error('Missing project'); } },
     '@/data/portfolio': { projects, experiences, education, personalInfo },
     '@/data/site': { contentUpdatedAt, siteDescription },
@@ -59,6 +60,7 @@ test('FaultLab reaches catalog retrieval and the rendered project-to-case-study 
   const loaded = { exports: {} };
   const dependencies: Record<string, unknown> = {
     'react/jsx-runtime': jsxRuntime,
+    'next/image': { default: ({ src, alt }: { src: string; alt: string }) => jsxRuntime.jsx('img', { src, alt }) },
     'next/navigation': { notFound: () => { throw new Error('Unexpected missing project'); } },
     '@/data/portfolio': { projects },
     '@/lib/schemas': { ProjectSchema: () => null, BreadcrumbListSchema: () => null },

@@ -27,6 +27,12 @@ current factual records from private employer evidence and historical outputs.
 - Prompt suggestions now match supported public information. Featured cards link
   to their own detail pages. Profile metadata reads the public copy, and sitemap
   timestamps use the review date rather than claiming a new edit on every request.
+- At the user's later request, FaultLab has generated conceptual artwork on its
+  original catalog card and its direct detail page, with descriptive alternative
+  text and a conceptual-art caption. Other project-page layouts are retained.
+  The [artwork record](../shree-portfolio/docs/faultlab-artwork.md) preserves the
+  generation prompt. The shipping WebP is approximately 60 KB; its original PNG
+  is preserved outside the repository.
 
 ## Sources and limits
 
@@ -74,7 +80,9 @@ no errors), 55 offline tests, publication/content lint, 13 declared corpus-cited
 MDX metric checks, résumé consistency and the production build (34 generated
 outputs). The exact final PDF was checked with text extraction, rendering and
 source consistency. Normal builds now enforce résumé consistency in `prebuild`
-using Node, without requiring Python. No live model generation was used.
+using Node, without requiring Python. Software checks used no live portfolio-chat
+or embedding-provider requests; artwork was generated separately with the
+built-in image tool.
 
 All 18 reviewed outgoing repository/write-up/video URLs returned HTTP 200 for
 unauthenticated bounded requests. Three case-study paths and eight image paths
@@ -105,6 +113,13 @@ the start of the trading summary so it survives the original card truncation.
 Screenshots, route responses and PDF inspection records are saved under the
 task's local visualization directory. Live generated chat output and the saved
 embedding index were not tested or refreshed.
+
+The later artwork addition also passed the 55-test suite, scoped ESLint,
+TypeScript and a fresh production build. The WebP, catalog and FaultLab detail
+route returned HTTP 200. An older image-bearing project retained its existing
+detail-page layout. The generated image rendered at desktop and mobile widths
+without overflow; its alternative text and visible caption identify conceptual
+artwork, and no browser console errors were recorded.
 
 ## Maintenance and release
 

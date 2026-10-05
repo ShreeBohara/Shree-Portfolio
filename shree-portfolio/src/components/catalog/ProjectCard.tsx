@@ -86,7 +86,7 @@ export function ProjectCard({
                 <div className="relative w-full h-full group-hover:scale-105 transition-transform duration-300">
                   <Image
                     src={thumbnailUrl!}
-                    alt={project.title}
+                    alt={project.images?.thumbnailAlt ?? project.title}
                     fill
                     className="object-cover"
                     sizes="80px"
@@ -171,7 +171,7 @@ export function ProjectCard({
             <>
               <Image
                 src={thumbnailUrl!}
-                alt={project.title}
+                alt={project.images?.thumbnailAlt ?? project.title}
                 fill
                 className="object-cover group-hover:scale-110 transition-transform duration-500"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

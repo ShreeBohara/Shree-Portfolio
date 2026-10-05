@@ -1,4 +1,5 @@
 import { Metadata } from 'next'
+import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { projects } from '@/data/portfolio'
 import { ProjectSchema, BreadcrumbListSchema } from '@/lib/schemas'
@@ -49,7 +50,6 @@ export async function generateMetadata({
           alt: project.title,
         },
       ],
-      publishedTime: `${project.year}-01-01`,
       tags: project.tags,
     },
 
@@ -99,6 +99,26 @@ export default async function ProjectPage({
             <h1 className="text-4xl font-bold mb-4">{project.title}</h1>
             <p className="text-xl text-muted-foreground">{project.summary}</p>
           </div>
+
+          {project.id === 'project-faultlab' && project.images?.thumbnail && (
+            <figure className="mb-8">
+              <div className="relative aspect-video overflow-hidden rounded-lg border bg-muted/20">
+                <Image
+                  src={project.images.thumbnail}
+                  alt={project.images.thumbnailAlt ?? `${project.title} preview`}
+                  fill
+                  sizes="(max-width: 896px) calc(100vw - 48px), 848px"
+                  className="object-contain"
+                  unoptimized
+                />
+              </div>
+              {project.images.thumbnailCaption && (
+                <figcaption className="mt-2 text-sm text-muted-foreground">
+                  {project.images.thumbnailCaption}
+                </figcaption>
+              )}
+            </figure>
+          )}
 
           <div className="space-y-8">
             {/* Problem */}

@@ -32,6 +32,8 @@ export interface Project {
 
   images?: {
     thumbnail: string;   // Card thumbnail
+    thumbnailAlt?: string; // Describe artwork or previews without implying a screenshot
+    thumbnailCaption?: string;
     screenshots?: string[]; // Project screenshots
   };
 

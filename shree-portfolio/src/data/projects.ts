@@ -24,6 +24,11 @@ export const projects: Project[] = [
     technologies: ['Python', 'FastAPI', 'SQLite', 'React', 'TypeScript', 'W&B Weave'],
     tags: ['Agent Reliability', 'Fault Injection', 'LLM Evaluation', 'Evidence Integrity'],
     links: { github: 'https://github.com/ShreeBohara/faultlab', caseStudy: '/work/faultlab' },
+    images: {
+      thumbnail: '/images/projects/faultlab.webp',
+      thumbnailAlt: 'Conceptual illustration of isolated test worlds, an amber tool fault and a teal gate leading to evidence records.',
+      thumbnailCaption: 'AI-generated conceptual illustration.',
+    },
     featured: true,
     sortOrder: 1,
   },
