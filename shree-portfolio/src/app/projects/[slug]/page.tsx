@@ -178,6 +178,14 @@ export default async function ProjectPage({
                       Live Demo
                     </a>
                   )}
+                  {project.links.caseStudy && (
+                    <a
+                      href={project.links.caseStudy}
+                      className="px-6 py-2 border border-primary text-primary rounded-lg hover:bg-primary hover:text-primary-foreground transition-colors"
+                    >
+                      Read Case Study
+                    </a>
+                  )}
                 </div>
               </section>
             )}

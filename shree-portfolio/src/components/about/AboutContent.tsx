@@ -138,9 +138,14 @@ export function AboutContent() {
                 <Button variant="outline" asChild className="hover:border-accent-color/50 hover:text-accent-color">
                   <a href={personalInfo.links.resume.pdf} target="_blank" rel="noopener noreferrer">
                     <Download className="h-4 w-4 mr-2" />
-                    Resume
+                    Resume (PDF)
                   </a>
                 </Button>
+                {personalInfo.links.resume.html && (
+                  <a href={personalInfo.links.resume.html} className="text-sm text-muted-foreground underline underline-offset-4 hover:text-accent-color">
+                    Read resume online
+                  </a>
+                )}
               </motion.div>
             </div>
           </motion.div>
@@ -389,7 +394,7 @@ export function AboutContent() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Link href={`/browse?section=projects`}>
+                <Link href={`/projects/${project.slug}`}>
                   <Card className="p-5 h-full hover:border-accent-color/50 hover:shadow-lg transition-all group cursor-pointer">
                     <div className="flex items-start justify-between gap-2 mb-2">
                       <h3 className="font-semibold group-hover:text-accent-color transition-colors line-clamp-1">
@@ -425,7 +430,7 @@ export function AboutContent() {
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-4">Let&apos;s Connect</h2>
           <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
-            I&apos;m always open to a conversation about AI infrastructure, agent systems, or production reliability.
+            {personalInfo.availability.message}
           </p>
 
           <div className="flex items-center justify-center gap-4 flex-wrap">

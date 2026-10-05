@@ -3,8 +3,10 @@ import { allWorks, type Work } from 'content-collections';
 /**
  * Typed accessors over the compiled content collections.
  *
- * Pages, the sitemap, the assistant's index and the search index all read from
- * here, so a project cannot exist on one surface and be missing from another.
+ * These accessors serve the provisional /work pages. The classic Browse,
+ * /projects routes, sitemap and assistant chunker use src/data/portfolio.ts.
+ * A catalog entry links to its MDX case study through links.caseStudy; adding
+ * MDX alone does not add a project to those other surfaces.
  */
 
 export type { Work };

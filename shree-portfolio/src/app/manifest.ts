@@ -1,10 +1,11 @@
 import { MetadataRoute } from 'next'
+import { siteDescription } from '@/data/site'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Shree Bohara - Portfolio',
     short_name: 'Shree Bohara',
-    description: 'Shree Bohara — Software Engineer at QuinStreet in San Francisco. Projects, experience, and an assistant that answers from them.',
+    description: siteDescription,
     start_url: '/',
     display: 'standalone',
     background_color: '#000000',

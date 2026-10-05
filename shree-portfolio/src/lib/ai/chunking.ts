@@ -94,7 +94,7 @@ export function chunkExperience(experience: Experience): ContentChunk[] {
   // Chunk 1: Role Summary
   chunks.push({
     id: `${baseId}-summary`,
-    content: `Role: ${experience.role} at ${experience.company}\n\n${experience.summary}`,
+    content: `Role: ${experience.role} at ${experience.company}\n\nPeriod: ${experience.startDate} - ${experience.endDate ?? 'Present'}\n\nRole Type: ${experience.type}\n\nLocation: ${experience.location}\n\n${experience.summary}`,
     metadata: {
       type: 'experience',
       itemId: experience.id,
@@ -228,7 +228,7 @@ export function chunkPersonalInfo(personalInfo: PersonalInfo): ContentChunk[] {
   });
 
   // Skills by category
-  personalInfo.skills.forEach((skillCategory, index) => {
+  personalInfo.skills.forEach((skillCategory) => {
     chunks.push({
       id: `skills-${skillCategory.category.toLowerCase().replace(/\s+/g, '-')}`,
       content: `Technical Skills - ${skillCategory.category}:\n\n${skillCategory.items.join(', ')}`,
@@ -283,22 +283,15 @@ export function chunkPersonalInfo(personalInfo: PersonalInfo): ContentChunk[] {
 
     // Key moments (each as separate chunk for better retrieval)
     personalInfo.careerStory.keyMoments.forEach((moment, index) => {
-      // These labels are what a citation chip shows, so they have to match the
-      // moment they title. The previous set named a calculator project, an
-      // NIT-B placement and a "fastest MVP" superlative, none of which the
-      // corpus supports.
-      const momentTitles = [
-        'Learning the primitives first',
-        'Hackathons: HackMIT24 and AGI House',
-        'Pond: zero to production'
-      ];
       chunks.push({
         id: `story-moment-${index}`,
         content: `Shree's Key Career Moment:\n\n${moment}`,
         metadata: {
           type: 'story',
           itemId: 'career-story',
-          title: momentTitles[index] || `Key Moment ${index + 1}`,
+          // Moment text may be replaced or reordered without changing its
+          // positional ID. A neutral citation label cannot misname that text.
+          title: `Career Milestone ${index + 1}`,
           tags: ['milestone', 'achievement', 'journey'],
         },
       });
@@ -473,14 +466,6 @@ export function chunkPersonalInfo(personalInfo: PersonalInfo): ContentChunk[] {
   // === FAQs ===
 
   if (personalInfo.faqs) {
-    // Group FAQs by category for better context
-    const faqsByCategory = {
-      personal: personalInfo.faqs.filter(f => f.category === 'personal'),
-      career: personalInfo.faqs.filter(f => f.category === 'career'),
-      technical: personalInfo.faqs.filter(f => f.category === 'technical'),
-      hiring: personalInfo.faqs.filter(f => f.category === 'hiring'),
-    };
-
     // Create chunks for each FAQ
     personalInfo.faqs.forEach((faq, index) => {
       chunks.push({

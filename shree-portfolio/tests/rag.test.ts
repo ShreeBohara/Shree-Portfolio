@@ -89,10 +89,17 @@ function harness(options: {
     }
   }
   const config = loadModule<typeof import('../src/lib/ai/config')>('src/lib/ai/config.ts', {});
+  const projectCatalog = loadModule<typeof import('../src/data/projects')>('src/data/projects.ts', {});
+  const portfolio = loadModule<typeof import('../src/data/portfolio')>('src/data/portfolio.ts', {
+    './projects': projectCatalog,
+  });
+  const chunking = loadModule<typeof import('../src/lib/ai/chunking')>('src/lib/ai/chunking.ts', {});
   const retrieval = loadModule<typeof import('../src/lib/ai/retrieval')>('src/lib/ai/retrieval.ts', {
     './embeddings': {},
     './vector-store': {},
     './config': config,
+    '@/data/portfolio': portfolio,
+    './chunking': chunking,
   });
   const mockedRetrieval = {
     ...retrieval,
@@ -105,8 +112,6 @@ function harness(options: {
     './retrieval': mockedRetrieval,
     './config': config,
   });
-  const portfolio = loadModule<typeof import('../src/data/portfolio')>('src/data/portfolio.ts', {});
-  const chunking = loadModule<typeof import('../src/lib/ai/chunking')>('src/lib/ai/chunking.ts', {});
   const rag = loadModule<RagModule>('src/lib/ai/rag.ts', {
     './retrieval': mockedRetrieval,
     './prompts': prompts,
@@ -153,11 +158,16 @@ function harness(options: {
   return { rag, route, retrievalCalls, modelRequests, portfolio, providerSignals, streamStats };
 }
 
-async function request(route: ChatRoute, stream = true, context?: ChatContext) {
+async function request(
+  route: ChatRoute,
+  stream = true,
+  context?: ChatContext,
+  query = 'How was this implementation built?'
+) {
   const req = new Request('https://portfolio.example/api/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query: 'How was this implementation built?', context, stream }),
+    body: JSON.stringify({ query, context, stream }),
   });
   return route.POST(req as Parameters<ChatRoute['POST']>[0]);
 }
@@ -261,7 +271,7 @@ test('an explicitly empty prepared context cannot bypass the grounding guard', a
   assert.equal(retrievalCalls.length, 0);
 });
 
-test('known selected pages use their local content when global capped retrieval misses them', async () => {
+test('known selected pages use their current local content before semantic retrieval', async () => {
   const { route, retrievalCalls, modelRequests, portfolio } = harness({ retrieval: async () => [] });
   for (const [itemType, items] of [
     ['project', portfolio.projects],
@@ -277,10 +287,97 @@ test('known selected pages use their local content when global capped retrieval 
     assert.deepEqual(ordinary.citations, streamed[0].citations);
     assert.equal(ordinary.confidence, 0.5, 'local scope matching is not a measured semantic score');
   }
-  assert.equal(retrievalCalls.length, 6, 'known pages need no lower-threshold query');
+  assert.equal(retrievalCalls.length, 0, 'known pages need no saved-index query');
   for (let index = 0; index < modelRequests.length; index += 2) {
     assert.equal(modelRequests[index].messages[1].content, modelRequests[index + 1].messages[1].content);
   }
+});
+
+test('explicit new project names use current public content before unrelated saved-index hits', async () => {
+  const stalePrivateChunk = { ...chunk, content: 'PRIVATE_INDEX_ONLY: superseded employer details' };
+  const { rag, route, portfolio, retrievalCalls, modelRequests } = harness({
+    retrieval: async () => [stalePrivateChunk],
+  });
+  for (const [query, id] of [
+    ['Tell me about FaultLab', 'project-faultlab'],
+    ['Tell me about CORDON', 'project-cordon'],
+    ['How does the algorithmic-options-trading-system work?', 'project-trading'],
+    ['How does your trading system handle uncertain orders?', 'project-trading'],
+    ['Explain the DuckDB hash join optimization', 'project-duckdb'],
+    ['Tell me about Fault Lab', 'project-faultlab'],
+  ]) {
+    const project = portfolio.projects.find((item) => item.id === id);
+    assert.ok(project, id);
+    const prepared = await rag.prepareRAGContext(query);
+    assert.equal(prepared.fallback, undefined);
+    assert.ok(prepared.chunks.length > 0);
+    assert.ok(prepared.chunks.every((item) => item.metadata.itemId === id));
+    const response = await rag.getRAGResponse(query, undefined, prepared);
+    assert.equal(response.citations.length, 1);
+    assert.equal(response.citations[0].id, id);
+    assert.equal(response.confidence, 0.5, 'name lookup is not a measured semantic score');
+    const prompt = modelRequests.at(-1)!.messages[1].content;
+    assert.ok(prompt.includes(project.approach), 'the model receives the current catalog approach');
+    assert.doesNotMatch(prompt, /PRIVATE_INDEX_ONLY|engineering-record\/|Claude_Resume_Work\/corpus/);
+  }
+  const query = 'Tell me about FaultLab';
+  const streamed = await events(await request(route, true, undefined, query));
+  assert.equal(streamed[0].citations[0].id, 'project-faultlab');
+  assert.deepEqual(streamed.map((event) => event.type), ['metadata', 'chunk', 'done']);
+  const ordinary = await (await request(route, false, undefined, query)).json();
+  assert.deepEqual(ordinary.citations, streamed[0].citations);
+  assert.equal(modelRequests.at(-1)!.messages[1].content, modelRequests.at(-2)!.messages[1].content);
+  assert.equal(retrievalCalls.length, 0, 'an older nonempty index cannot hide a named new project');
+});
+
+test('explicit project comparisons include each named current project once', async () => {
+  const { rag, retrievalCalls } = harness();
+  const prepared = await rag.prepareRAGContext('Compare FaultLab with CORDON and the trading project');
+  const ids = [...new Set(prepared.chunks.map((item) => item.metadata.itemId))].sort();
+  assert.deepEqual(ids, ['project-cordon', 'project-faultlab', 'project-trading']);
+  assert.ok(prepared.chunks.every((item) => item.metadata.type === 'project'));
+  assert.equal(retrievalCalls.length, 0);
+});
+
+test('a selected current page is not broadened by another explicitly named project', async () => {
+  const { rag, portfolio, retrievalCalls } = harness();
+  for (const context of [
+    { enabled: true, itemType: 'project', itemId: 'project-faultlab' },
+    { enabled: true, itemType: 'experience', itemId: portfolio.experiences[0].id },
+  ] satisfies ChatContext[]) {
+    const prepared = await rag.prepareRAGContext('Compare this with CORDON and the trading system', context);
+    assert.ok(prepared.chunks.length > 0);
+    assert.ok(prepared.chunks.every((item) => item.metadata.itemId === context.itemId));
+    assert.ok(prepared.chunks.every((item) => item.metadata.type === context.itemType));
+  }
+  assert.equal(retrievalCalls.length, 0);
+});
+
+test('broad technology questions and project-name substrings do not guess a named project', async () => {
+  const { rag, retrievalCalls } = harness();
+  for (const query of ['What is DuckDB?', 'What is AI trading?', 'What is a FaultLaboratory?', 'How does code search work?']) {
+    const prepared = await rag.prepareRAGContext(query);
+    assert.equal(prepared.chunks[0].metadata.itemId, chunk.metadata.itemId);
+  }
+  assert.equal(retrievalCalls.length, 4);
+});
+
+test('named local projects retain missing-service and model-failure guards', async () => {
+  for (const options of [{ configured: false }, { vectorAvailable: false }]) {
+    const { rag, retrievalCalls, modelRequests } = harness(options);
+    const response = await rag.getRAGResponse('Tell me about FaultLab');
+    assert.match(response.answer, /assistant is unavailable/);
+    assert.equal(response.citations.length, 0);
+    assert.equal(retrievalCalls.length, 0);
+    assert.equal(modelRequests.length, 0);
+  }
+  const { rag, retrievalCalls, modelRequests } = harness({ modelFailure: 'before' });
+  const response = await rag.getRAGResponse('Tell me about CORDON');
+  assert.match(response.answer, /assistant is unavailable/);
+  assert.doesNotMatch(response.answer, /Private provider/);
+  assert.equal(response.citations.length, 0);
+  assert.equal(retrievalCalls.length, 0);
+  assert.equal(modelRequests.length, 1);
 });
 
 test('invalid chat request bodies, query strings, stream flags and enabled contexts return 400 without service calls', async () => {

@@ -5,6 +5,7 @@ import { MobileDetector } from "@/components/providers/MobileDetector";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
 import { PersonSchema, WebSiteSchema, FAQPageSchema } from "@/lib/schemas";
+import { siteDescription } from "@/data/site";
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://shreebohara.com';
 
@@ -28,7 +29,7 @@ export const metadata: Metadata = {
     default: "Shree Bohara - Portfolio",
     template: "%s | Shree Bohara"
   },
-  description: "Shree Bohara — Software Engineer at QuinStreet in San Francisco. Production AI systems, agent infrastructure, and the projects behind them.",
+  description: siteDescription,
   keywords: ["portfolio", "developer", "full-stack", "AI", "ML", "software engineer", "USC", "computer science", "Shree Bohara", "machine learning", "artificial intelligence", "web development", "React", "Next.js"],
   authors: [{ name: "Shree Bohara", url: baseUrl }],
   creator: "Shree Bohara",
@@ -37,7 +38,7 @@ export const metadata: Metadata = {
   // Open Graph metadata for social sharing
   openGraph: {
     title: "Shree Bohara - Portfolio",
-    description: "Shree Bohara — Software Engineer at QuinStreet in San Francisco. Production AI systems, agent infrastructure, and the projects behind them.",
+    description: siteDescription,
     type: "website",
     url: baseUrl,
     siteName: "Shree Bohara Portfolio",
@@ -57,8 +58,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Shree Bohara - Portfolio",
-    description: "Shree Bohara — Software Engineer at QuinStreet in San Francisco. Production AI systems, agent infrastructure, and the projects behind them.",
-    creator: "@shreebohara",
+    description: siteDescription,
     images: [`${baseUrl}/api/og?title=${encodeURIComponent("Software Engineer at QuinStreet")}`],
   },
 

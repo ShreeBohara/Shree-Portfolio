@@ -1,0 +1,153 @@
+{
+  "updated": "2026-10-04",
+  "name": "Shree Bohara",
+  "title": "Software Engineer",
+  "location": "San Francisco, CA",
+  "summary": "I build full-stack products and tools for evaluating AI systems",
+  "contacts": [
+    {
+      "text": "shreetbohara@gmail.com",
+      "url": "mailto:shreetbohara@gmail.com"
+    },
+    {
+      "text": "shreebohara.com",
+      "url": "https://shreebohara.com"
+    },
+    {
+      "text": "GitHub",
+      "url": "https://github.com/ShreeBohara"
+    },
+    {
+      "text": "LinkedIn",
+      "url": "https://www.linkedin.com/in/shree-bohara/"
+    }
+  ],
+  "experiences": [
+    {
+      "company": "QuinStreet",
+      "role": "Software Engineer",
+      "type": "Full-time",
+      "location": "San Francisco, CA",
+      "start": "2026-06",
+      "end": null,
+      "highlights": [
+        "Built an incident-analysis pipeline that groups production errors and grounds model analysis in source files. It runs in dev and stage while observing production data.",
+        "Designed and shipped a consent-state workflow with idempotent capture, transactional audit records and post-commit notification handling."
+      ]
+    },
+    {
+      "company": "QuinStreet",
+      "role": "Software Engineer Intern",
+      "type": "Internship",
+      "location": "San Francisco, CA",
+      "start": "2025-06",
+      "end": "2026-06",
+      "highlights": [
+        "Co-architected the platform and built multi-step onboarding with address autocomplete, dependent vehicle selection and policy-document import.",
+        "Built the rating engine in Java and Spring Boot to connect the product's insurance workflow to rate APIs."
+      ]
+    },
+    {
+      "company": "DeepTek Medical Imaging",
+      "role": "Software Engineer Intern",
+      "type": "Internship",
+      "location": "Mumbai, India",
+      "start": "2023-06",
+      "end": "2024-01",
+      "highlights": [
+        "Built health-record exchange APIs and interfaces in Node.js, React and MySQL, standardizing records around FHIR resources.",
+        "Improved service responsiveness with query optimization and Redis caching, and added structured logging and distributed tracing."
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "title": "FaultLab",
+      "duration": "September 2026 · local evaluation lab",
+      "summary": "A team-built, AI-assisted lab for testing LLM agents under tool failures, with fixed-code checks and fresh challenges before a proposed repair can replace the baseline.",
+      "url": "https://github.com/ShreeBohara/faultlab"
+    },
+    {
+      "title": "Algorithmic Options Trading System",
+      "duration": "2023–Present · strategy tooling",
+      "summary": "Live execution was disabled in recorded sessions. This Python and React tooling encodes a trader’s method, keeps uncertain order state explicit and has a public engineering write-up.",
+      "url": "https://github.com/ShreeBohara/refuses-to-trade"
+    },
+    {
+      "title": "CodebaseQA",
+      "duration": "January–August 2026",
+      "summary": "Codebase exploration with source-cited answers, guided learning and an interactive dependency graph, built around repository code instead of architecture guesses.",
+      "url": "https://github.com/ShreeBohara/codebaseqa"
+    }
+  ],
+  "education": [
+    {
+      "institution": "University of Southern California",
+      "degree": "Master of Science, Computer Science",
+      "completion": "Completed the M.S. in Computer Science in May 2026."
+    }
+  ],
+  "skills": [
+    {
+      "category": "Languages",
+      "items": [
+        "Python",
+        "Java",
+        "C++",
+        "TypeScript",
+        "JavaScript"
+      ]
+    },
+    {
+      "category": "AI & LLM",
+      "items": [
+        "OpenAI API",
+        "Anthropic Claude API",
+        "RAG",
+        "Vector Search",
+        "Tool Calling"
+      ]
+    },
+    {
+      "category": "Backend",
+      "items": [
+        "Spring Boot",
+        "Spring WebFlux",
+        "FastAPI",
+        "Node.js",
+        "Express"
+      ]
+    },
+    {
+      "category": "Frontend",
+      "items": [
+        "React",
+        "Next.js",
+        "Tailwind CSS",
+        "Zustand",
+        "React Flow"
+      ]
+    },
+    {
+      "category": "Data",
+      "items": [
+        "PostgreSQL",
+        "MySQL",
+        "Redis",
+        "Elasticsearch",
+        "ChromaDB"
+      ]
+    },
+    {
+      "category": "Testing",
+      "items": [
+        "PyTest",
+        "JUnit",
+        "Vitest",
+        "Playwright",
+        "Mutation Testing"
+      ]
+    }
+  ],
+  "awards": "I led a team to third place out of more than 90 teams at HackMIT-WPU in Pune. CORDON placed first out of 37 teams at AGI House's Agent Identity Build Day."
+}

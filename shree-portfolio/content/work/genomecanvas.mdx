@@ -1,11 +1,12 @@
 ---
 title: GenomeCanvas
-subtitle: A navigable 3D universe of real AlphaFold protein structures
+subtitle: Protein visualization with typed interface commands
 tier: standard
 status: unprovisioned
 summary: >-
-  Fifty-four human proteins rendered as real AlphaFold backbone ribbons in a
-  Three.js scene, with an AI guide that moves the interface before it speaks.
+  Fifty-four human proteins in a Three.js scene: fifty-two real AlphaFold
+  structures and two labelled fallbacks, with an AI guide that moves the interface
+  before it speaks.
 dates:
   start: 2026-03
   end: 2026-08
@@ -37,11 +38,11 @@ metrics:
     source: "facts.md: GenomeCanvas › Real AlphaFold structures"
     note: The two substitutes are the two proteins above AlphaFold DB's 2,700-residue ceiling; both are labelled in the UI.
   - id: external-calls
-    label: External calls at request time
+    label: Model calls in the local grounded answer path
     value: zero
     provenance: measured
     source: "facts.md: GenomeCanvas › External calls at request time"
-    note: AlphaFold is fetched at build time; the language model is optional, so the app runs with no API key.
+    note: Local retrieval works without a model key. Optional Claude narration makes external provider calls; this is not a zero-call claim for the entire application.
   - id: molstar-bundle
     label: Mol* contribution to the JS bundle
     value: 0 bytes
@@ -53,11 +54,9 @@ builtWith:
   tools: [Claude Code, Codex]
   agentLanes: Agent branches per subsystem, merged as reviewed pull requests.
   handWritten: >-
-    The 351-line spec written before any code, the decision to put fixtures
-    behind a repository interface, the typed side-channel that sends UI commands
-    ahead of prose, the all-or-nothing fallback when the model fails, and the
-    adversarial pass that found an end-to-end suite which had stayed green while
-    never reaching the backend.
+    Specifying the workflow, keeping fixtures behind a repository interface,
+    sending typed interface commands ahead of prose, reviewing the model fallback,
+    and checking whether end-to-end tests actually reached the backend.
   notBroken: Tests across three runners — backend, component and end-to-end.
   coAuthored: true
 askSuggestions:
@@ -66,32 +65,35 @@ askSuggestions:
   - What did the adversarial review find?
 order: 6
 sourceDossier: corpus/projects/genomecanvas.md
-updated: 2026-09-01
+updated: 2026-10-04
 ---
 
-## A cockpit, not a file browser
+## Explore the fixture in three dimensions
 
-AlphaFold published 214 million predicted protein structures and a file browser
-to find them in. GenomeCanvas is a small cockpit instead: <Fact id="proteins" /> (proteins,
-graph nodes and edges) float in a Three.js scene as alpha-carbon backbone ribbons coloured vertex by
-vertex with AlphaFold's own confidence scores, linked to a knowledge graph of
-diseases, drugs and trials. A double-click hands off to Mol*, the viewer
-AlphaFold DB itself ships — side-loaded, so it costs
-<Fact id="molstar-bundle" /> in the bundle.
+GenomeCanvas combines a Three.js protein scene with a small knowledge graph:
+<Fact id="proteins" />. Backbone ribbons use the structures' confidence scores,
+and a detail view opens Mol*. The viewer is loaded separately, contributing
+<Fact id="molstar-bundle" /> to the recorded main JavaScript bundle; it still
+requires a runtime download.
+
+The fixture contains <Fact id="real-structures" />. The two fallback structures
+are labelled substitutes, so their presence is visible instead of implying
+that every fixture has a real prediction.
 
 ## The interface moves before it speaks
 
 Ask for the proteins involved in a disease and the backend streams typed UI
 commands ahead of any prose: the universe dims, the graph re-roots and the
-camera re-frames before the first sentence arrives. Every answer is built from
-local data first and the model only re-words a result that is already correct,
-so there are <Fact id="external-calls" /> at request time and the app works with
-no API key at all.
+camera re-frames before the first sentence arrives. The local grounded answer
+path works without a model key. Its recorded model calls:
+<Fact id="external-calls" />. Optional Claude narration makes external model calls. Grounding and
+typed commands constrain the workflow; they do not guarantee that generated
+prose is semantically correct.
 
 ## Honest about where it stands
 
 The deployment is configured but not provisioned, so the code is the artifact
-rather than a URL. The similarity measure ranks by backbone shape distance, not
-fold similarity, and the layout is hand-curated rather than a projection —
-distinctions worth keeping straight, because the shorter versions of both claims
-would be wrong.
+rather than a verified service URL. Visual neighbors in reduced-dimensional
+coordinates are spatial proximity, not proof of shared biological function or
+clinical utility. The data is a small fixture, and this update did not reproduce
+the project's tests or establish new scientific results.

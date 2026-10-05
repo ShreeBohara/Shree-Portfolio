@@ -132,10 +132,54 @@ function getKnownItemChunks(context?: ChatContext): RetrievedChunk[] {
   return chunks.map((chunk) => ({ ...chunk, similarity: 0.5 }));
 }
 
+function normalizeProjectName(value: string): string {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+}
+
+// Use distinctive names and explicit project phrases, not technology/category
+// keywords such as "AI", "trading" or "DuckDB" alone. Those can be general
+// questions and should continue through semantic retrieval.
+const PROJECT_ALIASES: Record<string, string[]> = {
+  'project-faultlab': ['fault lab'],
+  'project-codebaseqa': ['codebase qa'],
+  'project-genomecanvas': ['genome canvas'],
+  'project-delta-sentinel': ['deltasentinel'],
+  'project-trading': ['trading system', 'trading project', 'options trading project'],
+  'project-duckdb': ['duckdb hash join', 'duckdb optimization'],
+  'project-portfolio': ['interactive portfolio'],
+};
+
+function getExplicitProjectChunks(query: string): RetrievedChunk[] {
+  const normalizedQuery = ` ${normalizeProjectName(query)} `;
+  const namedProjects = projects.filter((project) =>
+    [project.title, project.slug, ...(PROJECT_ALIASES[project.id] ?? [])]
+      .some((name) => normalizedQuery.includes(` ${normalizeProjectName(name)} `))
+  );
+
+  // Comparisons retain every explicitly named project. Content comes only from
+  // the public catalog; a saved index need not contain these projects yet.
+  // The fixed score is a local lookup marker, not semantic similarity or a
+  // measured probability that the generated answer is correct.
+  return namedProjects.flatMap((project) =>
+    chunkProject(project).map((chunk) => ({ ...chunk, similarity: 0.5 }))
+  );
+}
+
 export async function resolveRetrievedChunks(
   query: string,
   context?: ChatContext
 ): Promise<RetrievedChunk[]> {
+  const hasSelectedItem = Boolean(context?.enabled && context?.itemId);
+  if (hasSelectedItem) {
+    // A selected page takes precedence even when the question names another
+    // project. Never broaden its scope with name matching or stale index hits.
+    const knownItemChunks = getKnownItemChunks(context);
+    if (knownItemChunks.length > 0) return knownItemChunks;
+  } else {
+    const namedProjectChunks = getExplicitProjectChunks(query);
+    if (namedProjectChunks.length > 0) return namedProjectChunks;
+  }
+
   const options = {
     limit: AI_CONFIG.retrieval.topK,
     filter: context?.enabled && context?.itemId
@@ -164,11 +208,6 @@ export async function resolveRetrievedChunks(
   }
 
   if (retrievedChunks.length === 0) {
-    // The existing RPC limits global results before applying its item filter.
-    // A known page can therefore be absent even when its content is available.
-    // Use that page's current local data without broadening the selected scope.
-    const knownItemChunks = getKnownItemChunks(context);
-    if (knownItemChunks.length > 0) return knownItemChunks;
     // Resolve the fallback before the route sends citations, preserving the
     // selected item for contextual questions in both response modes.
     retrievedChunks = await retrieveRelevantContent(query, {

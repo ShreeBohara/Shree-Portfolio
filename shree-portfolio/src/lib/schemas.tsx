@@ -63,7 +63,7 @@ export function WebSiteSchema() {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: 'Shree Bohara Portfolio',
-    description: 'Shree Bohara — Software Engineer at QuinStreet in San Francisco.',
+    description: personalInfo.tagline,
     url: baseUrl,
     author: {
       '@type': 'Person',
@@ -178,7 +178,6 @@ export function ProjectSchema({ project }: { project: Project }) {
       '@type': 'Person',
       name: personalInfo.name,
     },
-    dateCreated: `${project.year}-01-01`,
     keywords: project.tags.join(', '),
     about: project.category,
     url: `${baseUrl}/projects/${project.slug}`,

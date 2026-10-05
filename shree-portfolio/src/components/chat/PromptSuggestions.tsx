@@ -26,9 +26,9 @@ export const promptCategories: PromptCategory[] = [
     prompts: [
       "What are your top 3 projects?",
       "Tell me about CodebaseQA",
-      "Tell me about EchoLens",
-      "Biggest technical challenge?",
-      "Tell me about Pond"
+      "Tell me about FaultLab",
+      "How does CORDON work?",
+      "Tell me about the trading system"
     ]
   },
   {
@@ -39,33 +39,30 @@ export const promptCategories: PromptCategory[] = [
       "Full-stack experience?",
       "Work at QuinStreet?",
       "What did you learn at DeepTek?",
-      "How do you learn new tech?",
+      "What changed after your internship?",
       "Why USC?"
     ]
   },
   {
-    id: 'hire-me',
+    id: 'approach',
     icon: Target,
-    title: 'Hire Me',
+    title: 'Approach',
     prompts: [
-      "Why should we hire you?",
-      "What motivates you?",
-      "Greatest strength?",
-      "Where in 5 years?",
-      "Biggest weakness?"
+      "How do you check AI-generated code?",
+      "How do you test failure paths?",
+      "How do you debug a difficult issue?",
+      "How do you work with a team?"
     ]
   },
   {
-    id: 'fun',
+    id: 'connect',
     icon: Sparkles,
-    title: 'Fun Stuff',
+    title: 'Connect',
     prompts: [
-      "Favorite book?",
-      "What do you do for fun?",
-      "Favorite podcasts?",
-      "Fun fact about Shree?",
-      "Favorite chess opening?",
-      "Dream travel destination?"
+      "How can I get in touch?",
+      "Where can I find your code?",
+      "Where is your resume?",
+      "What kind of problems interest you?"
     ]
   }
 ];
@@ -80,7 +77,7 @@ const contextPrompts: Record<string, PromptCategory[]> = {
       prompts: [
         "Technologies used?",
         "Architecture decisions?",
-        "How did you handle scale?"
+        "What was the scope of your testing?"
       ]
     },
     {
@@ -99,8 +96,8 @@ const contextPrompts: Record<string, PromptCategory[]> = {
       title: 'Impact',
       prompts: [
         "How did you measure success?",
-        "Business impact?",
-        "User feedback?"
+        "What has been validated?",
+        "Where can I review the evidence?"
       ]
     },
     {
@@ -173,8 +170,8 @@ const contextPrompts: Record<string, PromptCategory[]> = {
       title: 'Projects',
       prompts: [
         "Academic projects?",
-        "Research experience?",
-        "Capstone project?"
+        "How did you apply your coursework?",
+        "Which projects use database internals?"
       ]
     },
     {
@@ -184,7 +181,7 @@ const contextPrompts: Record<string, PromptCategory[]> = {
       prompts: [
         "Skills developed?",
         "Theory applied?",
-        "Certifications?"
+        "Which tools did you use?"
       ]
     },
     {

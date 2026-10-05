@@ -16,7 +16,6 @@ import { Badge } from '@/components/ui/badge';
 import { personalInfo, projects, experiences, education } from '@/data/portfolio';
 import { cn } from '@/lib/utils';
 import { ACCENT, accentAlpha } from '@/lib/accent';
-import Image from 'next/image';
 import Link from 'next/link';
 
 interface ChatMessage {
@@ -646,7 +645,7 @@ export function ChatInterface() {
                     }}
                   >
                     {/* Projects count */}
-                    <Link href="/browse?section=projects">
+                    <Link href="/browse?section=projects" aria-label="Projects">
                       <motion.div
                         className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground/80 hover:text-accent-color transition-colors"
                         whileHover={{ scale: 1.05 }}
@@ -674,13 +673,13 @@ export function ChatInterface() {
                     <span className="text-muted-foreground/30">|</span>
 
                     {/* Location */}
-                    <Link href="/browse?section=education">
+                    <Link href="/about">
                       <motion.div
                         className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground/80 hover:text-accent-color transition-colors"
                         whileHover={{ scale: 1.05 }}
                       >
                         <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4" style={{ color: accentColor }} />
-                        <span>San Francisco</span>
+                        <span>{personalInfo.location.split(',')[0].trim()}</span>
                       </motion.div>
                     </Link>
 

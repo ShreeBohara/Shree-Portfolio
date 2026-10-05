@@ -2,6 +2,16 @@ import { generateEmbedding } from './embeddings';
 import { searchSimilar } from './vector-store';
 import { Citation } from '@/data/types';
 import { AI_CONFIG } from './config';
+import { projects, experiences, education, personalInfo } from '@/data/portfolio';
+import { chunkAllContent } from './chunking';
+
+// Saved embeddings rank candidates; the current approved catalog supplies every
+// word and citation sent to the model. A content refresh must never keep serving
+// superseded text while an explicit (paid) reindex is still pending.
+const currentChunks = new Map(
+  chunkAllContent(projects, experiences, education, personalInfo)
+    .map((chunk) => [chunk.id, chunk])
+);
 
 export interface RetrievedChunk {
   content: string;
@@ -42,12 +52,26 @@ export async function retrieveRelevantContent(
     filter: options.filter,
   });
 
-  // Convert to RetrievedChunk format
-  let chunks: RetrievedChunk[] = results.map((result) => ({
-    content: result.content,
-    metadata: result.metadata as RetrievedChunk['metadata'],
-    similarity: result.similarity,
-  }));
+  // IDs are stable across edits. Reject retired IDs and mismatched identity
+  // metadata rather than accidentally attaching an old row to another item.
+  // Scores still describe the saved embeddings; reindexing remains necessary
+  // for updated semantic ranking and recall of newly added projects.
+  const seen = new Set<string>();
+  let chunks: RetrievedChunk[] = results.flatMap((result) => {
+    const current = currentChunks.get(result.id);
+    if (!current || seen.has(result.id) ||
+      result.metadata?.type !== current.metadata.type ||
+      result.metadata?.itemId !== current.metadata.itemId) return [];
+    if (options.filter?.type && current.metadata.type !== options.filter.type) return [];
+    if (options.filter?.itemId && current.metadata.itemId !== options.filter.itemId) return [];
+    if (options.filter?.category && current.metadata.category !== options.filter.category) return [];
+    seen.add(result.id);
+    return [{
+      content: current.content,
+      metadata: current.metadata,
+      similarity: result.similarity,
+    }];
+  });
 
   // Boost specific item if requested
   if (options.boostItemId) {
@@ -116,4 +140,3 @@ export function formatChunksForContext(chunks: RetrievedChunk[]): string {
     })
     .join('\n\n---\n\n');
 }
-

@@ -123,6 +123,7 @@ export interface PersonalInfo {
     calendar?: string;    // Booking link (Calendly, Cal.com)
     resume: {
       pdf: string;       // PDF download link
+      html?: string;     // Semantic HTML reading alternative
       docx?: string;     // Optional DOCX version
     };
   };
