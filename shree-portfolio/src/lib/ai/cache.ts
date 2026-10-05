@@ -106,7 +106,9 @@ export function cleanupCache(): void {
 
 // Cleanup every 10 minutes
 if (typeof setInterval !== 'undefined') {
-  setInterval(cleanupCache, 10 * 60 * 1000);
+  const cleanupTimer = setInterval(cleanupCache, 10 * 60 * 1000);
+  // Keep cleanup active while a server runs without keeping finished CLIs alive.
+  cleanupTimer.unref?.();
 }
 
 /**
@@ -118,4 +120,3 @@ export function getCacheStats() {
     queryCacheSize: queryCache.size,
   };
 }
-

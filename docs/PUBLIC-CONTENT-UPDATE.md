@@ -147,8 +147,46 @@ application packets remain preserved. Existing uncommitted content work was
 reviewed and retained in this refresh. A checkpoint is outside the source folder
 at `/Users/shree/Desktop/Portfolio/.content-update-checkpoint-2026-10-04/`.
 
-The local branch is `codex/public-content-refresh`. Production and its shared
-vector index have not been changed. Repository instructions require approval
-before pushing to `main`, which deploys on Vercel. When publishing, deploy the
-matching content/code first, then explicitly rebuild the saved embedding index;
-doing the index first could expose new citations to the older production UI.
+The user approved publication on October 4. The four reviewed commits through
+`182032f` were fast-forwarded to `main`, and Vercel deployment
+`dpl_28WM4Eumbosy2RuiC5K5gUUnou1c` became ready at
+[shreebohara.com](https://shreebohara.com). The matching code/content was deployed
+before the embedding index was refreshed. GitHub's
+[release checks](https://github.com/ShreeBohara/Shree-Portfolio/actions/runs/37254340320)
+passed on that commit.
+
+Production verification returned 79 HTTP 200 responses and one expected 404.
+All 25 public pages matched the reviewed local text; all 30 public files and
+four metadata routes matched local bytes. Nineteen referenced Next assets were
+available. The live archive returned 68 photos from the expected Supabase
+project. Desktop and mobile gallery review found no horizontal overflow or
+broken visible images; the mobile FaultLab dialog retained the zero-accepted
+policy qualifier and its close control worked. No browser console errors were
+recorded.
+
+The old 97-row index was backed up outside Git, with vectors and file mode 0600.
+A production semantic-chat request was observed in the expected Supabase search
+RPC logs before mutation. Reindexing generated and validated all 106 replacements
+before storing them and pruning obsolete IDs. Readback confirmed all 106 IDs,
+content, metadata and finite 1536-dimensional vectors. After the refresh, semantic
+chat retrieved the current notification-preference contribution with an
+experience citation; streaming chat cited FaultLab and retained its zero
+accepted policies, with a completion marker and no stream error. These are
+bounded live smoke checks, not a comprehensive factual evaluation of every
+possible generated answer.
+
+The indexing work completed, but an existing referenced cache-cleanup interval
+kept its CLI process open afterward. The timer now releases its hold on Node's
+event loop, and a subprocess regression check verifies natural exit while cache
+operations remain usable. The original completed indexing process was stopped
+after independent readback; no second embedding refresh was needed.
+
+The final maintenance fix passed `npm run check`: TypeScript, ESLint (53 existing
+warnings, no errors), 56 tests, content/fact checks, résumé consistency and the
+production build. It changes cache timer lifecycle and release documentation;
+the reviewed public content and refreshed embedding index remain the same.
+
+The private backup, rollback deployment reference and final publication evidence
+are recorded at `/Users/shree/Desktop/Portfolio/publication-2026-10-04.md`.
+Future publication should keep the same order: deploy matching content/code,
+then explicitly rebuild the saved embedding index when its content changes.
