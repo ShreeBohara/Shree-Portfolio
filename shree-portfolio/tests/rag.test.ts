@@ -295,6 +295,24 @@ test('an overview with an unrecognized topic qualifier keeps semantic scope inst
   assert.match(absent.fallback?.answer ?? '', /couldn't find supporting material/);
 });
 
+test('named employer questions keep current career scope without unrelated project hits', async () => {
+  const { rag, portfolio, retrievalCalls } = harness({ retrieval: async () => [chunk] });
+  const employer = await rag.prepareRAGContext("Is Shree's QuinStreet incident-analysis pipeline running in production?");
+  assert.ok(employer.chunks.length > 0);
+  assert.ok(employer.chunks.every(item => item.metadata.type === 'experience'));
+  assert.ok(employer.chunks.every(item => portfolio.experiences.some(experience =>
+    experience.id === item.metadata.itemId && experience.company === 'QuinStreet')));
+  const internship = await rag.prepareRAGContext("What start date is recorded for Shree's QuinStreet internship?");
+  assert.ok(internship.chunks.every(item => item.metadata.itemId === 'exp-quinstreet-intern'));
+  const comparison = await rag.prepareRAGContext('Compare FaultLab with the work at QuinStreet');
+  assert.ok(comparison.chunks.some(item => item.metadata.itemId === 'project-faultlab'));
+  assert.ok(comparison.chunks.some(item => item.metadata.type === 'experience'));
+  assert.equal(retrievalCalls.length, 0);
+  const selected = await rag.prepareRAGContext('Compare FaultLab with the work at QuinStreet',
+    { enabled: true, itemType: 'project', itemId: 'project-faultlab' });
+  assert.ok(selected.chunks.every(item => item.metadata.itemId === 'project-faultlab'));
+});
+
 test('a semantic metric hit is supplemented only with its matched project evidence and deduplicated', async () => {
   const { projects } = await import('../src/data/portfolio');
   const project = projects.find(item => item.id === 'project-cordon');

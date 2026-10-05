@@ -16,6 +16,7 @@ import { ACCENT, accentAlpha } from '../src/lib/accent';
 import { checkDenyList } from '../src/lib/ai/deny';
 import { readChatResponse } from '../src/lib/ai/chat-stream';
 import type { Citation } from '../src/data/types';
+import { getChatLinkHref } from '../src/lib/chat-links';
 
 type ChatRoute = typeof import('../src/app/api/chat/route');
 
@@ -128,7 +129,7 @@ test('quota rejection precedes privacy and services and supplies usable retry he
   assert.deepEqual(serviceCalls, []);
 });
 
-function renderCitation(citation: Citation) {
+function renderCitation(citation: Citation, content = 'Documented summary.') {
   // The actual component renders with its libraries, but without browser
   // preference storage or calendar controls unrelated to citation semantics.
   const filename = resolve('src/components/chat/Message.tsx');
@@ -142,6 +143,7 @@ function renderCitation(citation: Citation) {
     'remark-gfm': { default: remarkGfm },
     '@/lib/utils': { cn },
     '@/lib/accent': { ACCENT, accentAlpha },
+    '@/lib/chat-links': { getChatLinkHref },
     '@/store/ui-store': { useUIStore: () => ({ setSelectedItem() {} }) },
     './CalendlyCTA': { CalendlyCTA: () => null },
   };
@@ -160,7 +162,7 @@ function renderCitation(citation: Citation) {
   }, { filename });
   const { Message } = loaded.exports as typeof import('../src/components/chat/Message');
   return renderToStaticMarkup(jsxRuntime.jsx(Message, {
-    role: 'assistant', content: 'Documented summary.', citations: [citation],
+    role: 'assistant', content, citations: [citation],
   }));
 }
 
@@ -184,4 +186,21 @@ test('catalog citations and explicit source URLs retain actionable buttons', () 
     assert.equal((markup.match(/<button\b/g) ?? []).length, 1, citation.title);
     assert.ok(markup.includes(citation.title));
   }
+});
+
+test('a literal public project path links to its own page while a separate write-up keeps its supplied destination', () => {
+  const document = 'https://drive.google.com/file/d/17oY5R0iapf8BO_JjkOiEjuidUVGxTYII/view';
+  const path = '/projects/duckdb-hash-join-optimization';
+  const markup = renderCitation({ type: 'project', id: 'project-duckdb', title: 'DuckDB' },
+    `[${path}](${document}) and [Engineering write-up](${document})`);
+  assert.match(markup, /href="\/projects\/duckdb-hash-join-optimization"/);
+  assert.ok(markup.includes(`href="${document}"`));
+  assert.equal(getChatLinkHref('/not-a-published-page', document), document);
+});
+
+test('a generated placeholder destination renders readable text rather than a dead link', () => {
+  const markup = renderCitation({ type: 'experience', id: 'exp-quinstreet-ft', title: 'QuinStreet' },
+    '[Software Engineer at QuinStreet - 2026](#)');
+  assert.match(markup, /Software Engineer at QuinStreet - 2026/);
+  assert.doesNotMatch(markup, /<a\b|href="#"/);
 });

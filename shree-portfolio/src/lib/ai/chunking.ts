@@ -100,11 +100,16 @@ export function chunkProject(project: Project): ContentChunk[] {
 export function chunkExperience(experience: Experience): ContentChunk[] {
   const chunks: ContentChunk[] = [];
   const baseId = `experience-${experience.id}`;
+  const publicLinks = [
+    ['Experience page', `/experience/${experience.id}`],
+    ['Company website', experience.links?.company],
+    ['Supplied product link', experience.links?.project],
+  ].filter(([, url]) => url).map(([label, url]) => `${label}: ${url}`).join('\n');
 
   // Chunk 1: Role Summary
   chunks.push({
     id: `${baseId}-summary`,
-    content: `Role: ${experience.role} at ${experience.company}\n\nPeriod: ${experience.startDate} - ${experience.endDate ?? 'Present'}\n\nRole Type: ${experience.type}\n\nLocation: ${experience.location}\n\n${experience.summary}`,
+    content: `Role: ${experience.role} at ${experience.company}\n\nPeriod: ${experience.startDate} - ${experience.endDate ?? 'Present'}\n\nRole Type: ${experience.type}\n\nLocation: ${experience.location}\n\n${experience.summary}\n\nPublic Links:\n${publicLinks}`,
     metadata: {
       type: 'experience',
       itemId: experience.id,

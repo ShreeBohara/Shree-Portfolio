@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { personalInfo, projects } from '../src/data/portfolio';
-import { chunkPersonalInfo, chunkProject } from '../src/lib/ai/chunking';
+import { personalInfo, projects, experiences } from '../src/data/portfolio';
+import { chunkPersonalInfo, chunkProject, chunkExperience } from '../src/lib/ai/chunking';
 import { buildMessages, buildUserPrompt } from '../src/lib/ai/prompts';
 
 test('visitor text cannot add raw source sections and never becomes approved portfolio evidence', () => {
@@ -55,4 +55,11 @@ test('published links reach project and profile context without exposing a priva
   assert.ok(bio.content.includes(personalInfo.links.resume.pdf));
   assert.ok(bio.content.includes(personalInfo.links.resume.html!));
   assert.doesNotMatch(bio.content, /\/Users\/|SUPABASE_SERVICE_ROLE_KEY|OPENAI_API_KEY/);
+  const role = experiences.find(item => item.id === 'exp-quinstreet-ft');
+  assert.ok(role);
+  assert.ok(role.links);
+  const roleText = chunkExperience(role).map(chunk => chunk.content).join('\n');
+  assert.ok(roleText.includes(`/experience/${role.id}`));
+  assert.ok(roleText.includes(role.links.company!));
+  assert.ok(roleText.includes(role.links.project!));
 });

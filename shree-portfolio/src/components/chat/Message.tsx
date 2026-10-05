@@ -10,6 +10,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { CalendlyCTA } from './CalendlyCTA';
 import { useMemo, useRef, useEffect, useState } from 'react';
+import { getChatLinkHref } from '@/lib/chat-links';
 
 interface MessageProps {
   role: 'user' | 'assistant';
@@ -297,14 +298,20 @@ export function Message({ role, content, citations, isStreaming, accentColor = A
                 pre: ({node, children, ...props}) => <>{children}</>,
 
                 // Style links
-                a: ({node, ...props}: any) => (
-                  <a
+                a: ({node, ...props}: any) => {
+                  const href = getChatLinkHref(
+                    Array.isArray(props.children) ? props.children.filter((child: unknown) => typeof child === 'string').join('') : typeof props.children === 'string' ? props.children : '',
+                    props.href
+                  );
+                  if (!href) return <span>{props.children}</span>;
+                  return <a
                       className="text-accent-color underline underline-offset-2 hover:text-accent-color/80 transition-colors font-medium"
                     target="_blank"
                     rel="noopener noreferrer"
                     {...props}
-                  />
-                ),
+                    href={href}
+                  />;
+                },
 
                 // Style blockquotes
                 blockquote: ({node, ...props}) => (

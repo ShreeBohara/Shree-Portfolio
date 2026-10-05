@@ -192,6 +192,21 @@ function getExplicitProjectChunks(query: string): RetrievedChunk[] {
   );
 }
 
+function getExplicitExperienceChunks(query: string): RetrievedChunk[] {
+  const normalizedQuery = ` ${normalizeProjectName(query)} `;
+  const namedRoles = experiences.filter(experience =>
+    normalizedQuery.includes(` ${normalizeProjectName(experience.company)} `)
+  );
+  const internshipRequested = /\bintern(?:ship)?\b/i.test(query);
+  const fullTimeRequested = /\bfull[ -]?time\b/i.test(query);
+  const scopedRoles = namedRoles.filter(experience =>
+    internshipRequested && !fullTimeRequested ? experience.type === 'Internship' :
+      fullTimeRequested && !internshipRequested ? experience.type !== 'Internship' : true
+  );
+  return scopedRoles.flatMap(experience => chunkExperience(experience)
+    .map(chunk => ({ ...chunk, similarity: 0.5 })));
+}
+
 function getPublicContactChunks(query: string): RetrievedChunk[] {
   const asksForContact = /\b(?:contact|reach)\s+(?:shree|him|you)\b|\bget\s+in\s+touch\b|\b(?:book|schedule)\s+(?:a\s+)?(?:conversation|call|meeting)\b/i.test(query);
   const asksForOwnedLink = /\b(?:his|your|shree['’]s|the)\s+(?:r[eé]sum[eé]|cv)\b|\b(?:r[eé]sum[eé]|cv)\s+(?:link|pdf|download)\b|\b(?:his|your|shree['’]s)\s+(?:email|calendar|linkedin|github\s+profile)\b(?=\s*(?:address|link|url|and\b|[?.!,]|$))/i.test(query);
@@ -240,7 +255,10 @@ export async function resolveRetrievedChunks(
     if (knownItemChunks.length > 0) return knownItemChunks;
   } else {
     const namedProjectChunks = getExplicitProjectChunks(query);
-    if (namedProjectChunks.length > 0) return namedProjectChunks;
+    const namedExperienceChunks = getExplicitExperienceChunks(query);
+    if (namedProjectChunks.length > 0 || namedExperienceChunks.length > 0) {
+      return [...namedProjectChunks, ...namedExperienceChunks];
+    }
     const contactChunks = getPublicContactChunks(query);
     if (contactChunks.length > 0) return contactChunks;
     if (isProjectOverviewQuery(query) && hasCatalogOverviewScope(query)) {

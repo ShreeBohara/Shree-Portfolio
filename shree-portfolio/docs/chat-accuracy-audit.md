@@ -9,7 +9,7 @@ answer is supported by that source.
 
 ## Corrections
 
-- Serialize actual public project, calendar and résumé links into context.
+- Serialize actual public project, career-entry, calendar and résumé links into context.
   Straightforward contact/résumé questions now return the stored public links
   directly, without asking the model to reconstruct a URL.
 - Allow documented employment dates and project limitations while preserving
@@ -29,12 +29,20 @@ answer is supported by that source.
   pages keep their existing source boundaries.
 - Supplement semantic project hits only with the matched project's current
   public details, attribution and links. Reject blank model output safely.
+- Named employer questions use current career entries, including explicit
+  internship/full-time scope, rather than unrelated project search results.
+  Explicit employer/project comparisons include both; selected pages retain
+  their source boundary.
 - Render citations without a destination as labels; catalog items remain
-  actionable. Preserve the original site layout.
+  actionable. A literal approved page path in a Markdown label links to that
+  page even if the model attaches a different href. This corrects routing in
+  the rendered answer, without claiming to validate arbitrary generated links.
+  Placeholder destinations render as readable text rather than dead links.
+  Preserve the original site layout.
 
 ## Validation and evidence
 
-`npm run check` passes: **69 tests**, TypeScript, public content lint, source-backed
+`npm run check` passes: **72 tests**, TypeScript, public content lint, source-backed
 fact verification, résumé verification and the production build. ESLint has
 52 existing warnings and no errors. Offline tests exercise the real route and
 RAG modules with explicit service substitutes, including both response modes,
@@ -43,9 +51,23 @@ scope and blank responses.
 
 Local provider retests were retained as separate iterations, including imperfect
 answers that prompted further corrections. Browser review verified the stored
-calendar/résumé destinations and non-actionable source labels. The production
-follow-up uses the unchanged 20-question bank after matching code and index
-publication; its transcripts, manual review and deployment record are saved in:
+calendar/résumé destinations, non-actionable source labels, working project
+dialogs and mobile layout. The fresh 20-question production follow-up at
+`17b05cd` had **18 pass, 2 partial and no failures** under the unchanged rubric,
+with no transport failures and all 17 required citation-ID cases covered.
+The partial answers had a missing DuckDB benchmark size and misleading extra
+links in DuckDB and employer-pipeline answers. Routing and employer source scope
+received a final correction and separate targeted retests; these must not be
+presented as another independent 20-question pass.
+
+A same-bank local trial of `gpt-4.1-mini-2025-04-14` had **16 pass, 1 partial and
+3 failures**, introducing unsupported migration, repair and routing claims.
+It was not promoted. The current model was retained based on these samples,
+rather than assuming that a model change would improve source fidelity.
+The alternative is described by the [official model documentation](https://developers.openai.com/api/docs/models/gpt-4.1-mini);
+the observed comparison is specific to this question bank and prompt.
+
+Transcripts, independent reviews and deployment records are saved in:
 
 `/Users/shree/Desktop/Portfolio/chat-audit-2026-10-04/`
 
