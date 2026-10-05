@@ -16,7 +16,7 @@ import { ACCENT, accentAlpha } from '../src/lib/accent';
 import { checkDenyList } from '../src/lib/ai/deny';
 import { readChatResponse } from '../src/lib/ai/chat-stream';
 import type { Citation } from '../src/data/types';
-import { getChatLinkHref } from '../src/lib/chat-links';
+import { getChatLinkHref, getChatLinkLabel } from '../src/lib/chat-links';
 
 type ChatRoute = typeof import('../src/app/api/chat/route');
 
@@ -143,7 +143,7 @@ function renderCitation(citation: Citation, content = 'Documented summary.') {
     'remark-gfm': { default: remarkGfm },
     '@/lib/utils': { cn },
     '@/lib/accent': { ACCENT, accentAlpha },
-    '@/lib/chat-links': { getChatLinkHref },
+    '@/lib/chat-links': { getChatLinkHref, getChatLinkLabel },
     '@/store/ui-store': { useUIStore: () => ({ setSelectedItem() {} }) },
     './CalendlyCTA': { CalendlyCTA: () => null },
   };
@@ -203,4 +203,13 @@ test('a generated placeholder destination renders readable text rather than a de
     '[Software Engineer at QuinStreet - 2026](#)');
   assert.match(markup, /Software Engineer at QuinStreet - 2026/);
   assert.doesNotMatch(markup, /<a\b|href="#"/);
+});
+
+test('a supplied product URL is labeled as a product rather than a portfolio experience page', () => {
+  const markup = renderCitation({ type: 'experience', id: 'exp-quinstreet-ft', title: 'QuinStreet' },
+    '[experience page](https://www.insurance.com/pond)');
+  assert.match(markup, /href="https:\/\/www.insurance.com\/pond"/);
+  assert.match(markup, />product page<\/a>/);
+  assert.doesNotMatch(markup, />experience page<\/a>/);
+  assert.equal(getChatLinkLabel('Engineering notes from Shree', 'https://www.insurance.com/pond'), 'Engineering notes from Shree');
 });

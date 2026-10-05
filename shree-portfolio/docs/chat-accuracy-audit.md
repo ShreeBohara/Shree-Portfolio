@@ -38,11 +38,17 @@ answer is supported by that source.
   page even if the model attaches a different href. This corrects routing in
   the rendered answer, without claiming to validate arbitrary generated links.
   Placeholder destinations render as readable text rather than dead links.
+  Generic link labels use the stored destination type, so a supplied product
+  URL is labeled as a product page rather than a portfolio experience page.
   Preserve the original site layout.
+- For an answer about a single project's benchmark, append its exact approved
+  impact record when the model omits a documented dataset scale. The same
+  correction works in both API modes, without a second model call. This is a
+  narrow completeness guard; it does not validate arbitrary generated claims.
 
 ## Validation and evidence
 
-`npm run check` passes: **72 tests**, TypeScript, public content lint, source-backed
+`npm run check` passes: **74 tests**, TypeScript, public content lint, source-backed
 fact verification, résumé verification and the production build. ESLint has
 52 existing warnings and no errors. Offline tests exercise the real route and
 RAG modules with explicit service substitutes, including both response modes,

@@ -243,6 +243,20 @@ function getDirectPublicContactResponse(query: string, chunks: RetrievedChunk[])
   return { answer: parts.join('\n\n'), citations: extractCitations(chunks), confidence: 0.5 };
 }
 
+function withRecordedBenchmarkScale(answer: string, chunks: RetrievedChunk[]): string {
+  if (!/\b(?:benchmark|speedup|faster)\b|\d\s*×/i.test(answer)) return answer;
+  const ids = new Set(chunks.filter(chunk => chunk.metadata.type === 'project').map(chunk => chunk.metadata.itemId));
+  if (ids.size !== 1) return answer;
+  const project = projects.find(project => ids.has(project.id));
+  const scale = project?.impact.match(/\b\d+(?:\.\d+)?\s*(?:GB|MB|TB)\b/i)?.[0];
+  if (!project || !scale) return answer;
+  const compact = (value: string) => value.toLowerCase().replace(/\s/g, '');
+  if (compact(answer).includes(compact(scale))) return answer;
+  // Quote the approved record when a benchmark answer loses its dataset scale.
+  // This addresses a measured omission without guessing or another model call.
+  return `${answer}\n\nRecorded benchmark scope: ${project.impact}`;
+}
+
 export async function resolveRetrievedChunks(
   query: string,
   context?: ChatContext
@@ -353,7 +367,7 @@ export async function getRAGResponse(
     const avgSimilarity = retrievedChunks.reduce((sum, chunk) => sum + chunk.similarity, 0) / retrievedChunks.length;
 
     return {
-      answer,
+      answer: withRecordedBenchmarkScale(answer, retrievedChunks),
       citations,
       confidence: Math.min(avgSimilarity, 0.95), // Cap at 0.95
     };
@@ -403,15 +417,19 @@ export async function* streamRAGResponse(
     }, { signal });
 
     let hasContent = false;
+    let answer = '';
     for await (const chunk of stream) {
       if (signal?.aborted) return;
       const content = chunk.choices[0]?.delta?.content || '';
       if (content) {
+        answer += content;
         if (content.trim()) hasContent = true;
         yield content;
       }
     }
     if (!hasContent) throw new Error('The model returned an empty response');
+    const qualified = withRecordedBenchmarkScale(answer, retrievedChunks);
+    if (qualified.length > answer.length && !signal?.aborted) yield qualified.slice(answer.length);
   } catch (error) {
     if (signal?.aborted) return;
     console.error('RAG streaming error:', error);

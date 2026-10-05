@@ -60,6 +60,7 @@ function harness(options: {
   retrieval?: (query: string, options: RetrievalOptions) => Promise<RetrievedChunk[]>;
   modelFailure?: 'before' | 'after' | 'empty' | 'whitespace';
   modelWaitForAbort?: boolean;
+  modelAnswer?: string;
 } = {}) {
   const retrievalCalls: Array<{ query: string; options: RetrievalOptions }> = [];
   const modelRequests: ModelRequest[] = [];
@@ -130,12 +131,12 @@ function harness(options: {
           if (options.modelFailure === 'before') throw new Error('Private provider error');
           if (!request.stream) {
             const answer = options.modelFailure === 'empty' ? '' :
-              options.modelFailure === 'whitespace' ? ' \n\t ' : 'A grounded answer.';
+              options.modelFailure === 'whitespace' ? ' \n\t ' : options.modelAnswer ?? 'A grounded answer.';
             return { choices: [{ message: { content: answer } }] };
           }
           return (async function* () {
             if (options.modelFailure === 'empty') return;
-            yield { choices: [{ delta: { content: options.modelFailure === 'whitespace' ? ' \n\t ' : 'A grounded answer.' } }] };
+            yield { choices: [{ delta: { content: options.modelFailure === 'whitespace' ? ' \n\t ' : options.modelAnswer ?? 'A grounded answer.' } }] };
             if (options.modelWaitForAbort) {
               await new Promise<void>((_resolve, reject) => {
                 const signal = requestOptions?.signal;
@@ -373,6 +374,23 @@ test('contact and résumé questions use approved current links without guessing
   assert.equal(retrievalCalls.length, 4, 'email engineering questions must retain semantic retrieval');
   const projectQuery = await rag.prepareRAGContext('Give me the FaultLab repository and your email');
   assert.ok(projectQuery.chunks.every(item => item.metadata.itemId === 'project-faultlab'));
+});
+
+test('benchmark answers retain recorded dataset scale in both modes when generation omits it', async () => {
+  const query = "Was Shree's DuckDB project 1.56 times faster on every query?";
+  const { route, portfolio } = harness({ modelAnswer: 'No. The overall TPC-H speedup was 1.56×, not a result on every query.' });
+  const project = portfolio.projects.find(project => project.id === 'project-duckdb');
+  assert.ok(project);
+  const ordinary = await (await request(route, false, undefined, query)).json();
+  assert.ok(ordinary.answer.includes(`Recorded benchmark scope: ${project.impact}`));
+  const streamed = await events(await request(route, true, undefined, query));
+  const answer = streamed.filter(event => event.type === 'chunk').map(event => event.content).join('');
+  assert.equal(answer, ordinary.answer);
+  assert.equal(streamed.at(-1)?.type, 'done');
+  assert.deepEqual(streamed[0].citations, ordinary.citations);
+  const complete = harness({ modelAnswer: 'The overall TPC-H speedup at 100 GB was 1.56×.' });
+  const existing = await (await request(complete.route, false, undefined, query)).json();
+  assert.doesNotMatch(existing.answer, /Recorded benchmark scope:/);
 });
 
 test('empty and whitespace-only nonstreaming model results return availability instead of success', async () => {
