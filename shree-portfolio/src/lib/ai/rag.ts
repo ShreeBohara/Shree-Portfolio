@@ -3,8 +3,8 @@ import { buildMessages } from './prompts';
 import { getOpenAIClient, isOpenAIConfigured } from './client';
 import { AI_CONFIG } from './config';
 import { Citation } from '@/data/types';
-import { projects, experiences, education } from '@/data/portfolio';
-import { chunkProject, chunkExperience, chunkEducation, ContentChunk } from './chunking';
+import { projects, experiences, education, personalInfo } from '@/data/portfolio';
+import { chunkProject, chunkExperience, chunkEducation, chunkPersonalInfo, ContentChunk } from './chunking';
 import { isVectorStoreAvailable } from './vector-store';
 
 export interface ChatContext {
@@ -72,7 +72,7 @@ function getProjectCategoryMatcher(query: string): ((category: string) => boolea
   if (normalized.includes('academic')) {
     return (category) => category === 'Academic';
   }
-  if (normalized.includes('data')) {
+  if (/\bdata(?: engineering)?\b/.test(normalized)) {
     return (category) => category === 'Data Engineering';
   }
 
@@ -95,23 +95,50 @@ function buildDeterministicProjectOverviewChunks(query: string): RetrievedChunk[
     return a.sortOrder - b.sortOrder;
   });
 
-  return rankedProjects.slice(0, 3).flatMap((project, projectIndex) => {
-    const projectChunks = chunkProject(project);
-    const selectedChunks = [projectChunks[0], projectChunks[2] || projectChunks[1]].filter(Boolean);
-
-    return selectedChunks.map((chunk, chunkIndex) => ({
+  return rankedProjects.slice(0, 3).flatMap((project) =>
+    // Keep measured results beside their scope and ownership. Local catalog
+    // ordering is not a measured semantic score or answer-confidence estimate.
+    chunkProject(project).map((chunk) => ({
       ...chunk,
-      similarity: Math.max(0.95 - projectIndex * 0.05 - chunkIndex * 0.01, 0.8),
-    }));
-  });
+      similarity: 0.5,
+    }))
+  );
 }
 
-function countUniqueProjects(chunks: RetrievedChunk[]): number {
-  return new Set(
-    chunks
-      .filter((chunk) => chunk.metadata.type === 'project')
-      .map((chunk) => chunk.metadata.itemId)
-  ).size;
+function hasCatalogOverviewScope(query: string): boolean {
+  if (getProjectCategoryMatcher(query)) return true;
+  // A category-free catalog overview is safe only for a generic request.
+  // Unknown topic qualifiers such as database, mobile or DevOps still need
+  // semantic matches rather than being silently replaced by featured items.
+  const qualifiers = query.toLowerCase().replace(/[^a-z0-9]+/g, ' ')
+    .replace(/\b(?:what|which|are|is|the|your|his|shree|bohara|s|my|some|of|a|an|top|best|featured|favorite|favorites|highlight|highlights|portfolio|project|projects|show|me|list|give|please|can|you|tell|about|three)\b|\b\d+\b/g, ' ')
+    .trim();
+  return qualifiers.length === 0;
+}
+
+function withProjectSourceContext(chunks: RetrievedChunk[]): RetrievedChunk[] {
+  const seen = new Set<string>();
+  const keyFor = (chunk: Pick<RetrievedChunk, 'metadata' | 'content'>) => `${chunk.metadata.type}:${chunk.metadata.itemId}:${chunk.content}`;
+  const result = chunks.filter((chunk) => {
+    const key = keyFor(chunk);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+  const projectIds = new Set(result.filter(chunk => chunk.metadata.type === 'project').map(chunk => chunk.metadata.itemId));
+  for (const id of projectIds) {
+    const project = projects.find(item => item.id === id);
+    if (!project) continue;
+    // Only supplement projects already matched. Summary, impact and role keep
+    // prototype status, metric qualifications, attribution and links together.
+    for (const source of chunkProject(project).filter(chunk => !chunk.id.endsWith('-metrics'))) {
+      const key = keyFor(source);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      result.push({ ...source, similarity: 0.5 });
+    }
+  }
+  return result;
 }
 
 function getKnownItemChunks(context?: ChatContext): RetrievedChunk[] {
@@ -145,7 +172,7 @@ const PROJECT_ALIASES: Record<string, string[]> = {
   'project-genomecanvas': ['genome canvas'],
   'project-delta-sentinel': ['deltasentinel'],
   'project-trading': ['trading system', 'trading project', 'options trading project'],
-  'project-duckdb': ['duckdb hash join', 'duckdb optimization'],
+  'project-duckdb': ['duckdb hash join', 'duckdb optimization', 'duckdb project'],
   'project-portfolio': ['interactive portfolio'],
 };
 
@@ -165,6 +192,42 @@ function getExplicitProjectChunks(query: string): RetrievedChunk[] {
   );
 }
 
+function getPublicContactChunks(query: string): RetrievedChunk[] {
+  const asksForContact = /\b(?:contact|reach)\s+(?:shree|him|you)\b|\bget\s+in\s+touch\b|\b(?:book|schedule)\s+(?:a\s+)?(?:conversation|call|meeting)\b/i.test(query);
+  const asksForOwnedLink = /\b(?:his|your|shree['’]s|the)\s+(?:r[eé]sum[eé]|cv)\b|\b(?:r[eé]sum[eé]|cv)\s+(?:link|pdf|download)\b|\b(?:his|your|shree['’]s)\s+(?:email|calendar|linkedin|github\s+profile)\b(?=\s*(?:address|link|url|and\b|[?.!,]|$))/i.test(query);
+  if (!asksForContact && !asksForOwnedLink) return [];
+  // Only the approved basic public profile, never optional recruiting fields.
+  // Named projects and a selected page take precedence over this lookup.
+  return chunkPersonalInfo(personalInfo).filter(chunk => chunk.id === 'personal-bio')
+    .map(chunk => ({ ...chunk, similarity: 0.5 }));
+}
+
+function getDirectPublicContactResponse(query: string, chunks: RetrievedChunk[]): RAGResponse | undefined {
+  if (chunks.length !== 1 || chunks[0].metadata.type !== 'bio' || chunks[0].metadata.itemId !== 'personal-info') return;
+  // Only straightforward link requests use this answer. Questions combining
+  // contact with a work/biography topic retain normal grounded generation.
+  const remaining = query.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/\b(?:where|how|what|can|could|may|do|does|is|are|i|we|you|he|him|his|your|shree|bohara|s|a|an|the|and|or|to|with|for|of|in|at|on|me|please|find|get|give|show|send|access|read|view|download|book|schedule|conversation|call|meeting|contact|reach|touch|resume|cv|pdf|html|docx|email|address|calendar|linkedin|github|profile|link|links|url|urls)\b/g, ' ')
+    .trim();
+  if (remaining) return;
+  const links = personalInfo.links;
+  const parts: string[] = [];
+  if (/\b(?:book|schedule|calendar|contact|reach|touch)\b/i.test(query) && links.calendar) {
+    parts.push(`Use Shree's [calendar](${links.calendar}) to book a conversation.`);
+  }
+  if (/\br[eé]sum[eé]\b|\bcv\b/i.test(query)) {
+    const resumes = [`[PDF résumé](${links.resume.pdf})`];
+    if (links.resume.html) resumes.push(`[HTML résumé](${links.resume.html})`);
+    parts.push(`Read his ${resumes.join(' or ')}.`);
+  }
+  if (/\b(?:email|contact|reach|touch)\b/i.test(query)) parts.push(`Email: ${links.email}.`);
+  if (/\blinkedin\b/i.test(query) && links.linkedin) parts.push(`[LinkedIn](${links.linkedin}).`);
+  if (/\bgithub\s+profile\b/i.test(query) && links.github) parts.push(`[GitHub profile](${links.github}).`);
+  if (!parts.length) return;
+  return { answer: parts.join('\n\n'), citations: extractCitations(chunks), confidence: 0.5 };
+}
+
 export async function resolveRetrievedChunks(
   query: string,
   context?: ChatContext
@@ -178,6 +241,13 @@ export async function resolveRetrievedChunks(
   } else {
     const namedProjectChunks = getExplicitProjectChunks(query);
     if (namedProjectChunks.length > 0) return namedProjectChunks;
+    const contactChunks = getPublicContactChunks(query);
+    if (contactChunks.length > 0) return contactChunks;
+    if (isProjectOverviewQuery(query) && hasCatalogOverviewScope(query)) {
+      // Category and featured ordering come from the current approved catalog,
+      // independently of which unrelated projects score highly in the index.
+      return buildDeterministicProjectOverviewChunks(query);
+    }
   }
 
   const options = {
@@ -192,21 +262,6 @@ export async function resolveRetrievedChunks(
   };
   let retrievedChunks = await retrieveRelevantContent(query, options);
 
-  if (!(context?.enabled && context?.itemId) && isProjectOverviewQuery(query)) {
-    const deterministicProjectChunks = buildDeterministicProjectOverviewChunks(query);
-    const projectOnlyChunks = retrievedChunks.filter((chunk) => chunk.metadata.type === 'project');
-    const shouldUseDeterministicFallback =
-      retrievedChunks.length === 0 ||
-      projectOnlyChunks.length === 0 ||
-      countUniqueProjects(projectOnlyChunks) < 3;
-
-    if (shouldUseDeterministicFallback) {
-      return deterministicProjectChunks;
-    }
-
-    return projectOnlyChunks;
-  }
-
   if (retrievedChunks.length === 0) {
     // Resolve the fallback before the route sends citations, preserving the
     // selected item for contextual questions in both response modes.
@@ -217,7 +272,7 @@ export async function resolveRetrievedChunks(
     });
   }
 
-  return retrievedChunks;
+  return withProjectSourceContext(retrievedChunks);
 }
 
 /**
@@ -236,6 +291,8 @@ export async function prepareRAGContext(
     if (chunks.length === 0) {
       return { chunks, fallback: noMatchResponse() };
     }
+    const directContact = getDirectPublicContactResponse(query, chunks);
+    if (directContact) return { chunks, fallback: directContact };
     return { chunks };
   } catch (error) {
     console.error('RAG retrieval error:', error);
@@ -272,7 +329,7 @@ export async function getRAGResponse(
     });
 
     const answer = completion.choices[0]?.message?.content;
-    if (!answer) return unavailableResponse();
+    if (!answer?.trim()) return unavailableResponse();
 
     // Calculate confidence based on retrieved chunks similarity scores
     const avgSimilarity = retrievedChunks.reduce((sum, chunk) => sum + chunk.similarity, 0) / retrievedChunks.length;
@@ -332,7 +389,7 @@ export async function* streamRAGResponse(
       if (signal?.aborted) return;
       const content = chunk.choices[0]?.delta?.content || '';
       if (content) {
-        hasContent = true;
+        if (content.trim()) hasContent = true;
         yield content;
       }
     }

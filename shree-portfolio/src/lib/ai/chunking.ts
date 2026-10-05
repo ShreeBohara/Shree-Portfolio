@@ -19,6 +19,16 @@ export interface ContentChunk {
 export function chunkProject(project: Project): ContentChunk[] {
   const chunks: ContentChunk[] = [];
   const baseId = `project-${project.id}`;
+  const publicLinks = [
+    ...(!project.links.github && /\bprivate source repository\b/i.test(project.myRole)
+      ? [['Implementation source', 'Private repository; the public engineering write-up is separate.']]
+      : []),
+    ['Project page', `/projects/${project.slug}`],
+    ['Source repository', project.links.github],
+    ['Supplied demo link', project.links.live],
+    ['Case study / engineering write-up', project.links.caseStudy],
+    ['Video', project.links.video],
+  ].filter(([, url]) => url).map(([label, url]) => `${label}: ${url}`).join('\n');
 
   // Chunk 1: Title and Summary
   chunks.push({
@@ -55,7 +65,7 @@ export function chunkProject(project: Project): ContentChunk[] {
       .join('\n');
     chunks.push({
       id: `${baseId}-metrics`,
-      content: `Project: ${project.title}\n\nKey Metrics:\n${metricsText}`,
+      content: `Project: ${project.title}\n\nKey Metrics:\n${metricsText}\n\nRecorded scope and limitations: ${project.impact}`,
       metadata: {
         type: 'project',
         itemId: project.id,
@@ -70,7 +80,7 @@ export function chunkProject(project: Project): ContentChunk[] {
   // Chunk 4: Technologies and Role
   chunks.push({
     id: `${baseId}-tech`,
-    content: `Project: ${project.title}\n\nTechnologies: ${project.technologies.join(', ')}\n\nMy Role: ${project.myRole}`,
+    content: `Project: ${project.title}\n\nTechnologies: ${project.technologies.join(', ')}\n\nMy Role: ${project.myRole}\n\nPublic Links:\n${publicLinks}`,
     metadata: {
       type: 'project',
       itemId: project.id,
@@ -213,13 +223,23 @@ export function chunkEducation(education: Education): ContentChunk[] {
  */
 export function chunkPersonalInfo(personalInfo: PersonalInfo): ContentChunk[] {
   const chunks: ContentChunk[] = [];
+  const publicLinks = [
+    ['Email', personalInfo.links.email],
+    ['GitHub profile', personalInfo.links.github],
+    ['LinkedIn', personalInfo.links.linkedin],
+    ['Website', personalInfo.links.website],
+    ['Calendar', personalInfo.links.calendar],
+    ['PDF résumé', personalInfo.links.resume.pdf],
+    ['HTML résumé', personalInfo.links.resume.html],
+    ['DOCX résumé', personalInfo.links.resume.docx],
+  ].filter(([, url]) => url).map(([label, url]) => `${label}: ${url}`).join('\n');
 
   // === BASIC INFO ===
 
   // Bio chunk
   chunks.push({
     id: 'personal-bio',
-    content: `About Shree: ${personalInfo.bio}\n\nTitle: ${personalInfo.title}\n\nTagline: ${personalInfo.tagline}\n\nLocation: ${personalInfo.location}\n\nAvailability: ${personalInfo.availability.message || personalInfo.availability.status}`,
+    content: `About Shree: ${personalInfo.bio}\n\nTitle: ${personalInfo.title}\n\nTagline: ${personalInfo.tagline}\n\nLocation: ${personalInfo.location}\n\nAvailability: ${personalInfo.availability.message || personalInfo.availability.status}\n\nPublic Contact and Résumé Links:\n${publicLinks}`,
     metadata: {
       type: 'bio',
       itemId: 'personal-info',

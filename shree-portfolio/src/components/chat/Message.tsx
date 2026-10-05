@@ -5,7 +5,6 @@ import { User, Bot, ExternalLink, FolderKanban, Briefcase, GraduationCap, Wrench
 import { cn } from '@/lib/utils';
 import { ACCENT, accentAlpha } from '@/lib/accent';
 import { Citation } from '@/data/types';
-import { Badge } from '@/components/ui/badge';
 import { useUIStore } from '@/store/ui-store';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -334,6 +333,8 @@ export function Message({ role, content, citations, isStreaming, accentColor = A
             }}
           >
             {citations.map((citation, index) => {
+              const isActionable = citation.type === 'project' || citation.type === 'experience' || citation.type === 'education' || Boolean(citation.url);
+              const CitationElement = isActionable ? motion.button : motion.span;
               const Icon = citation.type === 'project' ? FolderKanban
                 : citation.type === 'experience' ? Briefcase
                 : citation.type === 'education' ? GraduationCap
@@ -341,10 +342,13 @@ export function Message({ role, content, citations, isStreaming, accentColor = A
                 : FileText;
 
               return (
-                <motion.button
+                <CitationElement
                   key={index}
-                  onClick={() => handleCitationClick(citation)}
-                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border/50 bg-muted/30 hover:bg-muted hover:border-accent-color/50 transition-all group font-mono text-xs"
+                  onClick={isActionable ? () => handleCitationClick(citation) : undefined}
+                  className={cn(
+                    "inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border/50 bg-muted/30 transition-all group font-mono text-xs",
+                    isActionable && "hover:bg-muted hover:border-accent-color/50"
+                  )}
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{
@@ -352,11 +356,11 @@ export function Message({ role, content, citations, isStreaming, accentColor = A
                     delay: 0.5 + index * 0.1,
                     ease: [0.34, 1.56, 0.64, 1],
                   }}
-                  whileHover={{
+                  whileHover={isActionable ? {
                     scale: 1.05,
                     y: -2,
-                  }}
-                  whileTap={{ scale: 0.95 }}
+                  } : undefined}
+                  whileTap={isActionable ? { scale: 0.95 } : undefined}
                 >
                   <Icon className="h-3.5 w-3.5 text-muted-foreground group-hover:text-accent-color transition-colors" />
                   <span className="text-foreground group-hover:text-accent-color transition-colors">
@@ -365,7 +369,7 @@ export function Message({ role, content, citations, isStreaming, accentColor = A
                   {citation.url && (
                     <ExternalLink className="h-3 w-3 text-muted-foreground/60 group-hover:text-accent-color/60 transition-colors" />
                   )}
-                </motion.button>
+                </CitationElement>
               );
             })}
           </motion.div>

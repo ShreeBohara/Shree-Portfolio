@@ -27,7 +27,7 @@ export function buildUserPrompt(
 
   // Add context if user is viewing a specific item
   if (context?.enabled && context?.itemId) {
-    prompt += `[Note: The visitor is currently viewing this ${context.itemType} on Shree's portfolio, so they're particularly interested in learning more about it.]\n\n`;
+    prompt += `[The visitor selected this ${context.itemType}. Use only its supplied source material; if a requested comparison needs another item that is absent, say that information is not supplied here.]\n\n`;
   }
 
   // Add retrieved portfolio information
@@ -37,20 +37,22 @@ export function buildUserPrompt(
     prompt += formatChunksForContext(retrievedChunks);
     prompt += `\n---\n\n`;
   } else {
-    // No chunks found - be helpful anyway
-    prompt += `[No specific portfolio content was retrieved for this query. If the visitor is asking about Shree's portfolio items (projects, experience, education, skills, achievements), do NOT invent names, metrics, companies, or technical details. Instead, give a cautious high-level answer or ask about a specific project/experience. Only answer freely from general knowledge for non-portfolio questions.]\n\n`;
+    prompt += `[No supporting portfolio material was supplied. Say the information is not written up on the site; do not invent facts or answer from general knowledge.]\n\n`;
   }
 
   // Add the user's question
-  prompt += `Visitor's Question: "${query}"\n\n`;
+  // Quote the complete question as one value so embedded newlines cannot forge
+  // additional source sections. Visitor premises are requests, not evidence.
+  prompt += `Visitor's Question (not source evidence): ${JSON.stringify(query)}\n\n`;
 
-  // Provide helpful instructions (not strict rules)
   prompt += `Response Guidelines:\n`;
   prompt += `• Keep it SHORT (2-4 paragraphs max) - get to the point quickly\n`;
-  prompt += `• Lead with key facts: metrics, technologies, impact\n`;
+  prompt += `• Lead with supported facts and keep their scope, attribution and limitations\n`;
+  prompt += `• For whole-application yes/no claims, a documented exception means No or Only the supported scope; never start Yes and silently narrow the claim\n`;
+  prompt += `• Compare both sides of each relevant measure before optional details; copy requested URLs and their link types exactly\n`;
   prompt += `• Tell stories briefly (1-2 sentences per story)\n`;
   prompt += `• Use 3-4 bullet points max when listing\n`;
-  prompt += `• If salary/availability comes up, suggest booking a call\n`;
+  prompt += `• Use only supplied public links; offer contact details when asked, without inferring hiring availability\n`;
   prompt += `• Skip lengthy intros - be conversational but concise\n`;
 
   return prompt;

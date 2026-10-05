@@ -19,19 +19,21 @@ const DENY_PATTERNS: { pattern: RegExp; reply: string }[] = [
       `I don't cover work authorisation or immigration questions here. Contact Shree directly — ${email}.`,
   },
   {
-    // "Rate" and "package" also describe engineering work. Match them in
-    // compensation phrases without blocking rate limiting or package managers.
-    pattern: /\b(salar(?:y|ies)|compensation|pay|wages?|(?:hourly|daily|contract|consulting|freelance)\s+rates?|(?:benefits|employment|job|offer)\s+packages?|(?:your|his|shree['’]s)\s+(?:equity|rates?|packages?)\b(?!\s+(?:limit(?:ing|er|ers|s)?|manager|management|of)\b)|(?:get|receive)\s+(?:equity|stock options)|equity\s+(?:do you|does (?:he|shree))|how much (?:do|does|would) (?:you|he|shree) (?:make|earn|charge)|expected pay)\b/i,
+    // Technical payment operations, rates and packages are public engineering
+    // topics. Match pay in personal compensation phrases rather than alone.
+    pattern: /\b(salar(?:y|ies)|compensation|wages?|(?:expected|desired|base|annual|monthly|total|minimum|starting)\s+pay|pay\s+(?:range|expectations?|requirements?|package|you|him|shree)|pay\s+(?:do|does|would|should|can|will|is)\s+(?:you|he|shree)|(?:your|his|shree['’]s)\s+(?:(?:current|expected|desired|base|annual|monthly|total|minimum|starting)\s+)?pay|(?:hourly|daily|contract|consulting|freelance)\s+rates?|(?:benefits|employment|job|offer)\s+packages?|(?:your|his|shree['’]s)\s+(?:equity|rates?|packages?)\b(?!\s+(?:limit(?:ing|er|ers|s)?|manager|management|of)\b)|(?:get|receive)\s+(?:equity|stock options)|equity\s+(?:do you|does (?:he|shree))|how much (?:do|does|would|should) (?:you|he|shree) (?:make|earn|charge|get paid|be paid))\b|^(?:tell me about\s+|what(?: is|'s)\s+(?:the\s+)?)?pay[?.!]*$/i,
     reply:
       `Compensation isn't something I discuss on the site. Contact Shree directly — ${email}.`,
   },
   {
-    pattern: /\b(weakness|biggest flaw|worst trait|greatest weakness)\b/i,
+    // Refuse personal interview material, while allowing a project's weaknesses.
+    pattern: /\b((?:your|his|shree['’]s)\s+(?:(?:biggest|greatest|main|personal)\s+)?(?:weakness(?:es)?|flaws?|worst trait)|(?:weakness(?:es)?|(?:biggest|greatest) flaw|worst trait)\s+(?:of|for)\s+(?:you|him|shree(?!['’]s\s))|weakness(?:es)?\s+(?:do|does)\s+(?:you|he|shree)\s+(?:have|show)|(?:personal|interview)\s+weakness(?:es)?)\b|^(?:tell me about\s+|what(?: is| are|'s)\s+(?:the\s+)?)?(?:(?:biggest|greatest)\s+)?weakness(?:es)?[?.!]*$/i,
     reply:
       `That's interview material rather than something the site documents. Ask Shree directly — ${email}. I can tell you about the projects and the decisions behind them.`,
   },
   {
-    pattern: /\b(start date|when can (you|he) start|notice period|availability for interview|interview availability|when are you (free|available))\b/i,
+    // A recorded role start date is public history, not future hiring availability.
+    pattern: /\b(when can (?:you|he|shree) start|when (?:will|would|could) (?:you|he|shree) (?:be able to )?start|notice period|availability for interview|interview availability|when are you (?:free|available)|start date\s+(?:can|could|would|will)\s+(?:you|he|shree)|(?:earliest|available|possible|expected)\s+start date|start date\s+(?:for|at)\s+(?:(?:a|the)\s+new\s+(?:job|role|position)|our\s+(?:company|team|role|job))|(?:your|his|shree['’]s)\s+start date(?=\s*[?.!]*$))\b|^(?:what(?: is|'s)\s+(?:the\s+)?)?start date[?.!]*$/i,
     // Public contact information does not establish hiring availability. Keep
     // timing and scheduling with Shree rather than asserting a job-search status.
     reply:

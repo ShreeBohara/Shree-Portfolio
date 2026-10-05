@@ -6,6 +6,8 @@ import { runInNewContext } from 'node:vm';
 import ts from 'typescript';
 import type { RetrievedChunk, retrieveRelevantContent } from '../src/lib/ai/retrieval';
 import type { ChatContext } from '../src/lib/ai/rag';
+import type { Citation } from '../src/data/types';
+import { chunkProject } from '../src/lib/ai/chunking';
 
 type RagModule = typeof import('../src/lib/ai/rag');
 type ChatRoute = typeof import('../src/app/api/chat/route');
@@ -56,7 +58,7 @@ function harness(options: {
   configured?: boolean;
   vectorAvailable?: boolean;
   retrieval?: (query: string, options: RetrievalOptions) => Promise<RetrievedChunk[]>;
-  modelFailure?: 'before' | 'after' | 'empty';
+  modelFailure?: 'before' | 'after' | 'empty' | 'whitespace';
   modelWaitForAbort?: boolean;
 } = {}) {
   const retrievalCalls: Array<{ query: string; options: RetrievalOptions }> = [];
@@ -126,10 +128,14 @@ function harness(options: {
           modelRequests.push(request);
           providerSignals.push(requestOptions?.signal);
           if (options.modelFailure === 'before') throw new Error('Private provider error');
-          if (!request.stream) return { choices: [{ message: { content: 'A grounded answer.' } }] };
+          if (!request.stream) {
+            const answer = options.modelFailure === 'empty' ? '' :
+              options.modelFailure === 'whitespace' ? ' \n\t ' : 'A grounded answer.';
+            return { choices: [{ message: { content: answer } }] };
+          }
           return (async function* () {
             if (options.modelFailure === 'empty') return;
-            yield { choices: [{ delta: { content: 'A grounded answer.' } }] };
+            yield { choices: [{ delta: { content: options.modelFailure === 'whitespace' ? ' \n\t ' : 'A grounded answer.' } }] };
             if (options.modelWaitForAbort) {
               await new Promise<void>((_resolve, reject) => {
                 const signal = requestOptions?.signal;
@@ -234,17 +240,135 @@ test('empty retrieval returns an honest no-match reply without ungrounded genera
   assert.equal(modelRequests.length, 0);
 });
 
-test('project overview keeps its grounded static fallback without an unrelated retry', async () => {
+test('project overview uses current catalog context without an unrelated saved-index query', async () => {
   const { rag, retrievalCalls, modelRequests } = harness({ retrieval: async () => [] });
   const prepared = await rag.prepareRAGContext('What are the top projects?');
   assert.ok(prepared.chunks.length > 0);
   assert.ok(prepared.chunks.every((item) => item.metadata.type === 'project'));
   assert.equal(prepared.fallback, undefined);
-  assert.equal(retrievalCalls.length, 1);
+  assert.equal(retrievalCalls.length, 0);
   const answer = await rag.getRAGResponse('What are the top projects?', undefined, prepared);
   assert.ok(answer.citations.length > 0);
-  assert.equal(retrievalCalls.length, 1);
+  assert.equal(retrievalCalls.length, 0);
   assert.equal(modelRequests.length, 1);
+});
+
+test('category overviews keep evidence scope, attribution and links instead of unrelated semantic hits', async () => {
+  const { rag, portfolio, retrievalCalls, modelRequests } = harness({ retrieval: async () => [chunk] });
+  for (const [query, category] of [
+    ['What are the top AI/ML projects?', 'AI/ML'],
+    ['What are the best academic projects?', 'Academic'],
+    ['What are the featured data engineering projects?', 'Data Engineering'],
+  ]) {
+    const prepared = await rag.prepareRAGContext(query);
+    assert.ok(prepared.chunks.length > 0);
+    assert.ok(prepared.chunks.every(item => item.metadata.category === category));
+    const matchedIds = new Set(prepared.chunks.map(item => item.metadata.itemId));
+    assert.ok(matchedIds.size <= 3);
+    const answer = await rag.getRAGResponse(query, undefined, prepared);
+    assert.equal(answer.confidence, 0.5, 'catalog ordering must not imply measured answer accuracy');
+    const prompt = modelRequests.at(-1)!.messages[1].content;
+    for (const id of matchedIds) {
+      const project = portfolio.projects.find(item => item.id === id);
+      assert.ok(project);
+      assert.ok(prompt.includes(project.impact), 'a metric cannot lose its qualification');
+      assert.ok(prompt.includes(project.myRole), 'a team result cannot lose attribution');
+      assert.ok(prompt.includes(`/projects/${project.slug}`));
+    }
+  }
+  assert.equal(retrievalCalls.length, 0);
+});
+
+test('an overview with an unrecognized topic qualifier keeps semantic scope instead of unrelated featured projects', async () => {
+  const { projects } = await import('../src/data/portfolio');
+  const project = projects.find(item => item.id === 'project-duckdb');
+  assert.ok(project);
+  const { rag, retrievalCalls } = harness({
+    retrieval: async () => [{ ...chunkProject(project)[0], similarity: 0.8 }],
+  });
+  const prepared = await rag.prepareRAGContext('What are your top database projects?');
+  assert.equal(retrievalCalls.length, 1);
+  assert.ok(prepared.chunks.every(item => item.metadata.itemId === project.id));
+  const unavailableTopic = harness({ retrieval: async () => [] });
+  const absent = await unavailableTopic.rag.prepareRAGContext('What are your top DevOps projects?');
+  assert.equal(unavailableTopic.retrievalCalls.length, 2);
+  assert.match(absent.fallback?.answer ?? '', /couldn't find supporting material/);
+});
+
+test('a semantic metric hit is supplemented only with its matched project evidence and deduplicated', async () => {
+  const { projects } = await import('../src/data/portfolio');
+  const project = projects.find(item => item.id === 'project-cordon');
+  assert.ok(project);
+  const source = chunkProject(project);
+  const metric = source.find(item => item.id.endsWith('-metrics'));
+  const details = source.find(item => item.id.endsWith('-details'));
+  assert.ok(metric && details);
+  const { rag, modelRequests } = harness({
+    retrieval: async () => [
+      { ...metric, similarity: 0.82 },
+      { ...details, similarity: 0.71 },
+      { ...details, similarity: 0.71 },
+    ],
+  });
+  const prepared = await rag.prepareRAGContext('What measured containment results are recorded?');
+  assert.ok(prepared.chunks.every(item => item.metadata.itemId === project.id));
+  assert.equal(new Set(prepared.chunks.map(item => item.content)).size, prepared.chunks.length);
+  await rag.getRAGResponse('What measured containment results are recorded?', undefined, prepared);
+  const prompt = modelRequests[0].messages[1].content;
+  assert.ok(prompt.includes(project.duration));
+  assert.ok(prompt.includes(project.impact));
+  assert.ok(prompt.includes(project.myRole));
+  assert.ok(prompt.includes(project.links.github!));
+});
+
+test('contact and résumé questions use approved current links without guessing from the saved index', async () => {
+  const { rag, portfolio, modelRequests, retrievalCalls } = harness({ retrieval: async () => [] });
+  const query = 'Where can I book a conversation with Shree and read his resume?';
+  const prepared = await rag.prepareRAGContext(query);
+  assert.equal(prepared.chunks.length, 1);
+  assert.equal(prepared.chunks[0].metadata.itemId, 'personal-info');
+  const answer = await rag.getRAGResponse(query, undefined, prepared);
+  const prompt = prepared.chunks[0].content;
+  for (const link of [
+    portfolio.personalInfo.links.email,
+    portfolio.personalInfo.links.calendar,
+    portfolio.personalInfo.links.resume.pdf,
+    portfolio.personalInfo.links.resume.html,
+  ]) {
+    assert.ok(link && prompt.includes(link));
+  }
+  assert.equal(retrievalCalls.length, 0);
+  assert.equal(modelRequests.length, 0, 'public URLs must not be invented by a model');
+  assert.ok(answer.answer.includes(`](${portfolio.personalInfo.links.resume.pdf})`));
+  assert.ok(answer.answer.includes(`](${portfolio.personalInfo.links.calendar})`));
+  const streamed = await events(await request(harness({ retrieval: async () => [] }).route, true, undefined, query));
+  assert.deepEqual(streamed.map(event => event.type), ['metadata', 'chunk', 'done']);
+  assert.ok(streamed[1].content.includes(`](${portfolio.personalInfo.links.resume.pdf})`));
+  assert.deepEqual(streamed[0].citations.map((citation: Citation) => citation.id), ['personal-info']);
+  const combined = await rag.prepareRAGContext('Where can I book a conversation with Shree and what is his current role?');
+  assert.equal(combined.fallback, undefined, 'additional work questions keep model context');
+  assert.doesNotMatch(prompt, /jobsearch-|Visa Status and Work Authorization|earliest start date/i);
+
+  await rag.prepareRAGContext('Where does execution resume after a tool timeout?');
+  assert.equal(retrievalCalls.length, 2, 'resume as a technical verb must retain semantic retrieval and its fallback');
+  await rag.prepareRAGContext('How does your email service handle retries?');
+  assert.equal(retrievalCalls.length, 4, 'email engineering questions must retain semantic retrieval');
+  const projectQuery = await rag.prepareRAGContext('Give me the FaultLab repository and your email');
+  assert.ok(projectQuery.chunks.every(item => item.metadata.itemId === 'project-faultlab'));
+});
+
+test('empty and whitespace-only nonstreaming model results return availability instead of success', async () => {
+  for (const modelFailure of ['empty', 'whitespace'] as const) {
+    const { route } = harness({ modelFailure });
+    const response = await (await request(route, false)).json();
+    assert.match(response.answer, /assistant is unavailable/);
+    assert.equal(response.confidence, 0);
+    assert.deepEqual(response.citations, []);
+  }
+  const { route } = harness({ modelFailure: 'whitespace' });
+  const streamed = await events(await request(route));
+  assert.ok(streamed.some(event => event.type === 'error'));
+  assert.ok(!streamed.some(event => event.type === 'done'));
 });
 
 test('generation failures and empty model streams emit safe errors and never report successful completion', async () => {
@@ -304,6 +428,7 @@ test('explicit new project names use current public content before unrelated sav
     ['How does the algorithmic-options-trading-system work?', 'project-trading'],
     ['How does your trading system handle uncertain orders?', 'project-trading'],
     ['Explain the DuckDB hash join optimization', 'project-duckdb'],
+    ["Was Shree's DuckDB project faster on every query?", 'project-duckdb'],
     ['Tell me about Fault Lab', 'project-faultlab'],
   ]) {
     const project = portfolio.projects.find((item) => item.id === id);

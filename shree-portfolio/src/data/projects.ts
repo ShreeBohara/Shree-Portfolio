@@ -19,7 +19,7 @@ export const projects: Project[] = [
       { label: 'Historical trace verification · Sep 14', value: '143 of 143' },
       { label: 'Generated policies accepted · Sep 30', value: '0 · baseline retained' },
     ],
-    myRole: 'Co-developed with Aryan Bhusari as Team Gatekeeper, followed by continued AI-assisted engineering. The implementation and experiment results describe team capabilities; individual ownership of every later component is not established.',
+    myRole: 'Co-developed with Aryan Bhusari as members of Team Gatekeeper (a two-person team), followed by continued AI-assisted engineering. The implementation and experiment results describe team capabilities; individual ownership of every later component is not established.',
     teamSize: 2,
     technologies: ['Python', 'FastAPI', 'SQLite', 'React', 'TypeScript', 'W&B Weave'],
     tags: ['Agent Reliability', 'Fault Injection', 'LLM Evaluation', 'Evidence Integrity'],
